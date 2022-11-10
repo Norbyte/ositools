@@ -254,7 +254,7 @@ namespace dse::esv
 			lua->OnStatusHitEnter(hit, context);
 		}
 
-		gExtender->GetStatusHelpers().ThrowStatusHitEnter(status);
+		gExtender->GetServer().GetOsirisStatusHelpers().ThrowStatusHitEnter(status);
 	}
 
 
@@ -279,7 +279,7 @@ namespace dse::esv
 		helper->ForceReduceDurability = (bool)forceReduceDurability;
 		helper->SetExternalDamageInfo(damageInfo, damageList);
 
-		gExtender->GetStatusHelpers().ThrowCharacterHit(self, attackerStats, itemStats, damageList, hitType, noHitRoll,
+		gExtender->GetServer().GetOsirisStatusHelpers().ThrowCharacterHit(self, attackerStats, itemStats, damageList, hitType, noHitRoll,
 			damageInfo, forceReduceDurability, skillProperties, highGround, procWindWalker, criticalRoll, *helper);
 
 		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->NoHitRoll,
@@ -341,7 +341,7 @@ namespace dse::esv
 
 		ExtensionState::Get().PendingStatuses.Add(status);
 
-		gExtender->GetStatusHelpers().ThrowApplyStatus(self, status);
+		gExtender->GetServer().GetOsirisStatusHelpers().ThrowApplyStatus(self, status);
 
 		bool previousPreventApplyState = self->PreventStatusApply;
 		ComponentHandle targetHandle;

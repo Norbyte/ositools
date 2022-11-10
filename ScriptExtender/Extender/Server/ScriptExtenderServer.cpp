@@ -2,6 +2,8 @@
 #include <Extender/Server/ScriptExtenderServer.h>
 #include <Extender/ScriptExtender.h>
 
+#include <Extender/Server/StatusHelpers.inl>
+
 #define STATIC_HOOK(name) decltype(dse::esv::ScriptExtender::name) * decltype(dse::esv::ScriptExtender::name)::gHook;
 STATIC_HOOK(gameStateWorkerStart_)
 STATIC_HOOK(gameStateChangedEvent_)
@@ -81,12 +83,16 @@ void ScriptExtender::Shutdown()
 
 void ScriptExtender::PostStartup()
 {
+	if (postStartupDone_) return;
+
 	// We need to initialize the function library here, as GlobalAllocator isn't available in Init().
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
 		osiris_.Initialize();
 	}
 
-	// entityHelpers_.Setup();
+	statusHelpers_.PostStartup();
+
+	postStartupDone_ = true;
 }
 
 void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameState toState)

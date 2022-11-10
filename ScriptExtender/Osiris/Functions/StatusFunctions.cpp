@@ -108,7 +108,7 @@ namespace dse::esv
 				return;
 			}
 
-			gExtender->GetStatusHelpers().PreventApply(gameObject, statusHandle, preventApply != 0);
+			gExtender->GetServer().GetStatusHelpers().PreventApply(gameObject, statusHandle, preventApply != 0);
 		}
 
 
@@ -124,7 +124,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto statusHandle = gExtender->GetStatusHelpers().ApplyActiveDefense(character, FixedString(statusId), lifeTime);
+			auto statusHandle = gExtender->GetServer().GetOsirisStatusHelpers().ApplyActiveDefense(character, FixedString(statusId), lifeTime);
 			if (statusHandle) {
 				args[3].Set((int64_t)*statusHandle);
 				return true;
@@ -149,7 +149,7 @@ namespace dse::esv
 			}
 
 			auto sourceCharacter = GetEntityWorld()->GetComponent<Character>(sourceCharacterGuid);
-			auto statusHandle = gExtender->GetStatusHelpers().ApplyDamageOnMove(character, FixedString(statusId), sourceCharacter, lifeTime, distancePerDamage);
+			auto statusHandle = gExtender->GetServer().GetOsirisStatusHelpers().ApplyDamageOnMove(character, FixedString(statusId), sourceCharacter, lifeTime, distancePerDamage);
 			if (statusHandle) {
 				args[5].Set((int64_t)*statusHandle);
 				return true;
@@ -251,70 +251,6 @@ namespace dse::esv
 		return status;
 	}
 
-	bool CustomFunctionLibrary::OnStatusMachineEnter(esv::StatusMachine::EnterStatusProc* wrapped, 
-		esv::StatusMachine* self, esv::Status* status)
-	{
-		return wrapped(self, status);
-	}
-
-	void CustomFunctionLibrary::OnStatusMachineUpdate(esv::StatusMachine* self, GameTime* time)
-	{
-		auto shouldDelete = GetStaticSymbols().esv__Status__ShouldDelete;
-		for (auto status : self->Statuses) {
-			if (shouldDelete(status)) {
-				LuaServerPin lua(ExtensionState::Get());
-				if (lua) {
-					lua->OnBeforeStatusDelete(status);
-				}
-			}
-		}
-	}
-
-	void CustomFunctionLibrary::OnStatusMachineDelete(esv::StatusMachine* self, ComponentHandle* handle)
-	{
-		auto status = self->GetStatus(*handle);
-		LuaServerPin lua(ExtensionState::Get());
-		if (lua) {
-			lua->OnStatusDelete(status);
-		}
-	}
-
-	void CustomFunctionLibrary::OnStatusMachineExit(esv::StatusMachine::ExitStatusProc* wrapped, 
-		esv::StatusMachine* self, esv::Status* status)
-	{
-		wrapped(self, status);
-	}
-
-	void CustomFunctionLibrary::OnClientStatusMachineExit(ecl::StatusMachine::ExitStatusProc* wrapped, 
-		ecl::StatusMachine* self, ecl::Status* status)
-	{
-		// Work around crash when the character no longer has any stats but a sneak check is
-		// being performed on it when exiting statuses
-		auto character = ecl::GetEntityWorld()->GetComponent<ecl::Character>(status->OwnerHandle);
-		if (character && character->Stats == nullptr) {
-			status->Exit();
-			if ((status->Flags & ecl::StatusFlags::HasVisuals) == ecl::StatusFlags::HasVisuals) {
-				status->DestroyVisuals();
-			}
-		} else {
-			wrapped(self, status);
-		}
-	}
-
-	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status::GetEnterChanceProc* wrappedGetEnterChance,
-		esv::Status * status, bool isEnterCheck)
-	{
-		LuaServerPin lua(ExtensionState::Get());
-		if (lua) {
-			auto enterChance = lua->StatusGetEnterChance(status, isEnterCheck);
-			if (enterChance) {
-				return *enterChance;
-			}
-		}
-
-		return wrappedGetEnterChance(status, isEnterCheck);
-	}
-
 	int32_t CustomFunctionLibrary::OnGetHitChance(stats::CDivinityStats_Character__GetHitChance * wrappedGetHitChance,
 		stats::Character * attacker, stats::Character * target)
 	{
@@ -327,52 +263,6 @@ namespace dse::esv
 		}
 
 		return wrappedGetHitChance(attacker, target);
-	}
-
-	void CustomFunctionLibrary::OnStatusHealEnter(esv::Status * status)
-	{
-		auto statusHeal = static_cast<esv::StatusHeal *>(status);
-		gExtender->GetStatusHelpers().ThrowStatusHealEnter(statusHeal);
-	}
-
-	bool WillMadnessCrash(StatusConsume* status)
-	{
-		if (status->StatusId != GFS.strMADNESS) return false;
-
-		auto ch = GetEntityWorld()->GetComponent<Character>(status->OwnerHandle, false);
-		// Game may crash if an item with MADNESS has summons
-		if (ch == nullptr) return true;
-
-		for (auto const& summonHandle : ch->SummonHandles) {
-			auto summon = GetEntityWorld()->GetComponent<Character>(summonHandle, false);
-			// Game may crash if any of the summons is already gone,
-			// or if the summon is an item
-			if (summon == nullptr) return true;
-		}
-
-		return false;
-	}
-
-	bool CustomFunctionLibrary::OnStatusConsumeEnter(esv::Status::EnterProc* wrappedEnter, esv::Status* status)
-	{
-		if (WillMadnessCrash(static_cast<StatusConsume*>(status))) {
-			// Skip all StatusConsume-specific logic if it would crash the game;
-			// the "real" consume logic in esv::StatusConsumeBase does not have this bug
-			return GetStaticSymbols().esv__StatusConsumeBase__Enter(status);
-		} else {
-			return wrappedEnter(status);
-		}
-	}
-
-	void CustomFunctionLibrary::OnStatusConsumeExit(esv::Status::ExitProc* wrappedExit, esv::Status* status)
-	{
-		if (WillMadnessCrash(static_cast<StatusConsume*>(status))) {
-			// Skip all StatusConsume-specific logic if it would crash the game;
-			// the "real" consume logic in esv::StatusConsumeBase does not have this bug
-			return GetStaticSymbols().esv__StatusConsumeBase__Exit(status);
-		} else {
-			return wrappedExit(status);
-		}
 	}
 
 	bool CustomFunctionLibrary::OnOsiShowNotification(osi::OsirisCallHandlerProc* wrappedHandler, void* proc, osi::ExecutionContext* ctx)

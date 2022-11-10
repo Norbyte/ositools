@@ -28,7 +28,6 @@
 #include <GameDefinitions/Symbols.h>
 #include <GameDefinitions/GlobalFixedStrings.h>
 #include <Hit.h>
-#include <StatusHelpers.h>
 
 #include <thread>
 #include <mutex>
@@ -101,11 +100,6 @@ public:
 		return statLoadOrderHelper_;
 	}
 
-	inline esv::StatusHelpers& GetStatusHelpers()
-	{
-		return statusHelpers_;
-	}
-
 	inline ModuleHasher& Hasher()
 	{
 		return hasher_;
@@ -144,7 +138,6 @@ private:
 	SavegameSerializer savegameSerializer_;
 	StatLoadOrderHelper statLoadOrderHelper_;
 	esv::HitProxy hitProxy_;
-	esv::StatusHelpers statusHelpers_;
 	ModuleHasher hasher_;
 	lua::LuaBundle luaBuiltinBundle_;
 	lua::CppPropertyMapManager propertyMapManager_;

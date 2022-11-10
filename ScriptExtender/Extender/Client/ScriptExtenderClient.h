@@ -4,6 +4,7 @@
 #include <Extender/Shared/ExtenderConfig.h>
 #include <Extender/Client/ExtensionStateClient.h>
 #include <Extender/Client/NetworkManagerClient.h>
+#include <Extender/Client/StatusHelpers.h>
 #include <GameDefinitions/Symbols.h>
 
 BEGIN_NS(ecl)
@@ -37,6 +38,11 @@ public:
 		return networkFixedStrings_;
 	}
 
+	inline StatusHelpers& GetStatusHelpers()
+	{
+		return statusHelpers_;
+	}
+
 	bool IsInClientThread() const;
 	void ResetLuaState();
 	void ResetExtensionState();
@@ -57,8 +63,10 @@ private:
 	ExtenderConfig& config_;
 	std::unique_ptr<ExtensionState> extensionState_;
 	bool extensionLoaded_{ false };
+	bool postStartupDone_{ false };
 	NetworkManager network_;
 	NetworkFixedStringReceiver networkFixedStrings_;
+	StatusHelpers statusHelpers_;
 
 	void OnBaseModuleLoaded(void* self);
 	void OnGameStateChanged(void* self, GameState fromState, GameState toState);

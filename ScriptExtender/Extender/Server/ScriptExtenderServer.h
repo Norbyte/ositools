@@ -5,6 +5,8 @@
 #include <GameDefinitions/Osiris.h>
 #include <Extender/Server/ExtensionStateServer.h>
 #include <Extender/Server/NetworkManagerServer.h>
+#include <Extender/Server/StatusHelpers.h>
+#include <Extender/Server/OsirisStatusHelpers.h>
 #include <GameHooks/OsirisWrappers.h>
 #include <GameDefinitions/Symbols.h>
 #include <Osiris/OsirisExtender.h>
@@ -47,6 +49,16 @@ public:
 		return osiris_;
 	}
 
+	inline StatusHelpers& GetStatusHelpers()
+	{
+		return statusHelpers_;
+	}
+
+	inline OsirisStatusHelpers& GetOsirisStatusHelpers()
+	{
+		return osirisStatusHelpers_;
+	}
+
 	bool IsInServerThread() const;
 	void ResetLuaState();
 	bool RequestResetClientLuaState();
@@ -65,8 +77,11 @@ private:
 	OsirisExtender osiris_;
 	std::unique_ptr<ExtensionState> extensionState_;
 	bool extensionLoaded_{ false };
+	bool postStartupDone_{ false };
 	NetworkManager network_;
 	NetworkFixedStringSender networkFixedStrings_;
+	StatusHelpers statusHelpers_;
+	OsirisStatusHelpers osirisStatusHelpers_;
 
 	void OnBaseModuleLoaded(void * self);
 	void OnGameStateChanged(void * self, GameState fromState, GameState toState);

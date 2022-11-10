@@ -623,7 +623,7 @@ namespace dse::esv::lua
 			return 1;
 		}
 
-		auto status = gExtender->GetStatusHelpers().PrepareStatus(statusMachine, statusId, lifeTime);
+		auto status = gExtender->GetServer().GetStatusHelpers().PrepareStatus(statusMachine, statusId, lifeTime);
 		if (!status) {
 			push(L, nullptr);
 			return 1;

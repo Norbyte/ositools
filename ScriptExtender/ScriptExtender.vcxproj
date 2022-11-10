@@ -23,10 +23,13 @@
     <ClInclude Include="Extender\Client\ExtensionStateClient.h" />
     <ClInclude Include="Extender\Client\NetworkManagerClient.h" />
     <ClInclude Include="Extender\Client\ScriptExtenderClient.h" />
+    <ClInclude Include="Extender\Client\StatusHelpers.h" />
     <ClInclude Include="Extender\ScriptExtender.h" />
     <ClInclude Include="Extender\Server\ExtensionStateServer.h" />
     <ClInclude Include="Extender\Server\NetworkManagerServer.h" />
+    <ClInclude Include="Extender\Server\OsirisStatusHelpers.h" />
     <ClInclude Include="Extender\Server\ScriptExtenderServer.h" />
+    <ClInclude Include="Extender\Server\StatusHelpers.h" />
     <ClInclude Include="Extender\Shared\Console.h" />
     <ClInclude Include="Extender\Shared\ExtenderConfig.h" />
     <ClInclude Include="Extender\Shared\ExtensionHelpers.h" />
@@ -142,7 +145,6 @@
     <ClInclude Include="Osiris\Shared\OsirisHelpers.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScriptHelpers.h" />
-    <ClInclude Include="StatusHelpers.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
@@ -155,6 +157,7 @@
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp" />
     <ClCompile Include="Extender\ScriptExtender.cpp" />
     <ClCompile Include="Extender\Server\NetworkManagerServer.cpp" />
+    <ClCompile Include="Extender\Server\OsirisStatusHelpers.cpp" />
     <ClCompile Include="Extender\Server\ScriptExtenderServer.cpp" />
     <ClCompile Include="Extender\Shared\Console.cpp" />
     <ClCompile Include="Extender\Shared\CrashReporter.cpp" />
@@ -242,7 +245,6 @@
     <ClCompile Include="Osiris\Shared\OsirisHelpers.cpp" />
     <ClCompile Include="ScriptHelpers.cpp" />
     <ClCompile Include="Stats.cpp" />
-    <ClCompile Include="StatusHelpers.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">Create</PrecompiledHeader>
@@ -254,6 +256,8 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
+    <None Include="Extender\Client\StatusHelpers.inl" />
+    <None Include="Extender\Server\StatusHelpers.inl" />
     <None Include="Extender\Shared\ModuleHasher.inl" />
     <None Include="Extender\Shared\SavegameSerializer.inl" />
     <None Include="Extender\Shared\ScriptExtensions.proto" />

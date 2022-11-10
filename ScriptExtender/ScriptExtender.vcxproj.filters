@@ -272,7 +272,6 @@
     <ClInclude Include="NetProtocol.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScriptHelpers.h" />
-    <ClInclude Include="StatusHelpers.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
@@ -436,6 +435,15 @@
     <ClInclude Include="GameDefinitions\GameObjects\VisualsShared.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Server\StatusHelpers.h">
+      <Filter>Extender\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Client\StatusHelpers.h">
+      <Filter>Extender\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Server\OsirisStatusHelpers.h">
+      <Filter>Extender\Server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -576,7 +584,6 @@
     <ClCompile Include="NetProtocol.cpp" />
     <ClCompile Include="ScriptHelpers.cpp" />
     <ClCompile Include="Stats.cpp" />
-    <ClCompile Include="StatusHelpers.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Extender\Shared\ScriptExtensions.pb.cc">
@@ -620,6 +627,9 @@
     </ClCompile>
     <ClCompile Include="Lua\Shared\LuaInternalHelpers.cpp">
       <Filter>Lua\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Server\OsirisStatusHelpers.cpp">
+      <Filter>Extender\Server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -921,6 +931,12 @@
     </None>
     <None Include="Lua\Shared\Proxies\LuaBitfieldValue.inl">
       <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="Extender\Server\StatusHelpers.inl">
+      <Filter>Extender\Server</Filter>
+    </None>
+    <None Include="Extender\Client\StatusHelpers.inl">
+      <Filter>Extender\Client</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

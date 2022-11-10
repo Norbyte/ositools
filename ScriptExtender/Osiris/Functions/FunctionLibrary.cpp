@@ -205,37 +205,6 @@ namespace dse::esv
 			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)
 		);
 
-		lib.esv__StatusMachine__EnterStatus.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnStatusMachineEnter, this, _1, _2, _3)
-		);
-		lib.esv__StatusMachine__Update.SetPreHook(
-			std::bind(&CustomFunctionLibrary::OnStatusMachineUpdate, this, _1, _2)
-		);
-		lib.esv__StatusMachine__DeleteStatusByHandle.SetPreHook(
-			std::bind(&CustomFunctionLibrary::OnStatusMachineDelete, this, _1, _2)
-		);
-		lib.esv__StatusMachine__ExitStatus.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnStatusMachineExit, this, _1, _2, _3)
-		);
-		lib.ecl__StatusMachine__ExitStatus.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnClientStatusMachineExit, this, _1, _2, _3)
-		);
-
-		lib.esv__Status__GetEnterChanceHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
-		);
-
-		lib.esv__StatusHeal__Enter.SetPreHook(
-			std::bind(&CustomFunctionLibrary::OnStatusHealEnter, this, _1)
-		);
-#if defined(OSI_EOCAPP)
-		lib.esv__StatusConsume__Enter.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnStatusConsumeEnter, this, _1, _2)
-		);
-		lib.esv__StatusConsume__Exit.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnStatusConsumeExit, this, _1, _2)
-		);
-#endif
 		lib.esv__ActionMachine__SetState.AddPreHook(
 			std::bind(&CustomFunctionLibrary::OnBeforeActionMachineSetState, this, _1, _2, _3, _4, _5, _6)
 		);

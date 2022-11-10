@@ -3,6 +3,7 @@
 #include <Extender/ScriptExtender.h>
 #include <Version.h>
 
+#include <Extender/Client/StatusHelpers.inl>
 
 #define STATIC_HOOK(name) decltype(dse::ecl::ScriptExtender::name) * decltype(dse::ecl::ScriptExtender::name)::gHook;
 STATIC_HOOK(gameStateWorkerStart_)
@@ -111,7 +112,10 @@ void ScriptExtender::Shutdown()
 
 void ScriptExtender::PostStartup()
 {
-	// entityHelpers_.Setup();
+	if (postStartupDone_) return;
+
+	statusHelpers_.PostStartup();
+	postStartupDone_ = true;
 }
 
 void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameState toState)
