@@ -40,12 +40,9 @@ struct InputEventDesc
 {
 	int EventID;
 	uint8_t Flags1;
-	int Flags2;
+	InputType Type;
 	FixedString CategoryName;
-	__int64 field_18;
-	__int64 field_20;
-	__int64 field_28;
-	__int64 field_30;
+	uint64_t field_18[4]; // Unused
 	const char* EventName;
 	TranslatedString EventDesc;
 	int field_E8;
@@ -131,15 +128,11 @@ struct FireEventDesc
 
 struct HoldRepeatEventDesc
 {
-	__int64 field_0;
-	__int64 field_8;
-	__int64 field_10;
-	int field_18;
-	__int64 field_20;
-	int field_28;
-	InputEvent Event;
-	__int16 field_58;
-	int field_5C;
+	double ReleaseTime;
+	double PressTime;
+	double HoldTime;
+	int Acceleration;
+	FireEventDesc FireEvent;
 };
 
 struct InputEventListener
@@ -173,18 +166,18 @@ struct InputBinding : public InputRaw
 struct InputBindingDesc
 {
 	int32_t PlayerIndex;
-	int32_t field_4;
+	InputRawType InputId;
 	InputBinding Binding;
-	int32_t field_14;
-	bool field_18;
+	int32_t BindingIndex;
+	bool IsGlobal;
 };
 
 struct InputScheme
 {
 	struct Binding
 	{
-		int PlayerId;
-		__int64 field_8;
+		int32_t PlayerId;
+		void* InputRemapListener;
 		InputBinding Binding;
 	};
 	
@@ -214,12 +207,12 @@ struct InputManager
 
 	struct HoldRepeatEvent
 	{
-		ObjectSet<FireEventDesc> FireEvents;
+		ObjectSet<FireEventDesc> PressEvents;
 		ObjectSet<FireEventDesc> ReleaseEvents;
 		ObjectSet<FireEventDesc> ValueChangeEvents;
 		ObjectSet<FireEventDesc> HoldEvents;
 		ObjectSet<FireEventDesc> RepeatEvents;
-		ObjectSet<HoldRepeatEventDesc> PressEvents;
+		ObjectSet<HoldRepeatEventDesc> HoldRepeatEvents;
 	};
 
 	RefMap<int32_t, HoldRepeatEvent> PerPlayerHoldRepeatEvents;
