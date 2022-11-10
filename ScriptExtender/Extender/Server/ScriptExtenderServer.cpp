@@ -95,6 +95,21 @@ void ScriptExtender::PostStartup()
 	postStartupDone_ = true;
 }
 
+bool IsLoadingState(GameState state)
+{
+	return state == GameState::Init
+		|| state == GameState::LoadLevel
+		|| state == GameState::LoadModule
+		|| state == GameState::LoadSession
+		|| state == GameState::UnloadLevel
+		|| state == GameState::UnloadModule
+		|| state == GameState::UnloadSession
+		|| state == GameState::Sync
+		|| state == GameState::BuildStory
+		|| state == GameState::ReloadStory
+		|| state == GameState::Installation;
+}
+
 void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameState toState)
 {
 #if defined(DEBUG_SERVER_CLIENT)
@@ -150,6 +165,14 @@ void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameSt
 			extensionState_->OnGameSessionLoading();
 		}
 		break;
+	}
+
+	if (gExtender->WasInitialized()) {
+		if (IsLoadingState(toState)) {
+			gExtender->GetClient().UpdateServerProgress(FromUTF8(EnumInfo<GameState>::Find(toState).GetStringOrDefault()));
+		} else {
+			gExtender->GetClient().UpdateServerProgress(L"");
+		}
 	}
 
 	LuaServerPin lua(ExtensionState::Get());

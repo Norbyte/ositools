@@ -118,6 +118,26 @@ void ScriptExtender::PostStartup()
 	postStartupDone_ = true;
 }
 
+bool IsLoadingState(GameState state)
+{
+	return state == GameState::Init
+		|| state == GameState::InitMenu
+		|| state == GameState::InitNetwork
+		|| state == GameState::InitConnection
+		|| state == GameState::LoadMenu
+		|| state == GameState::SwapLevel
+		|| state == GameState::LoadLevel
+		|| state == GameState::LoadModule
+		|| state == GameState::LoadSession
+		|| state == GameState::LoadGMCampaign
+		|| state == GameState::UnloadLevel
+		|| state == GameState::UnloadModule
+		|| state == GameState::UnloadSession
+		|| state == GameState::PrepareRunning
+		|| state == GameState::Installation
+		|| state == GameState::ModReceiving;
+}
+
 void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameState toState)
 {
 	if (config_.SendCrashReports) {
@@ -159,7 +179,11 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 	}
 
 	if (gExtender->WasInitialized()) {
-		ShowLoadingProgress(FromUTF8(EnumInfo<GameState>::Find(toState).GetStringOrDefault()));
+		if (IsLoadingState(toState)) {
+			UpdateClientProgress(FromUTF8(EnumInfo<GameState>::Find(toState).GetStringOrDefault()));
+		} else {
+			UpdateClientProgress(L"");
+		}
 	}
 
 	switch (fromState) {
@@ -264,16 +288,42 @@ void ScriptExtender::OnUpdate(void* self, GameTime* time)
 
 void ScriptExtender::OnIncLocalProgress(void* self, int progress, char const* state)
 {
-	ShowLoadingProgress(FromUTF8(state));
+	if (strcmp(state, "EffectManager") != 0) {
+		UpdateClientProgress(FromUTF8(state));
+	} else {
+		UpdateClientProgress(L"");
+	}
 }
 
-void ScriptExtender::ShowLoadingProgress(STDWString const& status)
+void ScriptExtender::UpdateServerProgress(STDWString const& status)
+{
+	serverStatus_ = status;
+	ShowLoadingProgress();
+}
+
+void ScriptExtender::UpdateClientProgress(STDWString const& status)
+{
+	clientStatus_ = status;
+	ShowLoadingProgress();
+}
+
+void ScriptExtender::ShowLoadingProgress()
 {
 	auto uiMgr = GetStaticSymbols().GetUIObjectManager();
 	if (!uiMgr) return;
 	auto loadingScreenUi = (UILoadingScreen*)uiMgr->GetByType(23);
 	if (!loadingScreenUi || (loadingScreenUi->Flags & UIObjectFlags::OF_Visible) != UIObjectFlags::OF_Visible) return;
-	STDWString statusText = status;
+
+	STDWString statusText;
+
+	if (!clientStatus_.empty()) {
+		statusText += L"[C] ";
+		statusText += clientStatus_;
+	} else if (!serverStatus_.empty()) {
+		statusText += L"[S] ";
+		statusText += serverStatus_;
+	}
+
 	statusText += L" (Script Extender v";
 	statusText += std::to_wstring(CurrentVersion);
 #if defined(_DEBUG)

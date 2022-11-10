@@ -194,7 +194,7 @@ void OsirisExtender::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functi
 void OsirisExtender::OnInitGame(void * Osiris)
 {
 	DEBUG("OsirisExtender::OnInitGame()");
-	gExtender->GetClient().ShowLoadingProgress(L"Init Story");
+	gExtender->GetClient().UpdateServerProgress(L"Init Story");
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
 		debugger_->GameInitHook();
@@ -231,7 +231,7 @@ bool OsirisExtender::CompileWrapper(std::function<bool(void *, wchar_t const *, 
 	auto OriginalFlags = *wrappers_.Globals.DebugFlags;
 	std::wstring storyPath;
 
-	gExtender->GetClient().ShowLoadingProgress(L"Preprocess Story");
+	gExtender->GetClient().UpdateServerProgress(L"Preprocess Story");
 	customFunctions_.PreProcessStory(Path);
 
 	if (config_.LogCompile || config_.LogFailedCompile) {
@@ -247,7 +247,7 @@ bool OsirisExtender::CompileWrapper(std::function<bool(void *, wchar_t const *, 
 		}
 	}
 
-	gExtender->GetClient().ShowLoadingProgress(L"Compile Story");
+	gExtender->GetClient().UpdateServerProgress(L"Compile Story");
 	auto ret = Next(Osiris, Path, Mode);
 
 	if (ret) {
@@ -309,7 +309,7 @@ bool OsirisExtender::MergeWrapper(std::function<bool (void *, wchar_t *)> const 
 		gExtender->GetServer().GetExtensionState().StorySetMerging(true);
 	}
 
-	gExtender->GetClient().ShowLoadingProgress(L"Merge Story");
+	gExtender->GetClient().UpdateServerProgress(L"Merge Story");
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {

@@ -48,7 +48,8 @@ public:
 	void ResetExtensionState();
 	void LoadExtensionState();
 
-	void ShowLoadingProgress(STDWString const& status);
+	void UpdateServerProgress(STDWString const& status);
+	void UpdateClientProgress(STDWString const& status);
 
 	enum class GameStateWorkerStartTag {};
 	enum class GameStateMachineUpdateTag {};
@@ -67,6 +68,8 @@ private:
 	NetworkManager network_;
 	NetworkFixedStringReceiver networkFixedStrings_;
 	StatusHelpers statusHelpers_;
+	STDWString serverStatus_;
+	STDWString clientStatus_;
 
 	void OnBaseModuleLoaded(void* self);
 	void OnGameStateChanged(void* self, GameState fromState, GameState toState);
@@ -74,6 +77,7 @@ private:
 	void OnGameStateWorkerExit(void* self);
 	void OnUpdate(void* self, GameTime* time);
 	void OnIncLocalProgress(void* self, int progress, char const* state);
+	void ShowLoadingProgress();
 
 	void RegisterFlashTraceCallbacks();
 
