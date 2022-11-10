@@ -119,11 +119,7 @@ public:
 
 	CompactSet(CompactSet const& other)
 	{
-		reallocate(other.size_);
-		size_ = other.size_;
-		for (size_type i = 0; i < other.size_; i++) {
-			new (buf_ + i) T(other.buf_[i]);
-		}
+		assign(other);
 	}
 
 	CompactSet(CompactSet && other)
@@ -145,12 +141,7 @@ public:
 
 	CompactSet& operator = (CompactSet const& other)
 	{
-		clear();
-		reallocate(other.size_);
-		size_ = other.size_;
-		for (size_type i = 0; i < other.size_; i++) {
-			buf_[i] = other.buf_[i];
-		}
+		assign(other);
 		return *this;
 	}
 
@@ -163,6 +154,19 @@ public:
 		other.capacity_ = 0;
 		other.size_ = 0;
 		return *this;
+	}
+
+	void assign(CompactSet const& other)
+	{
+		for (size_type i = other.size_; i < size_; i++) {
+			buf_[i] = T();
+		}
+
+		reallocate(other.size_);
+		size_ = other.size_;
+		for (size_type i = 0; i < other.size_; i++) {
+			buf_[i] = other.buf_[i];
+		}
 	}
 
 	ContiguousIterator<T> begin()
@@ -284,6 +288,10 @@ public:
 	
 	void clear()
 	{
+		for (size_type i = 0; i < size_; i++) {
+			buf_[i] = T();
+		}
+
 		size_ = 0;
 	}
 
@@ -299,7 +307,7 @@ protected:
 				buf[i].~T();
 			}
 
-			if (StoreSize) {
+			if constexpr (StoreSize) {
 				Allocator::Free((void*)((std::ptrdiff_t)buf - 8));
 			} else {
 				Allocator::Free(buf);
@@ -310,7 +318,7 @@ protected:
 	void RawReallocate(size_type newCapacity)
 	{
 		if (newCapacity > 0) {
-			if (StoreSize) {
+			if constexpr (StoreSize) {
 				auto newBuf = Allocator::Alloc(newCapacity * sizeof(T) + 8);
 				*(uint64_t*)newBuf = newCapacity;
 
