@@ -140,15 +140,11 @@ namespace dse
 
 BEGIN_NS(ecl)
 
-struct Projectile : public IEoCClientObject
+struct Projectile : public IEoCClientReplicatedObject
 {
     static constexpr auto ComponentPoolIndex = EntityComponentIndex::Projectile;
     static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientProjectile;
 
-    void* VMT;
-    FixedString GUID;
-    NetId NetID;
-    uint32_t _Pad;
     bool RequestDelete;
     ComponentHandle TargetCharacter;
     ComponentHandle Caster;
@@ -164,6 +160,9 @@ struct Projectile : public IEoCClientObject
     bool RotateImpact;
     float ExplodeRadius;
     uint64_t field_A0;
+#if defined(OSI_EOCAPP)
+    uint64_t field_A8;
+#endif
     eoc::PathMover PathMover;
     uint64_t Flags;
     bool IsGlobal;

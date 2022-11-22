@@ -85,7 +85,7 @@ END_CLS()
 
 
 BEGIN_CLS(ecl::Projectile)
-INHERIT(IEoCClientObject)
+INHERIT(IEoCClientReplicatedObject)
 P(RequestDelete)
 P(TargetCharacter)
 P(Caster)
