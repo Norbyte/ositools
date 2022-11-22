@@ -167,6 +167,38 @@ IGameObject* GetGameObject(lua_State* L)
 	return LuaGetGameObject(L, 1);
 }
 
+Projectile* LuaGetProjectile(lua_State* L, int index)
+{
+	auto level = GetStaticSymbols().GetCurrentServerLevel();
+	if (!level || !level->EntityManager || !level->EntityManager->ProjectileConversionHelpers.Factory) {
+		OsiError("No current level!");
+		return nullptr;
+	}
+
+	switch (lua_type(L, index)) {
+	case LUA_TLIGHTUSERDATA:
+	{
+		auto handle = get<ComponentHandle>(L, index);
+		return level->EntityManager->ProjectileConversionHelpers.Factory->Get(handle);
+	}
+
+	case LUA_TNUMBER:
+	{
+		NetId netId{ (uint32_t)lua_tointeger(L, index) };
+		return level->EntityManager->ProjectileConversionHelpers.Factory->FindByNetId(netId);
+	}
+
+	default:
+		OsiError("Expected server projectile Handle or NetId; got " << lua_typename(L, lua_type(L, index)));
+		return nullptr;
+	}
+}
+
+Projectile* GetProjectile(lua_State* L)
+{
+	return LuaGetProjectile(L, 1);
+}
+
 CombatComponent* GetCombatComponent(ComponentHandle handle)
 {
 	return GetEntityWorld()->GetComponent<CombatComponent>(handle);
@@ -390,6 +422,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetItem)
 	MODULE_FUNCTION(GetTrigger)
 	MODULE_FUNCTION(GetGameObject)
+	MODULE_FUNCTION(GetProjectile)
 	MODULE_FUNCTION(GetCombatComponent)
 	MODULE_FUNCTION(GetInventory)
 	MODULE_FUNCTION(GetStatus)

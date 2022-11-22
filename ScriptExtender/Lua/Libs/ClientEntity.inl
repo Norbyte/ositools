@@ -148,6 +148,38 @@ IEoCClientObject* GetGameObject(lua_State* L)
 	}
 }
 
+Projectile* LuaGetProjectile(lua_State* L, int index)
+{
+	auto level = GetStaticSymbols().GetCurrentClientLevel();
+	if (!level || !level->EntityManager || !level->EntityManager->ProjectileConversionHelpers.Factory) {
+		OsiError("No current level!");
+		return nullptr;
+	}
+
+	switch (lua_type(L, index)) {
+	case LUA_TLIGHTUSERDATA:
+	{
+		auto handle = get<ComponentHandle>(L, index);
+		return level->EntityManager->ProjectileConversionHelpers.Factory->Get(handle);
+	}
+
+	case LUA_TNUMBER:
+	{
+		NetId netId{ (uint32_t)lua_tointeger(L, index) };
+		return level->EntityManager->ProjectileConversionHelpers.Factory->FindByNetId(netId);
+	}
+
+	default:
+		OsiError("Expected client projectile Handle or NetId; got " << lua_typename(L, lua_type(L, index)));
+		return nullptr;
+	}
+}
+
+Projectile* GetProjectile(lua_State* L)
+{
+	return LuaGetProjectile(L, 1);
+}
+
 eoc::AiGrid* GetAiGrid()
 {
 	auto level = GetStaticSymbols().GetCurrentClientLevel();
@@ -193,6 +225,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetInventory)
 	MODULE_FUNCTION(GetStatus)
 	MODULE_FUNCTION(GetGameObject)
+	MODULE_FUNCTION(GetProjectile)
 	MODULE_FUNCTION(GetAiGrid)
 	MODULE_FUNCTION(GetCurrentLevel)
 	MODULE_FUNCTION(GetPlayerManager)

@@ -138,6 +138,7 @@ namespace esv
 
 	struct ItemFactory;
 	struct CharacterFactory;
+	struct ProjectileFactory;
 
 	struct EntityWorld;
 
@@ -170,6 +171,8 @@ namespace ecl
 	struct PickingHelper;
 	struct PickingHelperManager;
 	struct TurnManager;
+
+	struct ProjectileFactory;
 
 	struct GameCamera;
 

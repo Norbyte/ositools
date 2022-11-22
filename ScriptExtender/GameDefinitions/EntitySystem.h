@@ -688,7 +688,7 @@ namespace esv
 	struct ProjectileConversionHelpers : public ProtectedGameObject<ProjectileConversionHelpers>
 	{
 		esv::EntityManager* EntityManager;
-		void* ProjectileFactory;
+		ProjectileFactory* Factory;
 		RefMap<FixedString, ObjectSet<Projectile *> *> RegisteredProjectiles;
 	};
 
@@ -815,7 +815,7 @@ namespace ecl
 	struct ProjectileConversionHelpers
 	{
 		EntityManager* EntityManager;
-		void* ProjectileFactory;
+		ProjectileFactory* Factory;
 		RefMap<FixedString, ObjectSet<Projectile *>*> RegisteredProjectiles;
 	};
 

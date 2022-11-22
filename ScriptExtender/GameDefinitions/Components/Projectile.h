@@ -178,4 +178,10 @@ struct Projectile : public IEoCClientReplicatedObject
     bool IsFirstTick;
 };
 
+struct ProjectileFactory : public NetworkComponentFactory<Projectile>
+{
+    void* VMT2;
+    void* VMT3;
+};
+
 END_NS()
