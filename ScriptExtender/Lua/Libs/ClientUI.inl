@@ -321,7 +321,7 @@ glm::vec2 GetMouseFlashPos(std::optional<ProxyParam<UIObject>> ui)
 
 CursorControl* GetCursorControl()
 {
-	return GetStaticSymbols().ecl__CursorControl;
+	return *GetStaticSymbols().ecl__CursorControl;
 }
 
 void RegisterUILib()

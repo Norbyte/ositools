@@ -241,7 +241,7 @@ namespace dse
 		UIObject::GetUIScaleMultiplierProc* ls__UIObject__GetUIScaleMultiplier{ nullptr };
 		UIObject::RaiseFlagProc* ls__UIObject__RaiseFlag{ nullptr };
 		UIObject::RaiseFlagProc* ls__UIObject__ClearFlag{ nullptr };
-		ecl::CursorControl* ecl__CursorControl{ nullptr };
+		ecl::CursorControl** ecl__CursorControl{ nullptr };
 
 		void* ls__CustomDrawStruct__VMT{ nullptr };
 		CustomDrawStruct::UIClearIcon* ls__UIHelper__UIClearIcon{ nullptr };
