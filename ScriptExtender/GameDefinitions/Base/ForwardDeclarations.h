@@ -215,6 +215,7 @@ namespace lua
 	struct CppValueMetadata;
 	struct CppObjectMetadata;
 	class RegistryOrLocalRef;
+	class UserspaceClassBase;
 }
 
 END_SE()

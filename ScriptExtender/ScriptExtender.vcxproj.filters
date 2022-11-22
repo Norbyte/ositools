@@ -444,6 +444,9 @@
     <ClInclude Include="Extender\Server\OsirisStatusHelpers.h">
       <Filter>Extender\Server</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaUserspaceClass.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

@@ -4,6 +4,7 @@
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaLifetime.h>
 #include <Lua/Shared/LuaBinding.h>
+#include <Lua/Shared/LuaUserspaceClass.h>
 #include <Extender/ScriptExtender.h>
 
 #include <cstdint>
@@ -893,6 +894,31 @@ void LuaReleaseString(lua_State* L, TString* s)
 	fs->~FixedString();
 }
 
+
+bool ProtectedFunctionCallerBase::ProtectedCall(lua_State* L, lua_CFunction fun)
+{
+	StackCheck _(L);
+	auto ret = CallUserFunctionWithTraceback(L, fun);
+	if (ret != LUA_OK) {
+		ERR("Error while dispatching user method call '%s': %s", Method, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return false; 
+	} else {
+		return true;
+	}
+}
+
+int ProtectedFunctionCallerBase::CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun)
+{
+	lua_pushcfunction(L, &TracebackHandler);
+	int tracebackHandlerIdx = lua_gettop(L);
+	lua_pushcfunction(L, fun);
+	lua_pushlightuserdata(L, this);
+	Self.Push(L);
+	int status = lua_pcall(L, 2, 0, tracebackHandlerIdx);
+	lua_remove(L, tracebackHandlerIdx);
+	return status;
+}
 
 
 GenericPropertyMap& LuaGetPropertyMap(int propertyMapIndex)

@@ -59,6 +59,36 @@ struct StackCheck
 };
 #endif
 
+
+// Performs stack cleanup after a call to userspace function
+struct UserCallStackCheck
+{
+	inline UserCallStackCheck(lua_State* state)
+		: L(state)
+	{
+		top_ = lua_gettop(L);
+	}
+
+	~UserCallStackCheck()
+	{
+		int top = lua_gettop(L);
+		if (top > top_) {
+			lua_pop(L, top - top_);
+		}
+#if !defined(NDEBUG)
+		else if (top < top_) {
+			ERR("User call stack check failed! Top is %d, expected %d", top, top_);
+			if (IsDebuggerPresent()) {
+				DebugBreak();
+			}
+		}
+#endif
+	}
+
+	lua_State* L;
+	int top_;
+};
+
 // LuaEnumValue forward declarations
 void push_enum_value(lua_State* L, EnumUnderlyingType value, EnumInfoStore<EnumUnderlyingType> const& store);
 EnumUnderlyingType get_enum_value(lua_State* L, int index, EnumInfoStore<EnumUnderlyingType> const& store);

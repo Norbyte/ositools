@@ -157,16 +157,32 @@ inline void PushReturnValue(lua_State* L, ByValReturn<T> v)
 	LuaWrite(L, v.Object);
 }
 
-template <class ...Args, size_t ...Indices>
-inline void PushReturnTuple(lua_State* L, std::tuple<Args...> const& v, std::index_sequence<Indices...>)
+template <class T>
+inline void PushUserCallArg(lua_State* L, T const& v)
 {
-	( push<Args>(L, std::get<Indices>(v)), ... );
+	if constexpr (std::is_pointer_v<std::remove_reference_t<T>>) {
+		MakeObjectRef(L, v);
+	} else {
+		push(L, v);
+	}
+}
+
+template <class ...Args, size_t ...Indices>
+inline void PushTupleHelper(lua_State* L, std::tuple<Args...> const& v, std::index_sequence<Indices...>)
+{
+	(PushUserCallArg(L, std::get<Indices>(v)), ...);
+}
+
+template <class ...Args>
+inline void PushUserCallArg(lua_State* L, std::tuple<Args...> const& v)
+{
+	PushTupleHelper(L, v, std::index_sequence_for<Args...>());
 }
 
 template <class ...Args>
 inline void PushReturnValue(lua_State* L, std::tuple<Args...> v)
 {
-	return PushReturnTuple(L, v, std::index_sequence_for<Args...>());
+	PushTupleHelper(L, v, std::index_sequence_for<Args...>());
 }
 
 template <class T>
@@ -213,12 +229,87 @@ inline std::optional<ProxyParam<T>> checked_get_param(lua_State* L, int i, Overl
 	}
 }
 
+template <class ...Args, size_t ...Indices>
+inline std::tuple<Args...> FetchTupleHelper(lua_State* L, int index, std::index_sequence<Indices...>)
+{
+	return std::tuple(checked_get_param<Args>(L, index + (int)Indices, Overload<Args>{})...);
+}
+
+// Index_sequence wrapper for FetchTupleHelper()
+template <class ...Args>
+inline std::tuple<Args...> checked_get_param(lua_State* L, int i, Overload<std::tuple<Args...>>)
+{
+	return FetchTupleHelper<Args...>(L, i, std::index_sequence_for<Args...>());
+}
+
 // Helper for removing reference and CV-qualifiers before fetching a Lua value
 template <class T>
 inline std::remove_cv_t<std::remove_reference_t<T>> checked_get_param_cv(lua_State* L, int i)
 {
 	return checked_get_param(L, i, Overload<std::remove_cv_t<std::remove_reference_t<T>>>{});
 }
+
+int TracebackHandler(lua_State* L);
+
+struct ProtectedFunctionCallerBase
+{
+	RegistryOrLocalRef Self;
+	char const* Method;
+
+	bool ProtectedCall(lua_State* L, lua_CFunction fun);
+	int CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun);
+};
+
+template <class TReturn>
+struct ReturnValueContainer
+{
+	TReturn Value;
+
+	void Fetch(lua_State* L)
+	{
+		Value = checked_get_param_cv<TReturn>(L, -ReturnValueSize(Overload<TReturn>{}));
+	}
+};
+
+template <>
+struct ReturnValueContainer<void>
+{
+	void Fetch(lua_State* L)
+	{
+	}
+};
+
+template <class TArgs, class TReturn>
+struct ProtectedFunctionCaller : public ProtectedFunctionCallerBase
+{
+	TArgs Args;
+	ReturnValueContainer<TReturn> Retval;
+
+	bool Call(lua_State* L)
+	{
+		return ProtectedCall(L, &ProtectedCtx);
+	}
+
+	static int ProtectedCtx(lua_State* L)
+	{
+		auto self = reinterpret_cast<ProtectedFunctionCaller<TArgs, TReturn>*>(lua_touserdata(L, 1));
+
+		LifetimeStackPin _p(State::FromLua(L)->GetStack());
+
+		lua_pushvalue(L, 2);
+		lua_getfield(L, -1, self->Method);
+
+		lua_pushvalue(L, 2);
+		PushUserCallArg(L, self->Args);
+
+		if (lua_pcall(L, 1 + ReturnValueSize(Overload<TArgs>{}), ReturnValueSize(Overload<TReturn>{}), 0) != LUA_OK) {
+			return luaL_error(L, "%s", lua_tostring(L, -1));
+		}
+
+		self->Retval.Fetch(L);
+		return 0;
+	}
+};
 
 // No return value, lua_State passed
 template <class T, class ...Args, size_t ...Indices>

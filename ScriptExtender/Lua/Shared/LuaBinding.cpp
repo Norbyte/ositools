@@ -60,6 +60,16 @@ namespace dse::lua
 		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
 
+	RegistryEntry::RegistryEntry(lua_State* L, RegistryOrLocalRef const& local)
+		: L_(L)
+	{
+		if (local.Push(L)) {
+			ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+		} else {
+			ref_ = -1;
+		}
+	}
+
 	RegistryEntry::~RegistryEntry()
 	{
 		if (ref_ != -1) {
