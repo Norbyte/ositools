@@ -342,4 +342,90 @@ struct CursorControl : public ProtectedGameObject<CursorControl>
 	ComponentHandle TextDisplayUIHandle;
 };
 
+
+struct CharacterTask
+{
+	virtual ~CharacterTask() {}
+	virtual CharacterTask* CreateNew() = 0;
+	virtual void RaiseFlags(uint32_t flags) = 0;
+	virtual void ClearFlags(uint32_t flags) = 0;
+	virtual void SetCharacter(Character* c) = 0;
+	virtual void Start() = 0;
+	virtual void Init() = 0;
+	virtual bool CanEnter() = 0;
+	virtual int GetPriority(int previousPriority) = 0;
+	virtual int GetExecutePriority(int previousPriority) = 0;
+	virtual int GetActionCost() = 0;
+	virtual int GetTotalAPCost() = 0;
+	virtual uint64_t GetAPWarning() = 0;
+	virtual uint64_t GetError() = 0;
+	virtual void SetCursor() = 0;
+	virtual void GetTaskInfo(eoc::Text& taskInfo, bool showAll) = 0;
+	virtual WORD* HandleInputEvent(WORD& result, InputEvent* e) = 0;
+	virtual void EnterPreview() = 0;
+	virtual void UpdatePreview() = 0;
+	virtual void ExitPreview() = 0;
+	virtual bool IsInPreview() = 0;
+	virtual bool GetAbilityAndFlags(uint32_t*) = 0;
+	virtual float GetSightRange() = 0;
+	virtual void ClearAIColliding() = 0;
+	virtual void SetAIColliding() = 0;
+	virtual int ValidateTargetRange() = 0;
+	virtual bool Enter() = 0;
+	virtual bool Update() = 0;
+	virtual void Exit() = 0;
+	virtual bool CanExit() = 0;
+	virtual bool CanExit2() = 0;
+	virtual void GetDescription(eoc::Text& desc) = 0;
+	virtual bool SyncSurfaceCells(ObjectSet<esv::SurfaceCell>*) = 0;
+	virtual ComponentHandle* CreatePreviewEffect(ComponentHandle& pEffect) = 0;
+	virtual void GetAPDescription(eoc::Text& desc) = 0;
+
+	struct Context
+	{
+		glm::vec3 Position{.0f, .0f, .0f};
+		int CurrentAP{0};
+		int RemainingMoveDistance{0};
+		ObjectSet<ComponentHandle> field_18;
+	};
+
+	Character *BoundCharacter{nullptr};
+	int ActionTypeId{ 0 };
+	uint32_t Flags{ 0 };
+	Context CurrentContext;
+	Context SavedContext;
+	bool IsInPreviewMode{false};
+	bool RequestRun{false};
+};
+
+
+struct BaseController : public ProtectedGameObject<BaseController>
+{
+	void* VMT;
+	int TypeId;
+	ComponentHandle CharacterHandle;
+};
+
+
+struct InputController : public BaseController
+{
+	bool IsActive;
+	bool HasExited;
+	float TimeElapsed;
+	bool IsDragging;
+	bool field_21;
+	bool IsPicking;
+	bool PickedNoObject;
+	glm::vec2 MousePos;
+	int field_2C;
+	ObjectSet<CharacterTask*> TaskPrototypes;
+	ComponentHandle DraggingObjectHandle;
+	uint8_t Flags;
+	CharacterTask* CurrentTask;
+	CharacterTask* PreviewTask;
+	ObjectSet<CharacterTask*> ChosenTasks;
+	uint8_t TaskFlags;
+};
+
+
 END_NS()

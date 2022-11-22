@@ -176,6 +176,8 @@ namespace ecl
 
 	struct GameCamera;
 
+	struct InputController;
+
 	struct EoCUI;
 	class ExtensionState;
 }

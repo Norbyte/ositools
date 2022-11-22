@@ -437,7 +437,7 @@ struct Character : public IEoCClientReplicatedObject
 	void* ActionStateMachine;
 	void* SteeringMachine;
 	void* BehaviorMachine;
-	void* InputController;
+	InputController* InputController;
 	void* NetworkController;
 	void* StatusController;
 	void* DialogController;
