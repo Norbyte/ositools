@@ -241,6 +241,7 @@ namespace dse
 		UIObject::GetUIScaleMultiplierProc* ls__UIObject__GetUIScaleMultiplier{ nullptr };
 		UIObject::RaiseFlagProc* ls__UIObject__RaiseFlag{ nullptr };
 		UIObject::RaiseFlagProc* ls__UIObject__ClearFlag{ nullptr };
+		ecl::CursorControl* ecl__CursorControl{ nullptr };
 
 		void* ls__CustomDrawStruct__VMT{ nullptr };
 		CustomDrawStruct::UIClearIcon* ls__UIHelper__UIClearIcon{ nullptr };
@@ -325,6 +326,11 @@ namespace dse
 #else
 		GlobalSwitches *** ls__GlobalSwitches{ nullptr };
 #endif
+#if defined(OSI_EOCAPP)
+		CoreGlobals * ls__CoreGlobals{ nullptr };
+#else
+		CoreGlobals ** ls__CoreGlobals{ nullptr };
+#endif
 		GraphicSettings** ls__GraphicSettings{ nullptr };
 		void * CDivinityStats_Item__FoldDynamicAttributes{ nullptr };
 		void * ls__ModuleSettings__HasCustomMods{ nullptr };
@@ -390,6 +396,23 @@ namespace dse
 #else
 			if (ls__GlobalSwitches && *ls__GlobalSwitches && **ls__GlobalSwitches) {
 				return **ls__GlobalSwitches;
+			} else {
+				return nullptr;
+			}
+#endif
+		}
+
+		inline CoreGlobals* GetCoreGlobals() const
+		{
+#if defined(OSI_EOCAPP)
+			if (ls__CoreGlobals) {
+				return ls__CoreGlobals;
+			} else {
+				return nullptr;
+			}
+#else
+			if (ls__CoreGlobals && *ls__CoreGlobals) {
+				return *ls__CoreGlobals;
 			} else {
 				return nullptr;
 			}

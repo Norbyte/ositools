@@ -805,5 +805,22 @@ namespace dse
 			uint64_t field_8;
 			RefMap<PlayerId, Controllers> PlayerControllers;
 		};
+
+		struct UICursorInfo : public EoCUI
+		{
+			int WorldScreenPositionX;
+			int WorldScreenPositionY;
+			bool IsActive;
+			bool TooltipArrayUpdated;
+			bool HasSurfaceText;
+			bool RequestClearTooltipText;
+			bool ForceClearTooltipText;
+			int16_t SurfaceIndex;
+			int SurfaceTurns;
+			int16_t SurfaceIndex2;
+			int SurfaceTurns2;
+			STDString Text;
+		};
+
 	}
 }

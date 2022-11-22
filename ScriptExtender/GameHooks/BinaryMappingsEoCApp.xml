@@ -750,6 +750,16 @@
       <Target Type="Indirect" Offset="@switches" Symbol="ls__GlobalSwitches" /> <!-- GlobalSwitches -->
     </Mapping>
 
+    <Mapping Name="ls::CoreGlobals">
+      @ref1 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:gCore__Mouse
+      f2 0f 10 00 // movsd   xmm0, qword ptr [rax]
+      f2 41 0f 11 86 d0 03 00 00 // movsd   qword ptr [r14+3D0h], xmm0
+      e9 e4 08 00 00 // jmp     loc_141522C00
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, aStopdragging; "stopDragging"
+      <Condition Type="String" Offset="@str1" Value="stopDragging" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ls__CoreGlobals" />
+    </Mapping>
+
     <Mapping Name="Item::FoldDynamicAttributes">
       4C 8B DC  // mov     r11, rsp
       49 89 4B 08  // mov     [r11+8], rcx
@@ -885,6 +895,20 @@
       48 8D 8B B0 01 00 00  // lea     rcx, [rbx+1B0h]
       C7 83 9C 01 00 00 FF FF FF FF  // mov     dword ptr [rbx+19Ch], 0FFFFFFFFh
       <Target Type="Indirect" Offset="@func" Symbol="ecl__EoCUI__ctor" NextSymbol="ecl::EoCUI::vftable" NextSymbolSeekSize="0x40" />
+    </Mapping>
+
+    <Mapping Name="ecl::CursorControl">
+      ff 90 98 00 00 00 // call    qword ptr [rax+98h]
+      48 c7 43 68 00 00 00 00 // mov     qword ptr [rbx+68h], 0
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ecl__gCursorControl
+      83 79 34 30 // cmp     dword ptr [rcx+34h], 30h ; '0'
+      75 07 // jnz     short loc_1415E9A81
+      c7 41 2c 01 00 00 00 // mov     dword ptr [rcx+2Ch], 1
+      c7 41 30 30 00 00 00 // mov     dword ptr [rcx+30h], 30h ; '0'
+      e8 ?? ?? ?? ?? // call    sub_1413956E0
+      48 8b 05 ?? ?? ?? ?? // mov     rax, cs:ls__gUIObjectManager
+      c6 80 14 01 00 00 01 // mov     byte ptr [rax+114h], 1
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__CursorControl" />
     </Mapping>
 
     <Mapping Name="eoc::gSpeakerManager">

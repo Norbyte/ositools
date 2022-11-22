@@ -65,6 +65,23 @@ INHERIT(UIObject)
 END_CLS()
 
 
+BEGIN_CLS(ecl::UICursorInfo)
+INHERIT(ecl::EoCUI)
+P(WorldScreenPositionX)
+P(WorldScreenPositionY)
+P(IsActive)
+P(TooltipArrayUpdated)
+P(HasSurfaceText)
+P(RequestClearTooltipText)
+P(ForceClearTooltipText)
+P_RO(SurfaceIndex)
+P(SurfaceTurns)
+P_RO(SurfaceIndex2)
+P(SurfaceTurns2)
+P(Text)
+END_CLS()
+
+
 BEGIN_CLS(DragDropManager::PlayerDragInfo)
 P_RO(DragObject)
 // P_RO(DragEgg)

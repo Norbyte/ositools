@@ -323,3 +323,23 @@ struct OsirisMoveToAndTalkTask : public Task
 
 
 END_NS()
+
+BEGIN_NS(ecl)
+
+struct CursorControl : public ProtectedGameObject<CursorControl>
+{
+	void* InputEventListenerVMT;
+	void* InputDeviceListenerVMT;
+	bool CursorShown;
+	bool HasTextDisplay;
+	float HideTimer;
+	float InputHideTimer;
+	FixedString HWMouseCursor;
+	uint32_t Flags;
+	CursorType MouseCursor;
+	uint32_t RequestedFlags;
+	uint32_t field_34;
+	ComponentHandle TextDisplayUIHandle;
+};
+
+END_NS()

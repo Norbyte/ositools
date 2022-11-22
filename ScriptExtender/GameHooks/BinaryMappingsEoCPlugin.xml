@@ -38,6 +38,7 @@
 
     <DllImport Symbol="ls__GlobalStrings" Module="CoreLib.dll" Proc="?s_Table@GlobalStringTable@ls@@0PEAV12@EA" />
     <DllImport Symbol="ls__GraphicSettings" Module="CoreLib.dll" Proc="?GraphicSettings@@3PEAU0ls@@EA" />
+    <DllImport Symbol="ls__CoreGlobals" Module="CoreLib.dll" Proc="?gCore@@3UCoreGlobals@@A" />
 
     <DllImport Symbol="AppInstance" Module="GameEngine.dll" Proc="?s_AppInstance@BaseApp@@1PEAV1@EA" />
     <DllImport Symbol="ResourceManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VResourceManager@ls@@@ls@@SAPEAVResourceManager@2@XZ" />
@@ -666,6 +667,20 @@
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:?Unassigned@ComponentHandle@ls@@2V12@B
       <Target Type="Absolute" Offset="-9" Symbol="ecl__EoCUI__ctor" />
       <Target Type="Indirect" Offset="16" Symbol="ecl__EoCUI__vftable" />
+    </Mapping>
+
+    <Mapping Name="ecl::CursorControl">
+      ff 90 98 00 00 00 // call    qword ptr [rax+98h]
+      48 c7 43 68 00 00 00 00 // mov     qword ptr [rbx+68h], 0
+      @ref1 48 8b 1d ?? ?? ?? ?? // mov     rbx, cs:ecl__gCursorControl
+      ba 01 00 00 00 // mov     edx, 1
+      48 8b cb // mov     rcx, rbx
+      e8 ?? ?? ?? ?? // call    ecl__CursorControl__SetCursorId
+      ba 30 00 00 00 // mov     edx, 30h ; '0'
+      48 8b cb // mov     rcx, rbx
+      e8 ?? ?? ?? ?? // call    ecl__CursorControl__SetFlags
+      48 8b cb // mov     rcx, rbx
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__CursorControl" />
     </Mapping>
 
     <Mapping Name="eoc::gSpeakerManager">

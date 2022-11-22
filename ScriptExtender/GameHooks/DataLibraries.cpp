@@ -196,6 +196,7 @@ namespace dse
 		SYM_OFF(ls__UIObject__GetUIScaleMultiplier);
 		SYM_OFF(ls__UIObject__RaiseFlag);
 		SYM_OFF(ls__UIObject__ClearFlag);
+		SYM_OFF(ecl__CursorControl);
 
 		SYM_OFF(ls__CustomDrawStruct__VMT);
 		SYM_OFF(ls__UIHelper__UIClearIcon);
@@ -273,6 +274,7 @@ namespace dse
 		SYM_OFF(ecl__EquipmentVisualsSystem__CreateVisuals);
 		SYM_OFF(ls__GlobalSwitches);
 		SYM_OFF(ls__GraphicSettings);
+		SYM_OFF(ls__CoreGlobals);
 
 		SYM_OFF(CDivinityStats_Item__FoldDynamicAttributes);
 		SYM_OFF(ls__ModuleSettings__HasCustomMods);

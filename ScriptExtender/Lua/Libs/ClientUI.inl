@@ -297,6 +297,33 @@ glm::ivec2 GetViewportSize()
 	return glm::ivec2(binding->RenderFrameViewport.x, binding->RenderFrameViewport.y);
 }
 
+glm::vec2 GetMouseFlashPos(std::optional<ProxyParam<UIObject>> ui)
+{
+	auto mousePos = GetStaticSymbols().GetCoreGlobals()->Mouse->Position;
+	auto viewport = GetStaticSymbols().GetResourceManager()->FlashBinding->RenderFrameViewport;
+	
+	glm::vec2 pos(
+		mousePos.x - viewport.z, 
+		mousePos.y - viewport.w
+	);
+
+	if (ui) {
+		pos.y = pos.y / (*ui)->FlashSize.y * (*ui)->FlashMovieSize.y;
+		if ((*ui)->MovieLayout == 6) {
+			pos.x = ((*ui)->FlashMovieSize.x / (*ui)->FlashSize.x) * pos.x;
+		} else {
+			pos.x = pos.x / (*ui)->FlashSize.x * (*ui)->FlashMovieSize.x;
+		}
+	}
+
+	return pos;
+}
+
+CursorControl* GetCursorControl()
+{
+	return GetStaticSymbols().ecl__CursorControl;
+}
+
 void RegisterUILib()
 {
 	DECLARE_MODULE(UI, Client)
@@ -315,6 +342,8 @@ void RegisterUILib()
 	MODULE_FUNCTION(GetDragDrop)
 	MODULE_FUNCTION(LoadFlashLibrary)
 	MODULE_FUNCTION(GetViewportSize)
+	MODULE_FUNCTION(GetMouseFlashPos)
+	MODULE_FUNCTION(GetCursorControl)
 	END_MODULE()
 }
 

@@ -310,6 +310,27 @@ namespace dse
 		bool ShowHDRCalibration;
 	};
 
+
+	struct Mouse
+	{
+		glm::vec2 Position;
+		bool field_8;
+	};
+
+
+	struct CoreGlobals
+	{
+		Mouse* Mouse;
+		GameTime GameTime;
+		double TotalTime;
+		int LastDeltaTime;
+		int NumTicks;
+		void* WorkerThreadScheduler;
+		bool field_30;
+		bool field_31;
+	};
+
+
 	struct TranslatedArgumentString
 	{
 		void* VMT{ nullptr };
@@ -421,7 +442,7 @@ namespace dse
 
 			void * VMT;
 			TextBuffer * Buf;
-			uint32_t Unknown[2];
+			int32_t Precision;
 			Param Params[8];
 
 			void ReplaceParam(int index, WStringView replacement);
