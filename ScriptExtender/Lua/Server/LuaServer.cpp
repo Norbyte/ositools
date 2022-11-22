@@ -483,6 +483,22 @@ void LuaPolymorphic<rf::CameraController>::MakeRef(lua_State* L, rf::CameraContr
 	}
 }
 
+void LuaPolymorphic<UIObject>::MakeRef(lua_State* L, UIObject* o, LifetimeHandle const & lifetime)
+{
+	if (o->Type == 3 || o->Type == 4) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<ecl::character_creation::UICharacterCreationWizard*>(o));
+	} else if (o->Type == 31) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<ecl::UICursorInfo*>(o));
+	} else {
+		return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+void LuaPolymorphic<ecl::EoCUI>::MakeRef(lua_State* L, ecl::EoCUI* o, LifetimeHandle const & lifetime)
+{
+	return MakeObjectRef(L, lifetime, static_cast<UIObject*>(o));
+}
+
 template <>
 esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get(lua_State* L) const
 {
