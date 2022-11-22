@@ -2952,14 +2952,24 @@ BEGIN_BITMASK(ESurfaceFlag, uint64_t)
 	EV(MovementBlock, 0x1)
 	EV(ProjectileBlock, 0x4)
 
-	// Guessed flags
-	EV(HasCharacter, 0x10)
-	EV(HasItem, 0x80)
-	EV(HasInteractableObject, 0x100)
+	// Flags set by eoc::Ai
+	EV(WalkThroughBlockCharacter, 0x10)
+	EV(ShootThroughBlockCharacter, 0x40)
+	EV(WalkThroughBlock, 0x80)
+	EV(ShootThroughBlock, 0x100)
 	EV(GroundSurfaceBlock, 0x200)
 	EV(CloudSurfaceBlock, 0x400)
-	EV(Occupied, 0x1000)
+	EV(Dead, 0x1000)
 	EV(SurfaceExclude, 0x10000)
+
+	// Flags set by AddPortal()
+	EV(Portal, 0x20000)
+	EV(Portal2, 0x40000)
+
+	// Flags set by AiGrid flood() code
+	EV(SurfaceShapeFlood, 0x80000)
+	EV(Door, 0x100000)
+	EV(DoorNoShootThrough, 0x200000)
 
 	// --- BASE TYPE START
 	EV(Fire, 0x1000000)
