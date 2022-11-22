@@ -269,6 +269,7 @@ void push(lua_State* L, glm::quat const& v);
 void push(lua_State* L, glm::mat3 const& m);
 void push(lua_State* L, glm::mat4 const& m);
 void push(lua_State* L, ig::InvokeDataValue const& v);
+void push(lua_State* L, RegistryOrLocalRef const& v);
 
 void assign(lua_State* L, int idx, glm::vec2 const& v);
 void assign(lua_State* L, int idx, glm::vec3 const& v);
@@ -394,6 +395,7 @@ typename std::enable_if_t<std::is_enum_v<T>, T> do_get(lua_State * L, int index,
 }
 
 ig::InvokeDataValue do_get(lua_State* L, int index, Overload<ig::InvokeDataValue>);
+RegistryOrLocalRef do_get(lua_State* L, int index, Overload<RegistryOrLocalRef>);
 
 template <class TValue>
 TValue checked_getfield(lua_State* L, char const* k, int index = -1)
@@ -526,11 +528,51 @@ public:
 		return ref_ != -1;
 	}
 
+	inline int GetRef() const
+	{
+		return ref_;
+	}
+
 	void Push() const;
 
 private:
 	lua_State * L_;
 	int ref_;
+};
+
+class RegistryOrLocalRef
+{
+public:
+	inline RegistryOrLocalRef() {}
+	inline RegistryOrLocalRef(lua_State* L, int index)
+		: local_(index)
+	{}
+
+	inline RegistryOrLocalRef(RegistryEntry const& ref)
+		: registryIndex_(ref ? ref.GetRef() : std::optional<int>())
+	{}
+
+	inline operator bool() const
+	{
+		return local_ || registryIndex_;
+	}
+
+	bool Push(lua_State* L) const
+	{
+		if (local_) {
+			lua_pushvalue(L, *local_);
+			return true;
+		} else if (registryIndex_) {
+			lua_rawgeti(L, LUA_REGISTRYINDEX, *registryIndex_);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+private:
+	std::optional<int> local_;
+	std::optional<int> registryIndex_;
 };
 
 struct ModuleFunction

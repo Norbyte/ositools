@@ -150,6 +150,7 @@ public:
 template <class T>
 struct StaticLuaPropertyMap
 {
+	static_assert(!std::is_pointer_v<T>, "StaticLuaPropertyMap type should not be a pointer type!");
 	using ObjectType = T;
 	using TPropertyMap = LuaPropertyMap<T>;
 

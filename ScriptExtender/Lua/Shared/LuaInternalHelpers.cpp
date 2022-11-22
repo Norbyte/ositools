@@ -374,6 +374,18 @@ void push(lua_State* L, glm::mat4 const& m)
 	set_raw(tab, m);
 }
 
+void push(lua_State* L, RegistryOrLocalRef const& v)
+{
+	if (!v.Push(L)) {
+		push(L, nullptr);
+	}
+}
+
+RegistryOrLocalRef do_get(lua_State* L, int index, Overload<RegistryOrLocalRef>)
+{
+	return RegistryOrLocalRef(L, index);
+}
+
 void assign(lua_State* L, int idx, glm::vec2 const& v)
 {
 	auto tab = lua_get_array_n(L, idx, 2);
