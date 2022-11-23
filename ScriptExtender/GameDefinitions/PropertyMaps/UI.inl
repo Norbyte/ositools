@@ -99,3 +99,34 @@ P_FUN(StopDragging, StopDragging)
 P_FUN(StartDraggingName, StartDraggingName)
 P_FUN(StartDraggingObject, StartDraggingObject)
 END_CLS()
+
+
+BEGIN_CLS(ecl::PickPosition)
+P_RO(Position)
+P_RO(Position2)
+END_CLS()
+
+
+BEGIN_CLS(ecl::PickingHelperBase)
+P_REF(PlaceablePos)
+P_REF(HoverCharacterPos)
+P_REF(HoverItemPos)
+P_REF(WalkablePos)
+P_RO(HoverAliveCharacterHandle)
+P_RO(HoverDeadCharacterHandle)
+P_RO(HoverItemHandle)
+P_RO(HoverGameObjectHandle)
+P_RO(PlaceableObjectHandle)
+P_RO(WalkableAiFlags)
+P_RO(WalkablePickFlags)
+P_RO(GameObjectPickFlags)
+END_CLS()
+
+
+BEGIN_CLS(ecl::PickingHelper)
+INHERIT(ecl::PickingHelperBase)
+P_REF(Level)
+P_RO(PlayerId)
+P_RO(ScreenPos)
+END_CLS()
+

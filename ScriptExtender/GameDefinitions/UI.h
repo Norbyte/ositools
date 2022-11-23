@@ -728,29 +728,28 @@ namespace dse
 		struct PickPosition
 		{
 			glm::vec3 Position;
-			int field_C;
-			int field_10;
-			int field_14;
+			glm::vec3 Position2;
 		};
 
-		struct PickingHelperBase
+		struct PickingHelperBase : public ProtectedGameObject<PickingHelperBase>
 		{
-			PickPosition PlaceablePickInfo;
-			PickPosition HoverCharacterPickPos;
-			PickPosition HoverItemPickPos;
-			PickPosition WalkablePickPos;
-			ComponentHandle HoverCharacterHandle2;
-			ComponentHandle HoverCharacterHandle;
+			virtual ~PickingHelperBase() = 0;
+			PickPosition PlaceablePos;
+			PickPosition HoverCharacterPos;
+			PickPosition HoverItemPos;
+			PickPosition WalkablePos;
+			ComponentHandle HoverAliveCharacterHandle;
+			ComponentHandle HoverDeadCharacterHandle;
 			ComponentHandle HoverItemHandle;
-			ComponentHandle HoverCharacterOrItemHandle;
-			ComponentHandle PlaceablePickHandle;
+			ComponentHandle HoverGameObjectHandle;
+			ComponentHandle PlaceableObjectHandle;
 			ComponentHandle OH6;
-			uint64_t WalkablePickInfo1;
-			char WalkablePickInfo2;
-			char GameObjectPickFlags;
+			uint64_t WalkableAiFlags;
+			uint8_t WalkablePickFlags;
+			uint8_t GameObjectPickFlags;
 		};
 
-		struct PickingHelper
+		struct PickingHelper : public PickingHelperBase
 		{
 			struct GameObjectPicker
 			{
@@ -759,15 +758,13 @@ namespace dse
 				PickPosition WorldPos;
 			};
 
-			void* VMT;
-			PickingHelperBase b;
 			Level* Level;
 			PlayerId PlayerId;
 			ComponentHandle OH7;
 			ObjectSet<ComponentHandle> OS_OH;
 			void* field_E0;
 			int field_E8;
-			float ScreenPos[2];
+			glm::vec2 ScreenPos;
 			GameObjectPicker* GameObjectPick;
 			void* PlaceablePick;
 			void* WalkablePick;

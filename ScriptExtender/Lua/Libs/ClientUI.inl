@@ -234,38 +234,47 @@ UserReturn GetPickingState(lua_State* L, std::optional<int> playerIndex)
 		return 1;
 	}
 
-	auto const& base = helper->b;
 	lua_newtable(L);
 	if (helper->GameObjectPick) {
 		setfield(L, "WorldPosition", helper->GameObjectPick->WorldPos.Position);
 	}
 
-	setfield(L, "WalkablePosition", base.WalkablePickPos.Position);
+	setfield(L, "WalkablePosition", helper->WalkablePos.Position);
 
-	if (base.HoverCharacterHandle2) {
-		setfield(L, "HoverCharacter", base.HoverCharacterHandle2);
-		setfield(L, "HoverCharacterPosition", base.HoverCharacterPickPos.Position);
+	if (helper->HoverAliveCharacterHandle) {
+		setfield(L, "HoverCharacter", helper->HoverAliveCharacterHandle);
+		setfield(L, "HoverCharacterPosition", helper->HoverCharacterPos.Position);
 	}
 
-	if (base.HoverCharacterHandle) {
-		setfield(L, "HoverCharacter2", base.HoverCharacterHandle);
+	if (helper->HoverDeadCharacterHandle) {
+		setfield(L, "HoverCharacter2", helper->HoverDeadCharacterHandle);
 	}
 
-	if (base.HoverItemHandle) {
-		setfield(L, "HoverItem", base.HoverItemHandle);
-		setfield(L, "HoverItemPosition", base.HoverItemPickPos.Position);
+	if (helper->HoverItemHandle) {
+		setfield(L, "HoverItem", helper->HoverItemHandle);
+		setfield(L, "HoverItemPosition", helper->HoverItemPos.Position);
 	}
 
-	if (base.HoverCharacterOrItemHandle) {
-		setfield(L, "HoverEntity", base.HoverCharacterOrItemHandle);
+	if (helper->HoverGameObjectHandle) {
+		setfield(L, "HoverEntity", helper->HoverGameObjectHandle);
 	}
 
-	if (base.PlaceablePickHandle) {
-		setfield(L, "PlaceableEntity", base.PlaceablePickHandle);
-		setfield(L, "PlaceablePosition", base.PlaceablePickInfo.Position);
+	if (helper->PlaceableObjectHandle) {
+		setfield(L, "PlaceableEntity", helper->PlaceableObjectHandle);
+		setfield(L, "PlaceablePosition", helper->PlaceablePos.Position);
 	}
 
 	return 1;
+}
+
+PickingHelper* GetPickingHelper(std::optional<int> playerIndex)
+{
+	auto level = GetStaticSymbols().GetCurrentClientLevel();
+	if (level == nullptr || level->PickingHelperManager == nullptr) {
+		return nullptr;
+	}
+
+	return level->PickingHelperManager->PlayerHelpers.try_get(playerIndex.value_or(1));
 }
 
 dse::DragDropManager* GetDragDrop()
@@ -339,6 +348,7 @@ void RegisterUILib()
 	MODULE_FUNCTION(DoubleToHandle)
 	MODULE_FUNCTION(GetCharacterCreationWizard)
 	MODULE_FUNCTION(GetPickingState)
+	MODULE_FUNCTION(GetPickingHelper)
 	MODULE_FUNCTION(GetDragDrop)
 	MODULE_FUNCTION(LoadFlashLibrary)
 	MODULE_FUNCTION(GetViewportSize)
