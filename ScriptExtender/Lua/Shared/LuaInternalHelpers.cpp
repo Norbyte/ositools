@@ -377,9 +377,7 @@ void push(lua_State* L, glm::mat4 const& m)
 
 void push(lua_State* L, RegistryOrLocalRef const& v)
 {
-	if (!v.Push(L)) {
-		push(L, nullptr);
-	}
+	v.Push(L);
 }
 
 RegistryOrLocalRef do_get(lua_State* L, int index, Overload<RegistryOrLocalRef>)

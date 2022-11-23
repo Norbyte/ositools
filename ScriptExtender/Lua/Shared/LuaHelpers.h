@@ -559,16 +559,14 @@ public:
 		return local_ || registryIndex_;
 	}
 
-	bool Push(lua_State* L) const
+	void Push(lua_State* L) const
 	{
 		if (local_) {
 			lua_pushvalue(L, *local_);
-			return true;
 		} else if (registryIndex_) {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, *registryIndex_);
-			return true;
 		} else {
-			return false;
+			lua_pushnil(L);
 		}
 	}
 
