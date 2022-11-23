@@ -76,6 +76,16 @@ UIObject* Create(char const* name, char const* path, int layer, std::optional<UI
 	return object;
 }
 
+UIObject* GetByHandle(ComponentHandle handle)
+{
+	auto uiManager = GetStaticSymbols().GetUIObjectManager();
+	if (uiManager != nullptr) {
+		return uiManager->Get(handle);
+	} else {
+		return nullptr;
+	}
+}
+
 /// <summary>
 /// Retrieves a UI element with the specified name. If no such element exists, the function returns `nil`.
 /// </summary>
@@ -338,6 +348,7 @@ void RegisterUILib()
 	DECLARE_MODULE(UI, Client)
 	BEGIN_MODULE()
 	MODULE_FUNCTION(Create)
+	MODULE_FUNCTION(GetByHandle)
 	MODULE_FUNCTION(GetByName)
 	MODULE_FUNCTION(GetByType)
 	MODULE_FUNCTION(GetByPath)
