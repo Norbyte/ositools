@@ -487,7 +487,7 @@ void LuaPolymorphic<UIObject>::MakeRef(lua_State* L, UIObject* o, LifetimeHandle
 {
 	if (o->Type == 3 || o->Type == 4) {
 		return MakeDirectObjectRef(L, lifetime, static_cast<ecl::character_creation::UICharacterCreationWizard*>(o));
-	} else if (o->Type == 31) {
+	} else if (o->Type == 43) {
 		return MakeDirectObjectRef(L, lifetime, static_cast<ecl::UICursorInfo*>(o));
 	} else {
 		return MakeDirectObjectRef(L, lifetime, o);
