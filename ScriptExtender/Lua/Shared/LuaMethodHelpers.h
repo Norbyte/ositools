@@ -307,6 +307,7 @@ struct ProtectedFunctionCaller : public ProtectedFunctionCallerBase
 		}
 
 		self->Retval.Fetch(L);
+		lua_pop(L, ReturnValueSize(Overload<TReturn>{}));
 		return 0;
 	}
 };
