@@ -941,6 +941,9 @@
     <None Include="Extender\Client\StatusHelpers.inl">
       <Filter>Extender\Client</Filter>
     </None>
+    <None Include="Lua\Libs\ClientCharacterTask.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

@@ -1,4 +1,5 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
+#include <Lua/Libs/ClientCharacterTask.inl>
 
 /// <lua_module>UI</lua_module>
 BEGIN_NS(ecl::lua::ui)
@@ -365,6 +366,7 @@ void RegisterUILib()
 	MODULE_FUNCTION(GetViewportSize)
 	MODULE_FUNCTION(GetMouseFlashPos)
 	MODULE_FUNCTION(GetCursorControl)
+	MODULE_FUNCTION(RegisterCharacterTask)
 	END_MODULE()
 }
 

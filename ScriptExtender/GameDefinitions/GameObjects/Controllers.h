@@ -351,7 +351,7 @@ struct CharacterTask
 	virtual void ClearFlags(uint32_t flags) = 0;
 	virtual void SetCharacter(Character* c) = 0;
 	virtual void Start() = 0;
-	virtual void Init() = 0;
+	virtual void Stop() = 0;
 	virtual bool CanEnter() = 0;
 	virtual int GetPriority(int previousPriority) = 0;
 	virtual int GetExecutePriority(int previousPriority) = 0;

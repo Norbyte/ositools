@@ -316,6 +316,7 @@
     <None Include="Lua\Libs\AI.inl" />
     <None Include="Lua\Libs\Audio.inl" />
     <None Include="Lua\Libs\Client.inl" />
+    <None Include="Lua\Libs\ClientCharacterTask.inl" />
     <None Include="Lua\Libs\ClientEntity.inl" />
     <None Include="Lua\Libs\ClientInput.inl" />
     <None Include="Lua\Libs\ClientTemplate.inl" />
