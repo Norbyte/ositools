@@ -682,7 +682,7 @@ inline void push(lua_State* L, Version const& v)
 }
 
 template <class T>
-inline typename T get(lua_State* L, int index)
+inline T get(lua_State* L, int index)
 {
 	return do_get(L, index, Overload<T>{});
 }
