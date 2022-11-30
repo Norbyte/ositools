@@ -443,6 +443,7 @@ namespace dse
 			void * VMT;
 			TextBuffer * Buf;
 			int32_t Precision;
+			int32_t _Pad;
 			Param Params[8];
 
 			void ReplaceParam(int index, WStringView replacement);
