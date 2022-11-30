@@ -63,7 +63,8 @@ namespace dse::lua
 	RegistryEntry::RegistryEntry(lua_State* L, RegistryOrLocalRef const& local)
 		: L_(L)
 	{
-		if (local.Push(L)) {
+		if ((bool)local) {
+			local.Push(L);
 			ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
 		} else {
 			ref_ = -1;
