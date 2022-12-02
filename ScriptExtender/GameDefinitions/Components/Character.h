@@ -466,7 +466,7 @@ struct Character : public IEoCClientReplicatedObject
 	float field_248;
 	float LifeTime;
 	float field_250;
-	std::array<SoundObjectId, 3> SoundObjectHandles;
+	std::array<EntityHandle, 3> SoundComponents;
 	ComponentHandle OH9;
 	ComponentHandle FollowCharacterHandle;
 	CharacterFlags3 Flags3;

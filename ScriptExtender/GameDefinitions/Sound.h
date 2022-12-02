@@ -10,6 +10,47 @@ namespace dse
     using SoundObjectId = uint64_t;
     static constexpr SoundObjectId InvalidSoundObjectId = 0xffffffffffffffffull;
 
+    struct SoundResource : public DeferredLoadableResource
+    {
+        int SoundEventID;
+        FixedString SoundEvent;
+        FixedString SoundBank;
+        GUID SoundEventUUID;
+        float Duration;
+        float MaxDistance;
+        bool Preload;
+        uint8_t SoundCategory;
+        uint32_t SoundCodec;
+        uint8_t GMSoundCategory;
+        STDWString DisplayName;
+        STDWString GMSubSection;
+        bool Internal;
+    };
+
+    struct SoundComponent : public BaseComponent
+    {
+        static constexpr auto ComponentPoolIndex = ecl::EntityComponentIndex::Sound;
+        static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
+
+        struct ActiveData
+        {
+            SoundObjectId WwiseSoundObjectId;
+            uint64_t field_8;
+            RefMap<FixedString, FixedString> Switches;
+        };
+
+        ActiveData* ActiveData;
+        SoundComponentFlags Flags;
+        uint16_t SpaceForNumPositions;
+        uint16_t NumPositions2;
+        float ActivationRadius;
+        void* PositionOrPtr;
+        void* PositionOrPtr2;
+        FixedString EntityName;
+        FixedString LevelName;
+    };
+
+
     struct SoundCache
     {
         void* VMT;

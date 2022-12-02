@@ -14,6 +14,31 @@ EoCSoundManager* GetSoundManager()
 	return nullptr;
 }
 
+SoundObjectId GetSoundObjectId(lua_State* L, ComponentHandle const& handle, CharacterSoundObjectType type)
+{
+	EntityHandle entity;
+
+	if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
+		auto character = GetEntityWorld()->GetComponent<Character>(handle);
+		if (character) {
+			entity = character->SoundComponents[(unsigned)type];
+		} else {
+			luaL_error(L, "No character object exists with the specified handle");
+		}
+	} else if (handle.GetType() == (uint32_t)ObjectHandleType::ClientItem) {
+		entity = GetEntityWorld()->GetComponent<Item>(handle)->Base.Entity;
+	} else {
+		luaL_error(L, "Only character and item handles are supported as sound objects");
+	}
+
+	auto soundComp = GetEntityWorld()->GetComponent<SoundComponent>(entity);
+	if (soundComp && soundComp->ActiveData) {
+		return soundComp->ActiveData->WwiseSoundObjectId;
+	} else {
+		return InvalidSoundObjectId;
+	}
+}
+
 SoundObjectId GetSoundObjectId(lua_State* L, int idx)
 {
 	auto snd = GetSoundManager();
@@ -52,18 +77,7 @@ SoundObjectId GetSoundObjectId(lua_State* L, int idx)
 	case LUA_TLIGHTUSERDATA:
 	{
 		auto handle = get<ComponentHandle>(L, idx);
-		if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
-			auto character = GetEntityWorld()->GetComponent<Character>(handle);
-			if (character) {
-				return character->SoundObjectHandles[0];
-			} else {
-				luaL_error(L, "No character object exists with the specified handle");
-				return InvalidSoundObjectId;
-			}
-		} else {
-			luaL_error(L, "Only character handles are supported as sound objects");
-			return InvalidSoundObjectId;
-		}
+		return GetSoundObjectId(L, handle, CharacterSoundObjectType::General);
 	}
 
 	default:
