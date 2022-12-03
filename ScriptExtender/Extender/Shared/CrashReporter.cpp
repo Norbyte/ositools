@@ -137,8 +137,13 @@ public:
 
 	void Initialize()
 	{
-		eocAppSymbols_.Load(IDR_SYMBOL_TABLE_EOCAPP);
+#if defined(USE_GAME_SYMBOL_TABLE)
+		eocAppSymbols_.Load(IDR_SYMBOL_TABLE_GAME);
+#endif
+
+#if defined(USE_DBG_SYMBOL_TABLE)
 		symbols_.Load(IDR_SYMBOL_TABLE_EXTENDER);
+#endif
 
 		MODULEINFO moduleInfo;
 		auto hEoCApp = GetModuleHandleW(L"EoCApp.exe");

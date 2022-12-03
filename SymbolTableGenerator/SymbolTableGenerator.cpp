@@ -7,6 +7,7 @@
 #include <dia2.h>
 #include <dbghelp.h>
 #include <atlbase.h>
+#include <filesystem>
 
 struct Symbol
 {
@@ -34,7 +35,7 @@ public:
 
         if (FAILED(hr)) {
             std::cout << "Could not CoCreate CLSID_DiaSource. Register the COM DLL msdia140.dll." << std::endl;
-            std::cout << "(Try 'regsvr32 \"C:\Program Files\Microsoft Visual Studio\2022\Community\DIA SDK\bin\amd64\msdia140.dll\"')" << std::endl;
+            std::cout << "(Try 'regsvr32 \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\DIA SDK\\bin\\amd64\\msdia140.dll\"')" << std::endl;
             return false;
         }
 
@@ -311,13 +312,18 @@ int main(int argc, char** argv)
     }
 
     PDBSymbolLoader loader;
-    if (!loader.Initialize(argv[1])) {
-        Fatal("Failed to load PDB file");
-    }
+    if (std::filesystem::exists(argv[1])) {
+        if (!loader.Initialize(argv[1])) {
+            Fatal("Failed to load PDB file");
+        }
 
-    loader.CollectSymbols();
-    if (!loader.ExportSymbolTable(argv[2])) {
-        Fatal("Failed to write symtab file");
+        loader.CollectSymbols();
+        if (!loader.ExportSymbolTable(argv[2])) {
+            Fatal("Failed to write symtab file");
+        }
+    } else {
+        std::cout << "PDB file '" << argv[1] << "' does not exist. Will write a dummy symtab file." << std::endl;
+        std::ofstream f(argv[2], std::ios::out | std::ios::binary);
     }
 
     return 0;
