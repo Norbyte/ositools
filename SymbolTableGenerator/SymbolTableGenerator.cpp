@@ -33,7 +33,8 @@ public:
             (void**)&source_);
 
         if (FAILED(hr)) {
-            std::cout << "Could not CoCreate CLSID_DiaSource. Register msdia80.dll." << std::endl;
+            std::cout << "Could not CoCreate CLSID_DiaSource. Register the COM DLL msdia140.dll." << std::endl;
+            std::cout << "(Try 'regsvr32 \"C:\Program Files\Microsoft Visual Studio\2022\Community\DIA SDK\bin\amd64\msdia140.dll\"')" << std::endl;
             return false;
         }
 
