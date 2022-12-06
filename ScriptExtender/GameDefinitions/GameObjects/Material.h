@@ -145,6 +145,66 @@ struct Material : public ProtectedGameObject<Material>
 #endif
 };
 
+struct MaterialInfo
+{
+	void* VMT;
+	ComponentHandle GameObjectHandle;
+	FixedString MaterialUUID;
+	float OverlayOffset;
+	StatusMaterialApplyFlags ApplyFlags;
+	MaterialInfoFlags Flags;
+};
 
+struct OverlayMaterialRequest
+{
+	MaterialInfo** pOutputMaterialInfo;
+	bool* pCompleted;
+	float FadeValue;
+	ComponentHandle GameObjectHandle;
+	FixedString MaterialUUID;
+	float OverlayOffset;
+	StatusMaterialApplyFlags ApplyFlags;
+	MaterialInfoFlags Flags;
+};
 
 END_SE()
+
+
+BEGIN_NS(ecl)
+
+struct MaterialInfo : public dse::MaterialInfo
+{
+	RefMap<FixedString, float>* ScalarParamaters;
+	RefMap<FixedString, glm::vec2>* Vec2Parameters;
+	RefMap<FixedString, glm::vec3>* Vec3Parameters;
+	RefMap<FixedString, glm::vec4>* Vec4Parameters;
+	uint8_t RefCount;
+};
+
+struct FadingMaterialInfo : public MaterialInfo
+{
+	FixedString FadeParameter;
+	float FadeValue;
+	float InitialFadeValue;
+	uint32_t StateFlags;
+	uint8_t RequestFlags;
+};
+
+struct MaterialManager : public ProtectedGameObject<MaterialManager>
+{
+	using RemoveMaterialProc = void (MaterialManager* self, uint64_t gameObjectHandle, FixedString const& materialUuid);
+	using AddOverlayMaterialProc = MaterialInfo* (MaterialManager* self, uint64_t gameObjectHandle, FixedString const& materialUuid,
+		StatusMaterialApplyFlags applyFlags, bool applyNormalMap, bool force, float overlayOffset);
+	using AddFadingOverlayMaterialProc = FadingMaterialInfo* (MaterialManager* self, uint64_t gameObjectHandle, FixedString const& materialUuid,
+		FixedString const& fadeParameter, float fadeValue,
+		StatusMaterialApplyFlags applyFlags, bool applyNormalMap, bool startWithFullFade, bool force, float overlayOffset);
+	using AddReplacementMaterialProc = MaterialInfo* (MaterialManager* self, uint64_t gameObjectHandle, FixedString const& materialUuid,
+		StatusMaterialApplyFlags applyFlags, bool applyNormalMap, bool force);
+
+	RefMap<ComponentHandle, ObjectSet<FadingMaterialInfo*>*> FadingMaterials;
+	RefMap<ComponentHandle, ObjectSet<MaterialInfo*>*> Materials;
+	CRITICAL_SECTION CriticalSection;
+	ObjectSet<OverlayMaterialRequest> OverlayMaterialRequests;
+};
+
+END_NS()

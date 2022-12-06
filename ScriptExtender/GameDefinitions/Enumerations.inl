@@ -1662,6 +1662,14 @@ BEGIN_BITMASK(StatusMaterialApplyFlags, uint8_t)
 END_ENUM()
 
 
+BEGIN_BITMASK(MaterialInfoFlags, uint8_t)
+	EV(ApplyCurrentNormalMap, 1)
+	EV(IsOverlay, 2)
+	EV(IsActive, 4)
+	EV(Force, 8)
+END_ENUM()
+
+
 BEGIN_ENUM(StatusType, uint32_t)
 	EV(HIT, 1)
 	EV(DYING, 2)

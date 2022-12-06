@@ -371,6 +371,81 @@ Visual* ClientMultiVisual::AddVisual(lua_State* L, FixedString const& visualId)
 	return visual;
 }
 
+MaterialManager* GetMaterialManager()
+{
+	return *GetStaticSymbols().ecl__MaterialManager;
+}
+
+void CheckCharacterOrItem(lua_State* L, ComponentHandle gameObject)
+{
+	if (gameObject.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
+		if (!GetEntityWorld()->GetComponent<Character>(gameObject, false)) {
+			luaL_error(L, "Must pass a valid character handle");
+		}
+	} else if (gameObject.GetType() == (uint32_t)ObjectHandleType::ClientItem) {
+		if (!GetEntityWorld()->GetComponent<Item>(gameObject, false)) {
+			luaL_error(L, "Must pass a valid item handle");
+		}
+	} else {
+		luaL_error(L, "Expected a character or item handle");
+	}
+}
+
+MaterialInfo* AddOverlayMaterial(lua_State* L, ComponentHandle gameObject, FixedString const& materialUuid,
+	StatusMaterialApplyFlags applyFlags, bool applyNormalMap, std::optional<float> overlayOffset, std::optional<bool> force)
+{
+	CheckCharacterOrItem(L, gameObject);
+	auto mm = *GetStaticSymbols().ecl__MaterialManager;
+	return GetStaticSymbols().ecl__MaterialManager__AddOverlayMaterial(mm, gameObject.Handle, materialUuid, applyFlags, applyNormalMap, 
+		force.value_or(false), overlayOffset.value_or(0.0f));
+}
+
+MaterialInfo* AddFadingOverlayMaterial(lua_State* L, ComponentHandle gameObject, FixedString const& materialUuid,
+	FixedString const& fadeParameter, float fadeAmount, 
+	StatusMaterialApplyFlags applyFlags, bool applyNormalMap, std::optional<float> overlayOffset, 
+	std::optional<bool> force, std::optional<bool> startWithFullFade)
+{
+	CheckCharacterOrItem(L, gameObject);
+	auto mm = *GetStaticSymbols().ecl__MaterialManager;
+	return GetStaticSymbols().ecl__MaterialManager__AddFadingOverlayMaterial(mm, gameObject.Handle, materialUuid, 
+		fadeParameter, fadeAmount, applyFlags, applyNormalMap, startWithFullFade.value_or(false),
+		force.value_or(false), overlayOffset.value_or(0.0f));
+}
+
+MaterialInfo* AddReplacementMaterial(lua_State* L, ComponentHandle gameObject, FixedString const& materialUuid,
+	StatusMaterialApplyFlags applyFlags, bool applyNormalMap, std::optional<bool> force)
+{
+	CheckCharacterOrItem(L, gameObject);
+	auto mm = *GetStaticSymbols().ecl__MaterialManager;
+	return GetStaticSymbols().ecl__MaterialManager__AddReplacementMaterial(mm, gameObject.Handle, materialUuid, applyFlags, applyNormalMap,
+		force.value_or(false));
+}
+
+void RemoveMaterial(lua_State* L, ComponentHandle gameObject, FixedString const& materialUuid)
+{
+	CheckCharacterOrItem(L, gameObject);
+	auto mm = *GetStaticSymbols().ecl__MaterialManager;
+	GetStaticSymbols().ecl__MaterialManager__RemoveMaterial(mm, gameObject.Handle, materialUuid);
+}
+
+void RemoveFadingMaterial(lua_State* L, ComponentHandle gameObject, FixedString const& materialUuid)
+{
+	CheckCharacterOrItem(L, gameObject);
+	auto mm = *GetStaticSymbols().ecl__MaterialManager;
+	auto it = mm->FadingMaterials.find(gameObject);
+	if (it != mm->FadingMaterials.end()) {
+		for (auto matInfo : *it.Value()) {
+			if (matInfo->MaterialUUID == materialUuid) {
+				if (matInfo->RefCount-- == 1) {
+					matInfo->StateFlags &= ~2u;
+					matInfo->StateFlags |= 1u;
+				}
+				break;
+			}
+		}
+	}
+}
+
 void RegisterVisualLib()
 {
 	DECLARE_MODULE(Visual, Client)
@@ -380,6 +455,13 @@ void RegisterVisualLib()
 	MODULE_FUNCTION(Create)
 	MODULE_FUNCTION(CreateOnCharacter)
 	MODULE_FUNCTION(CreateOnItem)
+
+	MODULE_FUNCTION(GetMaterialManager)
+	MODULE_FUNCTION(AddOverlayMaterial)
+	MODULE_FUNCTION(AddFadingOverlayMaterial)
+	MODULE_FUNCTION(AddReplacementMaterial)
+	MODULE_FUNCTION(RemoveMaterial)
+	MODULE_FUNCTION(RemoveFadingMaterial)
 	END_MODULE()
 }
 

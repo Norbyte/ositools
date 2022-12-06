@@ -26,6 +26,7 @@
 #include <GameDefinitions/GameObjects/Controllers.h>
 #include <GameDefinitions/GameObjects/Camera.h>
 #include <GameDefinitions/GameObjects/Render.h>
+#include <GameDefinitions/GameObjects/Material.h>
 
 namespace dse
 {
@@ -303,6 +304,13 @@ namespace dse
 		ecl::MultiEffectHandler::InitProc* ecl__MultiEffectHandler__Init{ nullptr };
 		ecl::MultiEffectHandler::UpdateProc* ecl__MultiEffectHandler__Update{ nullptr };
 		ecl::MultiEffectHandler::DeleteProc* ecl__MultiEffectHandler__Delete{ nullptr };
+
+		ecl::MaterialManager** ecl__MaterialManager{ nullptr };
+		ecl::MaterialManager::RemoveMaterialProc* ecl__MaterialManager__RemoveMaterial{ nullptr };
+		ecl::MaterialManager::RemoveMaterialProc* ecl__MaterialManager__RemoveFadingMaterial{ nullptr };
+		ecl::MaterialManager::AddOverlayMaterialProc* ecl__MaterialManager__AddOverlayMaterial{ nullptr };
+		ecl::MaterialManager::AddFadingOverlayMaterialProc* ecl__MaterialManager__AddFadingOverlayMaterial{ nullptr };
+		ecl::MaterialManager::AddReplacementMaterialProc* ecl__MaterialManager__AddReplacementMaterial{ nullptr };
 
 		Visual::AddAttachmentProc* ls__Visual__AddAttachment{ nullptr };
 

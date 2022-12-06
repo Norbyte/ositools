@@ -256,6 +256,13 @@ namespace dse
 		SYM_OFF(ecl__MultiEffectHandler__Update);
 		SYM_OFF(ecl__MultiEffectHandler__Delete);
 
+		SYM_OFF(ecl__MaterialManager);
+		SYM_OFF(ecl__MaterialManager__RemoveMaterial);
+		SYM_OFF(ecl__MaterialManager__RemoveFadingMaterial);
+		SYM_OFF(ecl__MaterialManager__AddOverlayMaterial);
+		SYM_OFF(ecl__MaterialManager__AddFadingOverlayMaterial);
+		SYM_OFF(ecl__MaterialManager__AddReplacementMaterial);
+
 		SYM_OFF(ls__Visual__AddAttachment);
 
 		SYM_OFF(osi__ShowNotification);

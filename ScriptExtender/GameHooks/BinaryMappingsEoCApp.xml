@@ -1711,5 +1711,74 @@
       b3 01 // mov     bl, 1
       <Target Type="Absolute" Offset="-0x100" NextSymbol="osi::ShowNotification" NextSymbolSeekSize="0x80" />
     </Mapping>
+
+    <Mapping Name="ecl::MaterialManager::AddMaterial">
+      88 44 24 20 // mov     byte ptr [rsp+68h+var_48], al
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__MaterialManager__AddOverlayMaterial
+      eb 49 // jmp     short loc_141397F90
+      a8 04 // test    al, 4
+      74 30 // jz      short loc_141397F7B
+      f3 0f 10 43 28 // movss   xmm0, dword ptr [rbx+28h]
+      24 01 // and     al, 1
+      f3 0f 11 44 24 48 // movss   [rsp+68h+var_20], xmm0
+      f3 0f 10 43 10 // movss   xmm0, dword ptr [rbx+10h]
+      c6 44 24 38 00 // mov     [rsp+68h+var_30], 0
+      88 44 24 30 // mov     byte ptr [rsp+68h+var_38], al
+      0f b6 43 2c // movzx   eax, byte ptr [rbx+2Ch]
+      88 44 24 28 // mov     [rsp+68h+var_40], al
+      f3 0f 11 44 24 20 // movss   [rsp+68h+var_48], xmm0
+      @ref2 e8 ?? ?? ?? ?? // call    ecl__MaterialManager__AddFadingOverlayMaterial
+      eb 15 // jmp     short loc_141397F90
+      44 0f b6 4b 2c // movzx   r9d, byte ptr [rbx+2Ch]
+      24 01 // and     al, 1
+      c6 44 24 28 00 // mov     [rsp+68h+var_40], 0
+      88 44 24 20 // mov     byte ptr [rsp+68h+var_48], al
+      @ref3 e8 ?? ?? ?? ?? // call    ecl__MaterialManager__AddReplacementMaterial
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__MaterialManager__AddOverlayMaterial" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="ecl__MaterialManager__AddFadingOverlayMaterial" />
+      <Target Type="Indirect" Offset="@ref3" Symbol="ecl__MaterialManager__AddReplacementMaterial" />
+    </Mapping>
+
+    <Mapping Name="ecl::MaterialManager::RemoveMaterial">
+      49 8b ce // mov     rcx, r14
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__MaterialManager__RemoveMaterial
+      e9 15 01 00 00 // jmp     loc_141397F96
+      49 8b 00 // mov     rax, [r8]
+      48 85 c0 // test    rax, rax
+      0f 84 09 01 00 00 // jz      loc_141397F96
+      0f b7 40 f8 // movzx   eax, word ptr [rax-8]
+      48 85 c0 // test    rax, rax
+      0f 84 fc 00 00 00 // jz      loc_141397F96
+      48 3b 15 ?? ?? ?? ?? // cmp     rdx, cs:ls__ObjectHandle__Unassigned
+      0f 84 ef 00 00 00 // jz      loc_141397F96
+      49 8b ce // mov     rcx, r14
+      @ref3 e8 ?? ?? ?? ?? // call    ecl__MaterialManager__RemoveFadingMaterial
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__MaterialManager__RemoveMaterial" />
+      <Target Type="Indirect" Offset="@ref3" Symbol="ecl__MaterialManager__RemoveFadingMaterial" />
+    </Mapping>
+
+    <Mapping Name="ecl::gMaterialManager">
+      80 7b 10 00 // cmp     byte ptr [rbx+10h], 0
+      74 13 // jz      short loc_141360324
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ecl__gMaterialManager
+      @ref2 e8 ?? ?? ?? ?? // call    ecl__MaterialManager__Update
+      48 8b 1d ?? ?? ?? ?? // mov     rbx, cs:ls__gEffectsManager
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__MaterialManager" />
+      <Target Type="Indirect" Offset="@ref2" NextSymbol="ecl::MaterialManager::AddMaterial" NextSymbolSeekSize="0x200" />
+      <Target Type="Indirect" Offset="@ref2" NextSymbol="ecl::MaterialManager::RemoveMaterial" NextSymbolSeekSize="0x100" />
+    </Mapping>
+
+    <Mapping Name="App::Update">
+      48 8b 89 d8 01 00 00 // mov     rcx, [rcx+1D8h]
+      e8 ?? ?? ?? ?? // call    ls__CommandBuffer__Flush
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ls__ResourceLoadBatch__s_WorkerThreadBatch
+      e8 ?? ?? ?? ?? // call    ls__WorkerThreadScheduler__FinishCompletedJobs
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ls__IOProcessBatch__s_WorkerThreadBatch
+      e8 ?? ?? ?? ?? // call    ls__WorkerThreadScheduler__FinishCompletedJobs
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ls__IOProcessNoCompleteBatch__s_WorkerThreadBatch
+      e8 ?? ?? ?? ?? // call    ls__WorkerThreadScheduler__FinishCompletedJobs
+      48 8b 8b ?? ?? ?? ?? // mov     rcx, [rbx+108h]
+      <Target Type="Absolute" Offset="0x200" NextSymbol="ecl::gMaterialManager" NextSymbolSeekSize="0x100" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

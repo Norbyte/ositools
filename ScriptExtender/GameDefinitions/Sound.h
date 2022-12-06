@@ -15,7 +15,7 @@ namespace dse
         int SoundEventID;
         FixedString SoundEvent;
         FixedString SoundBank;
-        GUID SoundEventUUID;
+        Guid SoundEventUUID;
         float Duration;
         float MaxDistance;
         bool Preload;
