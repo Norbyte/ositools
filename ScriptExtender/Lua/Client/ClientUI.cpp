@@ -66,15 +66,6 @@ bool UIObjectProxyRefImpl::IsA(FixedString const& typeName)
 	return ObjectProxyHelpers<UIObject>::IsA(typeName);
 }
 
-void MakeUIObjectRef(lua_State* L, LifetimeHandle const& lifetime, UIObject* value)
-{
-	if (value) {
-		ObjectProxy2::MakeImpl<UIObjectProxyRefImpl, UIObject>(L, value, State::FromLua(L)->GetGlobalLifetime(), lifetime);
-	} else {
-		push(L, nullptr);
-	}
-}
-
 void LuaToInvokeDataValue(lua_State * L, int index, ig::InvokeDataValue & val)
 {
 	switch (lua_type(L, index)) {

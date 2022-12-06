@@ -485,12 +485,14 @@ void LuaPolymorphic<rf::CameraController>::MakeRef(lua_State* L, rf::CameraContr
 
 void LuaPolymorphic<UIObject>::MakeRef(lua_State* L, UIObject* o, LifetimeHandle const & lifetime)
 {
+	auto globalLifetime = State::FromLua(L)->GetGlobalLifetime();
+
 	if (o->Type == 3 || o->Type == 4) {
-		return MakeDirectObjectRef(L, lifetime, static_cast<ecl::character_creation::UICharacterCreationWizard*>(o));
+		return MakeDirectObjectRef(L, globalLifetime, static_cast<ecl::character_creation::UICharacterCreationWizard*>(o));
 	} else if (o->Type == 43) {
-		return MakeDirectObjectRef(L, lifetime, static_cast<ecl::UICursorInfo*>(o));
+		return MakeDirectObjectRef(L, globalLifetime, static_cast<ecl::UICursorInfo*>(o));
 	} else {
-		return MakeDirectObjectRef(L, lifetime, o);
+		return MakeDirectObjectRef(L, globalLifetime, o);
 	}
 }
 

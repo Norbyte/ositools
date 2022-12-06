@@ -65,13 +65,6 @@ inline auto MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, Override
 	return MakeObjectRef(L, lifetime, &value->Value);
 }
 
-void MakeUIObjectRef(lua_State* L, LifetimeHandle const& lifetime, UIObject* value);
-
-inline auto MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, UIObject* value)
-{
-	return MakeUIObjectRef(L, lifetime, value);
-}
-
 template <class T>
 inline auto MakeObjectRef(lua_State* L, T* value)
 {
