@@ -642,16 +642,22 @@ bool CustomDrawHelper::SetCustomIcon(UIObject* ui, STDWString const& element, ST
 
 	auto newIcon = std::make_unique<CustomDrawStruct>();
 	newIcon->VMT = vmt;
-	create(FixedString(icon), newIcon.get(), width, height, FixedString(materialGuid ? *materialGuid : "9169b076-6e8d-44a4-bb52-95eedf9eab63"));
+	FixedString material(materialGuid ? *materialGuid : "9169b076-6e8d-44a4-bb52-95eedf9eab63");
+	create(FixedString(icon), newIcon.get(), width, height, material);
 
-	if (newIcon->IconMesh) {
-		customIcons->second.insert(std::make_pair(element, std::move(newIcon)));
-		EnableCustomDraw(ui);
-		return true;
-	} else {
+	if (!newIcon->IconMesh) {
 		OsiError("Failed to load icon: " << icon);
 		return false;
 	}
+
+	if (!newIcon->IconMesh->ActiveAppliedMaterial) {
+		OsiError("Failed to load material: " << material.GetStringOrDefault());
+		return false;
+	}
+
+	customIcons->second.insert(std::make_pair(element, std::move(newIcon)));
+	EnableCustomDraw(ui);
+	return true;
 }
 
 void CustomDrawHelper::ClearCustomIcon(UIObject* ui, STDWString const& element)

@@ -547,7 +547,7 @@ namespace dse
 		using UICreateIconMesh = void (FixedString const& iconName, CustomDrawStruct* drawStruct, int width, int height, FixedString const& materialGuid);
 
 		void* VMT{ nullptr };
-		void* IconMesh{ nullptr };
+		RenderableObject* IconMesh{ nullptr };
 		FixedString IconName;
 		ComponentHandle CustomTextureHandle;
 		uint8_t DrawEffect{ 0 };
