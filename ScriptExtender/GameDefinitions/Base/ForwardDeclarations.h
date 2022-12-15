@@ -214,7 +214,7 @@ namespace lua
 	struct LifetimeHandle;
 	struct CppValueMetadata;
 	struct CppObjectMetadata;
-	class RegistryOrLocalRef;
+	class Ref;
 	class UserspaceClassBase;
 }
 

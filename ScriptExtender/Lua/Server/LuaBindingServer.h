@@ -235,7 +235,7 @@ class ServerState : public State
 public:
 	static ServerState* FromLua(lua_State* L);
 
-	ServerState(ExtensionState& state);
+	ServerState(ExtensionState& state, uint32_t generationId);
 	~ServerState();
 
 	void Initialize() override;

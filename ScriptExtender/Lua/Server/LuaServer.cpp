@@ -725,8 +725,9 @@ namespace dse::esv::lua
 		return self;
 	}
 
-	ServerState::ServerState(ExtensionState& state)
-		: osiris_(state)
+	ServerState::ServerState(ExtensionState& state, uint32_t generationId)
+		: State(generationId),
+		osiris_(state)
 	{}
 
 	ServerState::~ServerState()
@@ -1190,7 +1191,7 @@ namespace dse::esv
 	{
 		if (Lua) Lua->Shutdown();
 		Lua.reset();
-		Lua = std::make_unique<lua::ServerState>(*this);
+		Lua = std::make_unique<lua::ServerState>(*this, nextGenerationId_++);
 		LuaStatePin<ExtensionState, lua::ServerState> pin(*this);
 		pin->Initialize();
 		pin->StoryFunctionMappingsUpdated();

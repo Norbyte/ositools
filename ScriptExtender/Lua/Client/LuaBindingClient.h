@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Lua/Shared/LuaBinding.h>
+#include <Lua/Client/CharacterTaskRegistry.h>
 #include <GameDefinitions/UI.h>
 #include <Lua/Client/ClientUI.h>
 #include <GameDefinitions/GameObjects/Effect.h>
@@ -119,7 +120,7 @@ namespace dse::ecl::lua
 	public:
 		static ClientState* FromLua(lua_State* L);
 
-		ClientState();
+		ClientState(uint32_t generationId);
 		~ClientState();
 
 		visual::VisualSystem& GetVisualSystem()

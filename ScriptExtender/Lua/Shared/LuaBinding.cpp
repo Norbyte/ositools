@@ -60,7 +60,7 @@ namespace dse::lua
 		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
 
-	RegistryEntry::RegistryEntry(lua_State* L, RegistryOrLocalRef const& local)
+	RegistryEntry::RegistryEntry(lua_State* L, Ref const& local)
 		: L_(L)
 	{
 		if ((bool)local) {
@@ -100,6 +100,19 @@ namespace dse::lua
 	{
 		assert(ref_ != -1);
 		lua_rawgeti(L_, LUA_REGISTRYINDEX, ref_);
+	}
+
+	void RegistryEntry::Bind(lua_State* L, Ref const& ref)
+	{
+		assert(ref_ == -1);
+
+		L_ = L;
+		if (ref) {
+			ref.Push(L);
+			ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+		} else {
+			ref_ = -1;
+		}
 	}
 
 
@@ -375,8 +388,9 @@ namespace dse::lua
 		}
 	}
 
-	State::State()
-		: lifetimeStack_(lifetimePool_),
+	State::State(uint32_t generationId)
+		: generationId_(generationId),
+		lifetimeStack_(lifetimePool_),
 		globalLifetime_(lifetimePool_.Allocate())
 	{
 		L = lua_newstate(LuaAlloc, nullptr);

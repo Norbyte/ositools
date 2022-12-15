@@ -59,6 +59,9 @@ struct StackCheck
 };
 #endif
 
+class Ref;
+class RegistryEntry;
+
 // LuaEnumValue forward declarations
 void push_enum_value(lua_State* L, EnumUnderlyingType value, EnumInfoStore<EnumUnderlyingType> const& store);
 EnumUnderlyingType get_enum_value(lua_State* L, int index, EnumInfoStore<EnumUnderlyingType> const& store);
@@ -67,6 +70,9 @@ std::optional<EnumUnderlyingType> try_get_enum_value(lua_State* L, int index, En
 EnumUnderlyingType get_bitfield_value(lua_State* L, int index, BitmaskInfoStore<EnumUnderlyingType> const& store, bool maskInvalidBits);
 std::optional<EnumUnderlyingType> try_get_bitfield_value(lua_State* L, int index, BitmaskInfoStore<EnumUnderlyingType> const& store, bool maskInvalidBits);
 void push_bitfield_value(lua_State* L, EnumUnderlyingType value, BitmaskInfoStore<EnumUnderlyingType> const& store);
+
+// Generation ID forward declarations
+uint32_t get_generation_id(lua_State* L);
 
 struct MathParam
 {
@@ -269,7 +275,7 @@ void push(lua_State* L, glm::quat const& v);
 void push(lua_State* L, glm::mat3 const& m);
 void push(lua_State* L, glm::mat4 const& m);
 void push(lua_State* L, ig::InvokeDataValue const& v);
-void push(lua_State* L, RegistryOrLocalRef const& v);
+void push(lua_State* L, Ref const& v);
 
 void assign(lua_State* L, int idx, glm::vec2 const& v);
 void assign(lua_State* L, int idx, glm::vec3 const& v);
@@ -395,7 +401,8 @@ typename std::enable_if_t<std::is_enum_v<T>, T> do_get(lua_State * L, int index,
 }
 
 ig::InvokeDataValue do_get(lua_State* L, int index, Overload<ig::InvokeDataValue>);
-RegistryOrLocalRef do_get(lua_State* L, int index, Overload<RegistryOrLocalRef>);
+Ref do_get(lua_State* L, int index, Overload<Ref>);
+RegistryEntry do_get(lua_State* L, int index, Overload<RegistryEntry>);
 
 template <class TValue>
 TValue checked_getfield(lua_State* L, char const* k, int index = -1)
@@ -509,14 +516,12 @@ inline bool CheckedCall(lua_State* L, int numArgs, char const* functionName)
 	return true;
 }
 
-class RegistryOrLocalRef;
-
 class RegistryEntry
 {
 public:
 	RegistryEntry();
 	RegistryEntry(lua_State * L, int index);
-	RegistryEntry(lua_State * L, RegistryOrLocalRef const& local);
+	RegistryEntry(lua_State * L, Ref const& local);
 	~RegistryEntry();
 
 	RegistryEntry(RegistryEntry const &) = delete;
@@ -537,42 +542,137 @@ public:
 
 	void Push() const;
 
+	inline void ResetWithoutUnbind()
+	{
+		L_ = nullptr;
+		ref_ = -1;
+	}
+
+	void Bind(lua_State* L, Ref const& ref);
+
 private:
 	lua_State * L_;
 	int ref_;
 };
 
-class RegistryOrLocalRef
+enum class RefType
+{
+	None = 0,
+	Local = 1,
+	Registry = 2
+};
+
+class Ref
 {
 public:
-	inline RegistryOrLocalRef() {}
-	inline RegistryOrLocalRef(lua_State* L, int index)
-		: local_(index)
+	inline Ref()
+		: type_(RefType::None), index_(0)
 	{}
 
-	inline RegistryOrLocalRef(RegistryEntry const& ref)
-		: registryIndex_(ref ? ref.GetRef() : std::optional<int>())
+	inline Ref(lua_State* L, int index)
+		: type_(RefType::Local), index_(index)
+	{}
+
+	inline Ref(lua_State* L, RefType type, int index)
+		: type_(type), index_(index)
+	{}
+
+	inline Ref(RegistryEntry const& ref)
+		: type_(ref ? RefType::Registry : RefType::None), index_(ref ? ref.GetRef() : 0)
+	{}
+
+	inline Ref(Ref const& ref)
+		: type_(ref.type_), index_(ref.index_)
 	{}
 
 	explicit inline operator bool() const
 	{
-		return local_ || registryIndex_;
+		return type_ != RefType::None;
 	}
 
 	void Push(lua_State* L) const
 	{
-		if (local_) {
-			lua_pushvalue(L, *local_);
-		} else if (registryIndex_) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, *registryIndex_);
-		} else {
+		switch (type_) {
+		case RefType::None:
 			lua_pushnil(L);
+			break;
+
+		case RefType::Local:
+			lua_pushvalue(L, index_);
+			break;
+
+		case RefType::Registry:
+			lua_rawgeti(L, LUA_REGISTRYINDEX, index_);
+			break;
 		}
 	}
 
 private:
-	std::optional<int> local_;
-	std::optional<int> registryIndex_;
+	RefType type_;
+	int index_;
+};
+
+class PersistentRef
+{
+public:
+	inline PersistentRef()
+		: generationId_(0), type_(RefType::None), index_(0)
+	{}
+
+	inline PersistentRef(lua_State* L, int index)
+		: generationId_(get_generation_id(L)), type_(RefType::Local), index_(index)
+	{}
+
+	inline PersistentRef(lua_State* L, RegistryEntry const& ref)
+		: generationId_(get_generation_id(L)), type_(ref ? RefType::Registry : RefType::None), index_(ref ? ref.GetRef() : 0)
+	{}
+
+	inline PersistentRef(PersistentRef const& ref)
+		: generationId_(ref.generationId_), type_(ref.type_), index_(ref.index_)
+	{}
+
+	explicit inline operator bool() const
+	{
+		return type_ != RefType::None;
+	}
+
+	inline bool IsValid(lua_State* L) const
+	{
+		return generationId_ == get_generation_id(L);
+	}
+
+	inline Ref MakeRef(lua_State* L) const
+	{
+		assert(IsValid(L));
+		return Ref(L, type_, index_);
+	}
+
+	void Push(lua_State* L) const
+	{
+		if (!IsValid(L)) {
+			lua_pushnil(L);
+			return;
+		}
+
+		switch (type_) {
+		case RefType::None:
+			lua_pushnil(L);
+			break;
+
+		case RefType::Local:
+			lua_pushvalue(L, index_);
+			break;
+
+		case RefType::Registry:
+			lua_rawgeti(L, LUA_REGISTRYINDEX, index_);
+			break;
+		}
+	}
+
+private:
+	RefType type_;
+	int index_;
+	uint32_t generationId_;
 };
 
 struct ModuleFunction

@@ -813,7 +813,7 @@ using AdapterDb = TypedDb<Adapter>;
 using NodeDb = TypedDb<Node>;
 
 template <typename T>
-struct Ref
+struct OsiRef
 {
 	uint32_t Id;
 	TypedDb<T> * Manager;
@@ -828,9 +828,9 @@ struct Ref
 	}
 };
 
-typedef Ref<Database> DatabaseRef;
-typedef Ref<Adapter> AdapterRef;
-typedef Ref<Node> NodeRef;
+typedef OsiRef<Database> DatabaseRef;
+typedef OsiRef<Adapter> AdapterRef;
+typedef OsiRef<Node> NodeRef;
 
 enum class EntryPoint : uint32_t
 {

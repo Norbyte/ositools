@@ -160,7 +160,7 @@ namespace dse::lua
 
 		uint32_t RestrictionFlags{ 0 };
 
-		State();
+		State(uint32_t generationId);
 		~State();
 
 		State(State const &) = delete;
@@ -173,6 +173,11 @@ namespace dse::lua
 		inline lua_State * GetState()
 		{
 			return L;
+		}
+
+		inline uint32_t GetGenerationId()
+		{
+			return generationId_;
 		}
 
 		inline LuaInternalState* GetInternalState()
@@ -247,6 +252,7 @@ namespace dse::lua
 		lua_State * L;
 		LuaInternalState* internal_{ nullptr };
 		bool startupDone_{ false };
+		uint32_t generationId_;
 
 		LifetimePool lifetimePool_;
 		LifetimeStack lifetimeStack_;

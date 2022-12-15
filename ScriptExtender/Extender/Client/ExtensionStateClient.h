@@ -2,6 +2,7 @@
 
 #include <Extender/Shared/ExtensionState.h>
 #include <Lua/Client/LuaBindingClient.h>
+#include <Extender/Client/CharacterTaskBinder.h>
 
 BEGIN_NS(ecl)
 
@@ -17,6 +18,15 @@ public:
 	lua::State * GetLua() override;
 	ModManager * GetModManager() override;
 
+	lua::ClientState* GetClientLua()
+	{
+		if (Lua) {
+			return Lua.get();
+		} else {
+			return nullptr;
+		}
+	}
+
 	inline char const * GetBootstrapFileName() override
 	{
 		return "BootstrapClient.lua";
@@ -25,6 +35,7 @@ public:
 protected:
 	friend LuaStatePin<ExtensionState, lua::ClientState>;
 	std::unique_ptr<lua::ClientState> Lua;
+	uint32_t nextGenerationId_{ 1 };
 
 	void DoLuaReset() override;
 	void LuaStartup() override;

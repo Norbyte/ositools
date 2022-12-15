@@ -375,14 +375,19 @@ void push(lua_State* L, glm::mat4 const& m)
 	set_raw(tab, m);
 }
 
-void push(lua_State* L, RegistryOrLocalRef const& v)
+void push(lua_State* L, Ref const& v)
 {
 	v.Push(L);
 }
 
-RegistryOrLocalRef do_get(lua_State* L, int index, Overload<RegistryOrLocalRef>)
+Ref do_get(lua_State* L, int index, Overload<Ref>)
 {
-	return RegistryOrLocalRef(L, index);
+	return Ref(L, index);
+}
+
+RegistryEntry do_get(lua_State* L, int index, Overload<RegistryEntry>)
+{
+	return RegistryEntry(L, index);
 }
 
 void assign(lua_State* L, int idx, glm::vec2 const& v)
@@ -893,12 +898,38 @@ void LuaReleaseString(lua_State* L, TString* s)
 }
 
 
-bool ProtectedFunctionCallerBase::ProtectedCall(lua_State* L, lua_CFunction fun)
+bool ProtectedMethodCallerBase::ProtectedCall(lua_State* L, lua_CFunction fun)
 {
 	StackCheck _(L);
 	auto ret = CallUserFunctionWithTraceback(L, fun);
 	if (ret != LUA_OK) {
 		ERR("Error while dispatching user method call '%s': %s", Method, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return false; 
+	} else {
+		return true;
+	}
+}
+
+int ProtectedMethodCallerBase::CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun)
+{
+	lua_pushcfunction(L, &TracebackHandler);
+	int tracebackHandlerIdx = lua_gettop(L);
+	lua_pushcfunction(L, fun);
+	lua_pushlightuserdata(L, this);
+	Self.Push(L);
+	int status = lua_pcall(L, 2, 0, tracebackHandlerIdx);
+	lua_remove(L, tracebackHandlerIdx);
+	return status;
+}
+
+
+bool ProtectedFunctionCallerBase::ProtectedCall(lua_State* L, lua_CFunction fun)
+{
+	StackCheck _(L);
+	auto ret = CallUserFunctionWithTraceback(L, fun);
+	if (ret != LUA_OK) {
+		ERR("Error while dispatching user function call: %s", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return false; 
 	} else {
@@ -912,7 +943,7 @@ int ProtectedFunctionCallerBase::CallUserFunctionWithTraceback(lua_State* L, lua
 	int tracebackHandlerIdx = lua_gettop(L);
 	lua_pushcfunction(L, fun);
 	lua_pushlightuserdata(L, this);
-	Self.Push(L);
+	Function.Push(L);
 	int status = lua_pcall(L, 2, 0, tracebackHandlerIdx);
 	lua_remove(L, tracebackHandlerIdx);
 	return status;
@@ -922,6 +953,11 @@ int ProtectedFunctionCallerBase::CallUserFunctionWithTraceback(lua_State* L, lua
 GenericPropertyMap& LuaGetPropertyMap(int propertyMapIndex)
 {
 	return *gExtender->GetPropertyMapManager().GetPropertyMap(propertyMapIndex);
+}
+
+uint32_t get_generation_id(lua_State* L)
+{
+	return State::FromLua(L)->GetGenerationId();
 }
 
 END_NS()

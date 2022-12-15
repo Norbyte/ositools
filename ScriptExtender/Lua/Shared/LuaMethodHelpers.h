@@ -179,13 +179,13 @@ inline void PushReturnValue(lua_State* L, std::tuple<Args...> v)
 }
 
 template <class T>
-inline constexpr int ReturnValueSize(Overload<T>)
+inline constexpr int TupleSize(Overload<T>)
 {
 	return 1;
 }
 
 template <class ...Args>
-inline constexpr int ReturnValueSize(Overload<std::tuple<Args...>>)
+inline constexpr int TupleSize(Overload<std::tuple<Args...>>)
 {
 	return sizeof...(Args);
 }
@@ -244,15 +244,6 @@ inline std::remove_cv_t<std::remove_reference_t<T>> checked_get_param_cv(lua_Sta
 
 int TracebackHandler(lua_State* L);
 
-struct ProtectedFunctionCallerBase
-{
-	RegistryOrLocalRef Self;
-	char const* Method;
-
-	bool ProtectedCall(lua_State* L, lua_CFunction fun);
-	int CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun);
-};
-
 template <class TReturn>
 struct ReturnValueContainer
 {
@@ -260,7 +251,7 @@ struct ReturnValueContainer
 
 	void Fetch(lua_State* L)
 	{
-		Value = checked_get_param_cv<TReturn>(L, -ReturnValueSize(Overload<TReturn>{}));
+		Value = checked_get_param_cv<TReturn>(L, -TupleSize(Overload<TReturn>{}));
 	}
 };
 
@@ -270,6 +261,58 @@ struct ReturnValueContainer<void>
 	void Fetch(lua_State* L)
 	{
 	}
+};
+
+
+struct ProtectedMethodCallerBase
+{
+	Ref Self;
+	char const* Method;
+
+	bool ProtectedCall(lua_State* L, lua_CFunction fun);
+	int CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun);
+};
+
+template <class TArgs, class TReturn>
+struct ProtectedMethodCaller : public ProtectedMethodCallerBase
+{
+	TArgs Args;
+	ReturnValueContainer<TReturn> Retval;
+
+	bool Call(lua_State* L)
+	{
+		return ProtectedCall(L, &ProtectedCtx);
+	}
+
+	static int ProtectedCtx(lua_State* L)
+	{
+		auto self = reinterpret_cast<ProtectedMethodCaller<TArgs, TReturn>*>(lua_touserdata(L, 1));
+
+		LifetimeStackPin _p(State::FromLua(L)->GetStack());
+
+		lua_pushvalue(L, 2);
+		lua_getfield(L, -1, self->Method);
+
+		lua_pushvalue(L, 2);
+		PushUserCallArg(L, self->Args);
+
+		if (lua_pcall(L, 1 + TupleSize(Overload<TArgs>{}), TupleSize(Overload<TReturn>{}), 0) != LUA_OK) {
+			return luaL_error(L, "%s", lua_tostring(L, -1));
+		}
+
+		self->Retval.Fetch(L);
+		lua_pop(L, TupleSize(Overload<TReturn>{}));
+		return 0;
+	}
+};
+
+
+struct ProtectedFunctionCallerBase
+{
+	Ref Function;
+
+	bool ProtectedCall(lua_State* L, lua_CFunction fun);
+	int CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun);
 };
 
 template <class TArgs, class TReturn>
@@ -290,20 +333,18 @@ struct ProtectedFunctionCaller : public ProtectedFunctionCallerBase
 		LifetimeStackPin _p(State::FromLua(L)->GetStack());
 
 		lua_pushvalue(L, 2);
-		lua_getfield(L, -1, self->Method);
-
-		lua_pushvalue(L, 2);
 		PushUserCallArg(L, self->Args);
 
-		if (lua_pcall(L, 1 + ReturnValueSize(Overload<TArgs>{}), ReturnValueSize(Overload<TReturn>{}), 0) != LUA_OK) {
+		if (lua_pcall(L, TupleSize(Overload<TArgs>{}), TupleSize(Overload<TReturn>{}), 0) != LUA_OK) {
 			return luaL_error(L, "%s", lua_tostring(L, -1));
 		}
 
 		self->Retval.Fetch(L);
-		lua_pop(L, ReturnValueSize(Overload<TReturn>{}));
+		lua_pop(L, TupleSize(Overload<TReturn>{}));
 		return 0;
 	}
 };
+
 
 // No return value, lua_State passed
 template <class T, class ...Args, size_t ...Indices>
@@ -325,11 +366,11 @@ inline int CallMethodHelper(lua_State* L, UserReturn (T::* fun)(lua_State*, Args
 // 1 return value, lua_State passed
 template <class R, class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, R (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, ReturnValueSize(Overload<R>{}));
+	StackCheck _(L, TupleSize(Overload<R>{}));
 	auto obj = CheckedGetObject<T>(L, 1);
 	auto retval = (obj->*fun)(L, checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
 	PushReturnValue(L, retval);
-	return ReturnValueSize(Overload<R>{});
+	return TupleSize(Overload<R>{});
 }
 
 // Index_sequence wrapper for CallMethodHelper(), lua_State passed
@@ -350,11 +391,11 @@ inline int CallMethodHelper(lua_State* L, void (T::* fun)(Args...), std::index_s
 // 1 return value, lua_State not passed
 template <class R, class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, ReturnValueSize(Overload<R>{}));
+	StackCheck _(L, TupleSize(Overload<R>{}));
 	auto obj = CheckedGetObject<T>(L, 1);
 	auto retval = (obj->*fun)(checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
 	PushReturnValue(L, retval);
-	return ReturnValueSize(Overload<R>{});
+	return TupleSize(Overload<R>{});
 }
 
 // Index_sequence wrapper for CallMethodHelper(), lua_State not passed
@@ -366,7 +407,7 @@ inline int CallMethod(lua_State* L, R (T::* fun)(Args...)) {
 
 template <class R, class T>
 inline void CallGetter(lua_State* L, T* obj, R(T::* fun)()) {
-	static_assert(ReturnValueSize(Overload<R>{}) == 1, "Can only push 1 value to stack in a getter.");
+	static_assert(TupleSize(Overload<R>{}) == 1, "Can only push 1 value to stack in a getter.");
 	StackCheck _(L, 1);
 	auto retval = (obj->*fun)();
 	PushReturnValue(L, retval);
@@ -375,7 +416,7 @@ inline void CallGetter(lua_State* L, T* obj, R(T::* fun)()) {
 
 template <class R, class T, class TEnum>
 inline void CallFlagGetter(lua_State* L, T* obj, R(T::* fun)(TEnum), TEnum flag) {
-	static_assert(ReturnValueSize(Overload<R>{}) == 1, "Can only push 1 value to stack in a getter.");
+	static_assert(TupleSize(Overload<R>{}) == 1, "Can only push 1 value to stack in a getter.");
 	StackCheck _(L, 1);
 	auto retval = (obj->*fun)(flag);
 	PushReturnValue(L, retval);
@@ -384,7 +425,7 @@ inline void CallFlagGetter(lua_State* L, T* obj, R(T::* fun)(TEnum), TEnum flag)
 
 template <class T, class TArg>
 inline void CallSetter(lua_State* L, T* obj, int index, void(T::* fun)(TArg)) {
-	static_assert(ReturnValueSize(Overload<TArg>{}) == 1, "Can only get 1 value from stack in a setter.");
+	static_assert(TupleSize(Overload<TArg>{}) == 1, "Can only get 1 value from stack in a setter.");
 	StackCheck _(L, 0);
 	auto val = checked_get_param_cv<TArg>(L, index);
 	(obj->*fun)(val);
@@ -393,7 +434,7 @@ inline void CallSetter(lua_State* L, T* obj, int index, void(T::* fun)(TArg)) {
 
 template <class T, class TArg, class TEnum>
 inline void CallFlagSetter(lua_State* L, T* obj, int index, void(T::* fun)(TEnum, TArg), TEnum flag) {
-	static_assert(ReturnValueSize(Overload<TArg>{}) == 1, "Can only get 1 value from stack in a setter.");
+	static_assert(TupleSize(Overload<TArg>{}) == 1, "Can only get 1 value from stack in a setter.");
 	StackCheck _(L, 0);
 	auto val = checked_get_param_cv<TArg>(L, index);
 	(obj->*fun)(flag, val);
@@ -418,10 +459,10 @@ inline int CallFunctionHelper(lua_State* L, UserReturn (* fun)(lua_State*, Args.
 // 1 return value, lua_State passed
 template <class R, class ...Args, size_t ...Indices>
 inline int CallFunctionHelper(lua_State* L, R (* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, ReturnValueSize(Overload<R>{}));
+	StackCheck _(L, TupleSize(Overload<R>{}));
 	auto retval = fun(L, checked_get_param_cv<Args>(L, 1 + (int)Indices)...);
 	PushReturnValue(L, retval);
-	return ReturnValueSize(Overload<R>{});
+	return TupleSize(Overload<R>{});
 }
 
 // Index_sequence wrapper for CallFunctionHelper(), lua_State passed
@@ -441,10 +482,10 @@ inline int CallFunctionHelper(lua_State* L, void (* fun)(Args...), std::index_se
 // 1 return value, lua_State not passed
 template <class R, class ...Args, size_t ...Indices>
 inline int CallFunctionHelper(lua_State* L, R (* fun)(Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, ReturnValueSize(Overload<R>{}));
+	StackCheck _(L, TupleSize(Overload<R>{}));
 	auto retval = fun(checked_get_param_cv<Args>(L, 1 + (int)Indices)...);
 	PushReturnValue(L, retval);
-	return ReturnValueSize(Overload<R>{});
+	return TupleSize(Overload<R>{});
 }
 
 // Index_sequence wrapper for CallFunctionHelper(), lua_State not passed
