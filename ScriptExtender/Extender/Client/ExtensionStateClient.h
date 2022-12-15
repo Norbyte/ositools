@@ -32,9 +32,15 @@ public:
 		return "BootstrapClient.lua";
 	}
 
+	inline CharacterTaskBinder& GetCharacterTaskBinder()
+	{
+		return characterTaskBinder_;
+	}
+
 protected:
 	friend LuaStatePin<ExtensionState, lua::ClientState>;
 	std::unique_ptr<lua::ClientState> Lua;
+	CharacterTaskBinder characterTaskBinder_;
 	uint32_t nextGenerationId_{ 1 };
 
 	void DoLuaReset() override;

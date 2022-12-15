@@ -12,6 +12,7 @@
 #include <Lua/Libs/Debug.inl>
 #include <Lua/Libs/Stats.inl>
 #include <Lua/Libs/Client.inl>
+#include <Lua/Libs/ClientBehavior.inl>
 #include <Lua/Libs/ClientUI.inl>
 #include <Lua/Libs/ClientNet.inl>
 #include <Lua/Libs/ClientVisual.inl>
@@ -40,6 +41,7 @@ void RegisterClientLibraries()
 {
 	client::RegisterClientLib();
 	audio::RegisterAudioLib();
+	behavior::RegisterBehaviorLib();
 	ui::RegisterUILib();
 	net::RegisterNetLib();
 	visual::RegisterVisualLib();

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DxgiWrapper.h" />
+    <ClInclude Include="Extender\Client\CharacterTaskBinder.h" />
     <ClInclude Include="Extender\Client\ExtensionStateClient.h" />
     <ClInclude Include="Extender\Client\NetworkManagerClient.h" />
     <ClInclude Include="Extender\Client\ScriptExtenderClient.h" />
@@ -105,6 +106,7 @@
     <ClInclude Include="GameHooks\SymbolMapper.h" />
     <ClInclude Include="GameHooks\Wrappers.h" />
     <ClInclude Include="Hit.h" />
+    <ClInclude Include="Lua\Client\CharacterTaskRegistry.h" />
     <ClInclude Include="Lua\Client\ClientUI.h" />
     <ClInclude Include="Lua\Client\LuaBindingClient.h" />
     <ClInclude Include="Lua\Debugger\LuaDebug.pb.h" />
@@ -154,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DxgiWrapper.cpp" />
+    <ClCompile Include="Extender\Client\ExtensionStateClient.cpp" />
     <ClCompile Include="Extender\Client\NetworkManagerClient.cpp" />
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp" />
     <ClCompile Include="Extender\ScriptExtender.cpp" />
@@ -257,6 +260,7 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
+    <None Include="Extender\Client\CharacterTaskBinder.inl" />
     <None Include="Extender\Client\StatusHelpers.inl" />
     <None Include="Extender\Server\StatusHelpers.inl" />
     <None Include="Extender\Shared\ModuleHasher.inl" />
@@ -316,6 +320,7 @@
     <None Include="Lua\Libs\AI.inl" />
     <None Include="Lua\Libs\Audio.inl" />
     <None Include="Lua\Libs\Client.inl" />
+    <None Include="Lua\Libs\ClientBehavior.inl" />
     <None Include="Lua\Libs\ClientCharacterTask.inl" />
     <None Include="Lua\Libs\ClientEntity.inl" />
     <None Include="Lua\Libs\ClientInput.inl" />
@@ -361,7 +366,10 @@
     <None Include="Osiris\Debugger\osidebug.proto" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ScriptExtender.rc" />
+    <ResourceCompile Include="ScriptExtender.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">OSI_EOCAPP;USE_GAME_SYMBOL_TABLE;USE_DBG_SYMBOL_TABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">OSI_EOCAPP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="GameHooks\BinaryMappingsEoCApp.xml" />

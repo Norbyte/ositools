@@ -133,6 +133,11 @@ namespace dse::ecl::lua
 			return customDrawHelper_;
 		}
 
+		CharacterTaskRegistry& GetCharacterTaskRegistry()
+		{
+			return characterTaskRegistry_;
+		}
+
 		void Initialize() override;
 		bool IsClient() override;
 		void OnUpdate(GameTime const& time) override;
@@ -160,5 +165,6 @@ namespace dse::ecl::lua
 		std::unordered_map<STDString, ComponentHandle> clientUI_;
 		CustomDrawHelper customDrawHelper_;
 		visual::VisualSystem visualSystem_;
+		CharacterTaskRegistry characterTaskRegistry_;
 	};
 }

@@ -1,14 +1,77 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Lua/Shared/LuaUserspaceClass.h>
+#include <Lua/Client/CharacterTaskRegistry.h>
 
 BEGIN_NS(ecl::lua)
 
-class UserspaceCharacterTaskClass : public UserspaceClassBase
+CharacterTaskRegistry::CharacterTaskRegistry(ClientState& state)
+	: state_(state)
+{}
+
+std::optional<dse::lua::RegistryEntry> CharacterTaskRegistry::ConstructTask(FixedString const& taskType, Character* character)
+{
+	auto ctor = constructors_.find(taskType);
+	if (ctor == constructors_.end()) {
+		ERR("Tried to construct character task of type '%s' that is not registered!", taskType.GetStringOrDefault());
+		return {};
+	}
+
+	auto L = state_.GetState();
+	ProtectedFunctionCaller<std::tuple<Character*>, dse::lua::RegistryEntry> caller;
+	caller.Function = ctor.Value();
+	caller.Args = std::tuple(character);
+	if (caller.Call(L)) {
+		return std::move(caller.Retval.Value);
+	} else {
+		return {};
+	}
+}
+
+void CharacterTaskRegistry::RegisterTaskType(FixedString const& taskType, dse::lua::Ref const& constructor)
+{
+	auto ctor = constructors_.find(taskType);
+	if (ctor != constructors_.end()) {
+		ERR("Tried to re-register character task of type '%s'!", taskType.GetStringOrDefault());
+		return;
+	}
+
+	auto L = state_.GetState();
+	constructors_.insert(std::make_pair(taskType, dse::lua::RegistryEntry(L, constructor)));
+}
+
+
+class UserspaceCharacterTaskClass : public RebindableUserspaceClassBase
 {
 public:
-	inline UserspaceCharacterTaskClass(lua_State* L, RegistryOrLocalRef const& reg)
-		: UserspaceClassBase(L, reg)
+	inline UserspaceCharacterTaskClass(lua_State* L, FixedString const& taskType, Character* character)
+		: RebindableUserspaceClassBase(L, PersistentRef{}),
+		taskType_(taskType), character_(character)
 	{}
+
+	bool IsValid() const override
+	{
+		return ref_.IsValid(ecl::ExtensionState::Get().GetLua()->GetState());
+	}
+
+	bool Rebind() override
+	{
+		auto state = ecl::ExtensionState::Get().GetClientLua();
+		auto task = state->GetCharacterTaskRegistry().ConstructTask(taskType_, character_);
+		if (task) {
+			L_ = state->GetState();
+			reg_.ResetWithoutUnbind();
+			reg_.Bind(L_, *task);
+			ref_ = PersistentRef(L_, reg_);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	void Attached()
+	{
+		CallMethod("Attached", Overload<void>{});
+	}
 
 	void Start()
 	{
@@ -141,33 +204,46 @@ public:
 			desc.Buf->Replace(FromUTF8(*fetchedDesc));
 		}
 	}
+
+private:
+	FixedString taskType_;
+	Character* character_;
+	RegistryEntry reg_;
 };
 
 struct UserspaceCharacterTask : public CharacterTask
 {
-	lua_State* L_;
-	RegistryEntry self_;
-	UserspaceCharacterTaskClass cls_;
+	FixedString taskType_;
+	std::unique_ptr<UserspaceCharacterTaskClass> cls_;
 
-	UserspaceCharacterTask(lua_State* L, RegistryOrLocalRef const& idx)
-		: L_(L), self_(L, idx), cls_(L, self_)
-	{}
+	UserspaceCharacterTask(int actionTypeId, FixedString const& taskType)
+		: taskType_(taskType)
+	{
+		ActionTypeId = actionTypeId;
+	}
 
 	~UserspaceCharacterTask() override {}
 
-	UserspaceCharacterTask* CreateNew() override
+	void NotifyAttached()
 	{
-		auto task = new UserspaceCharacterTask(L_, self_);
-		task->ActionTypeId = ActionTypeId;
-		return task;
+		if (BoundCharacter && !cls_) {
+			auto L = ecl::ExtensionState::Get().GetLua()->GetState();
+			cls_ = std::make_unique<UserspaceCharacterTaskClass>(L, taskType_, BoundCharacter);
+			cls_->Attached();
+		}
 	}
 
-	void RaiseFlags(uint32_t flags) override
+	UserspaceCharacterTask* CreateNew() override
+	{
+		return new UserspaceCharacterTask(ActionTypeId, taskType_);
+	}
+
+	void RaiseFlags(CharacterTaskFlags flags) override
 	{
 		Flags |= flags;
 	}
 
-	void ClearFlags(uint32_t flags) override
+	void ClearFlags(CharacterTaskFlags flags) override
 	{
 		Flags &= ~flags;
 	}
@@ -175,56 +251,70 @@ struct UserspaceCharacterTask : public CharacterTask
 	void SetCharacter(Character* c) override
 	{
 		BoundCharacter = c;
+		NotifyAttached();
 	}
 
 	void Start() override
 	{
-		cls_.Start();
+		cls_->Start();
 	}
 
 	void Stop() override
 	{
-		cls_.Stop();
+		cls_->Stop();
 	}
 
 	bool CanEnter() override
 	{
-		return cls_.CanEnter();
+		return cls_->CanEnter();
 	}
 
 	int GetPriority(int previousPriority) override
 	{
-		return cls_.GetPriority(previousPriority);
+		if (!cls_->IsValid() && cls_->Rebind()) {
+			cls_->Attached();
+			cls_->Start();
+
+			if (IsInPreviewMode) {
+				cls_->EnterPreview();
+			}
+
+			if ((Flags & CharacterTaskFlags::IsExecuting) == CharacterTaskFlags::IsExecuting) {
+				cls_->Enter();
+			}
+		}
+
+		return cls_->GetPriority(previousPriority);
 	}
 
 	int GetExecutePriority(int previousPriority) override
 	{
-		return cls_.GetExecutePriority(previousPriority);
+		return cls_->GetExecutePriority(previousPriority);
 	}
 
 	int GetActionCost() override
 	{
-		return cls_.GetActionCost();
+		return cls_->GetActionCost();
 	}
 
 	int GetTotalAPCost() override
 	{
-		return cls_.GetTotalAPCost();
+		return cls_->GetTotalAPCost();
 	}
 
 	uint64_t GetAPWarning() override
 	{
-		return cls_.GetAPWarning();
+		return cls_->GetAPWarning();
 	}
 
 	uint64_t GetError() override
 	{
-		return cls_.GetError();
+		return cls_->GetError();
 	}
 
 	void SetCursor() override
 	{
-		cls_.SetCursor();
+		cls_->SetCursor();
 	}
 	
 	void GetTaskInfo(eoc::Text& taskInfo, bool showAll) override
@@ -234,25 +324,25 @@ struct UserspaceCharacterTask : public CharacterTask
 
 	WORD* HandleInputEvent(WORD& result, dse::InputEvent* e) override
 	{
-		cls_.HandleInputEvent(e, this);
+		cls_->HandleInputEvent(e, this);
 		result = 0;
 		return &result;
 	}
 
 	void EnterPreview() override
 	{
-		cls_.EnterPreview();
+		cls_->EnterPreview();
 		IsInPreviewMode = true;
 	}
 
 	void UpdatePreview() override
 	{
-		cls_.UpdatePreview();
+		cls_->UpdatePreview();
 	}
 
 	void ExitPreview() override
 	{
-		cls_.ExitPreview();
+		cls_->ExitPreview();
 		IsInPreviewMode = false;
 	}
 
@@ -268,52 +358,52 @@ struct UserspaceCharacterTask : public CharacterTask
 
 	float GetSightRange()
 	{
-		return cls_.GetSightRange();
+		return cls_->GetSightRange();
 	}
 
 	void ClearAIColliding() override
 	{
-		return cls_.ClearAIColliding();
+		return cls_->ClearAIColliding();
 	}
 
 	void SetAIColliding() override
 	{
-		return cls_.SetAIColliding();
+		return cls_->SetAIColliding();
 	}
 
 	int ValidateTargetRange() override
 	{
-		return cls_.ValidateTargetRange();
+		return cls_->ValidateTargetRange();
 	}
 
 	bool Enter() override
 	{
-		return cls_.Enter();
+		return cls_->Enter();
 	}
 	
 	bool Update() override
 	{
-		return cls_.Update(); // Return true to exit
+		return cls_->Update(); // Return true to exit
 	}
 
 	void Exit() override
 	{
-		cls_.Exit();
+		cls_->Exit();
 	}
 
 	bool CanExit() override
 	{
-		return cls_.CanExit();
+		return cls_->CanExit();
 	}
 
 	bool CanExit2() override
 	{
-		return cls_.CanExit2();
+		return cls_->CanExit2();
 	}
 
 	void GetDescription(eoc::Text& desc) override
 	{
-		cls_.GetDescription(desc);
+		cls_->GetDescription(desc);
 	}
 
 	bool SyncSurfaceCells(ObjectSet<esv::SurfaceCell>*) override
@@ -328,15 +418,33 @@ struct UserspaceCharacterTask : public CharacterTask
 	
 	void GetAPDescription(eoc::Text& desc) override
 	{
-		cls_.GetAPDescription(desc);
+		cls_->GetAPDescription(desc);
 	}
 };
 
-void RegisterCharacterTask(lua_State* L, ProxyParam<Character> ch, RegistryOrLocalRef obj)
+void RegisterCharacterTask(lua_State* L, FixedString taskType, Ref constructor)
 {
-	auto task = new UserspaceCharacterTask(L, obj);
-	task->ActionTypeId = (int)ch->InputController->TaskPrototypes.size();
-	ch->InputController->TaskPrototypes.push_back(task);
+	auto typeId = gExtender->GetClient().GetExtensionState().GetCharacterTaskBinder().GetOrRegisterType(taskType);
+	ClientState::FromLua(L)->GetCharacterTaskRegistry().RegisterTaskType(taskType, constructor);
+}
+
+bool AttachCharacterTask(lua_State* L, ProxyParam<Character> ch, FixedString taskType)
+{
+	auto typeId = gExtender->GetClient().GetExtensionState().GetCharacterTaskBinder().GetType(taskType);
+	if (!typeId) {
+		OsiError("Cannot attach unknown task type '" << taskType << "' to character!");
+		return false;
+	}
+
+	auto task = new UserspaceCharacterTask(*typeId, taskType);
+
+	while (ch->InputController->TaskPrototypes.size() <= *typeId) {
+		ch->InputController->TaskPrototypes.push_back(nullptr);
+	}
+
+	ch->InputController->TaskPrototypes[*typeId] = task;
+	task->SetCharacter(ch);
+	return true;
 }
 
 END_NS()

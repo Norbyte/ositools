@@ -447,6 +447,12 @@
     <ClInclude Include="Lua\Shared\LuaUserspaceClass.h">
       <Filter>Lua\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Client\CharacterTaskBinder.h">
+      <Filter>Extender\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Client\CharacterTaskRegistry.h">
+      <Filter>Lua\Client</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -633,6 +639,9 @@
     </ClCompile>
     <ClCompile Include="Extender\Server\OsirisStatusHelpers.cpp">
       <Filter>Extender\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Client\ExtensionStateClient.cpp">
+      <Filter>Extender\Client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -943,6 +952,12 @@
     </None>
     <None Include="Lua\Libs\ClientCharacterTask.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Lua\Libs\ClientBehavior.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Extender\Client\CharacterTaskBinder.inl">
+      <Filter>Extender\Client</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

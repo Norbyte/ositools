@@ -347,8 +347,8 @@ struct CharacterTask
 {
 	virtual ~CharacterTask() {}
 	virtual CharacterTask* CreateNew() = 0;
-	virtual void RaiseFlags(uint32_t flags) = 0;
-	virtual void ClearFlags(uint32_t flags) = 0;
+	virtual void RaiseFlags(CharacterTaskFlags flags) = 0;
+	virtual void ClearFlags(CharacterTaskFlags flags) = 0;
 	virtual void SetCharacter(Character* c) = 0;
 	virtual void Start() = 0;
 	virtual void Stop() = 0;
@@ -391,7 +391,7 @@ struct CharacterTask
 
 	Character *BoundCharacter{nullptr};
 	int ActionTypeId{ 0 };
-	uint32_t Flags{ 0 };
+	CharacterTaskFlags Flags{ 0 };
 	Context CurrentContext;
 	Context SavedContext;
 	bool IsInPreviewMode{false};

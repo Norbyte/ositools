@@ -128,6 +128,7 @@ ClientState* ClientState::FromLua(lua_State* L)
 
 ClientState::ClientState(uint32_t generationId)
 	: State(generationId),
+	characterTaskRegistry_(*this)
 {}
 
 ClientState::~ClientState()
