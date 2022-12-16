@@ -1264,6 +1264,61 @@ void AddVoiceMetaData(FixedString const& speakerGuid, FixedString const& transla
 	voiceMeta->Source.Name = path;
 }
 
+bool AddAttribute(FixedString const& modifierList, FixedString const& modifierName, FixedString const& typeName)
+{
+	if (GetStaticSymbols().GetStats()->Objects.Primitives.size() > 0) {
+		OsiError("It is not safe to modify stats types after stats data files were loaded!");
+		OsiError("(Try using the StatsStructureLoaded event)");
+		return false;
+	} 
+	
+	auto modList = GetStaticSymbols().GetStats()->ModifierLists.Find(modifierList);
+	if (!modList) {
+		OsiError("No such modifier list: " << modifierList);
+		return false;
+	}
+	
+	if (modList->Attributes.Find(modifierName)) {
+		OsiError("Modifier list already has an attribute named '" << modifierName << "'");
+		return false;
+	}
+
+	auto valueListIdx = GetStaticSymbols().GetStats()->ModifierValueLists.FindIndex(typeName);
+	if (!valueListIdx) {
+		OsiError("No such stats value type: " << typeName);
+		return false;
+	}
+
+	auto modifier = GameAlloc<Modifier>();
+	modifier->ValueListIndex = *valueListIdx;
+	modifier->Name = modifierName;
+	modList->Attributes.Add(modifierName, modifier);
+	return true;
+}
+
+std::optional<int32_t> AddEnumerationValue(FixedString const& typeName, FixedString const& enumLabel)
+{
+	auto valueList = GetStaticSymbols().GetStats()->ModifierValueLists.Find(typeName);
+	if (!valueList) {
+		OsiError("No such stats value type: " << typeName);
+		return {};
+	}
+
+	if (valueList->GetPropertyType() != AttributeType::Enumeration) {
+		OsiError("Stats value type is not an enumeration: " << typeName);
+		return {};
+	}
+
+	if (valueList->Values.find(enumLabel) != valueList->Values.end()) {
+		OsiError("Stats value type already has a value named '" << typeName << "'");
+		return {};
+	}
+
+	auto value = valueList->Values.size();
+	valueList->Values.insert(std::make_pair(enumLabel, value));
+	return value;
+}
+
 void RegisterStatsLib()
 {
 	DECLARE_MODULE(Stats, Both)
@@ -1284,6 +1339,8 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(EnumLabelToIndex)
 	MODULE_FUNCTION(NewDamageList)
 	MODULE_FUNCTION(AddVoiceMetaData)
+	MODULE_FUNCTION(AddAttribute)
+	MODULE_FUNCTION(AddEnumerationValue)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, DeltaMod, Both)

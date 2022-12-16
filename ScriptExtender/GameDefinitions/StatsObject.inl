@@ -333,14 +333,14 @@ void Object::FromProtobuf(MsgS2CSyncStat const& msg)
 	auto stats = GetStaticSymbols().GetStats();
 	Level = msg.level();
 
+	size_t numSyncProps = std::min<size_t>(msg.indexed_properties_size(), IndexedProperties.size());
 	if (msg.indexed_properties_size() != IndexedProperties.size()) {
 		OsiError("IndexedProperties size mismatch for '" << Name << "'! Got "
 			<< msg.indexed_properties_size() << ", expected " << IndexedProperties.size());
-		return;
 	}
 
 	auto modifierList = stats->ModifierLists.Find(ModifierListIndex);
-	for (size_t i = 0; i < IndexedProperties.size(); i++) {
+	for (size_t i = 0; i < numSyncProps; i++) {
 		auto modifier = modifierList->Attributes.Find((uint32_t)i);
 		auto enumeration = stats->ModifierValueLists.Find(modifier->ValueListIndex);
 		auto const& prop = msg.indexed_properties().Get((uint32_t)i);

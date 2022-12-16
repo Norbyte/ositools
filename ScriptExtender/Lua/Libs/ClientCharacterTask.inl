@@ -436,6 +436,11 @@ bool AttachCharacterTask(lua_State* L, ProxyParam<Character> ch, FixedString tas
 		return false;
 	}
 
+	if (ch->InputController->TaskPrototypes.size() > *typeId && ch->InputController->TaskPrototypes[*typeId]) {
+		OsiError("A task of type '" << taskType << "' is already attached to the character!");
+		return false;
+	}
+
 	auto task = new UserspaceCharacterTask(*typeId, taskType);
 
 	while (ch->InputController->TaskPrototypes.size() <= *typeId) {

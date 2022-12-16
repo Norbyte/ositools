@@ -136,9 +136,9 @@ struct ValueList : public Noncopyable<ValueList>
 
 struct Modifier : public Noncopyable<Modifier>
 {
-	int32_t ValueListIndex;
-	int32_t LevelMapIndex;
-	int32_t UnknownZero;
+	int32_t ValueListIndex{ -1 };
+	int32_t LevelMapIndex{ -1 };
+	int32_t UnknownZero{ 0 };
 	FixedString Name;
 };
 
@@ -1270,8 +1270,9 @@ struct ItemColorDefinition
 
 struct RPGStats : public ProtectedGameObject<RPGStats>
 {
-	typedef void (*LoadProc)(RPGStats* self);
+	typedef void (LoadProc)(RPGStats* self, ObjectSet<STDString>* paths);
 	typedef PropertyData* (ParsePropertiesProc)(RPGStats* self, STDString* str);
+	typedef void (ParseStructureFolderProc)(RPGStats* self, ObjectSet<STDString>* paths);
 
 	NamedElementManager<ValueList> ModifierValueLists;
 	NamedElementManager<ModifierList> ModifierLists;
