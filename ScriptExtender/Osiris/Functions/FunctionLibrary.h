@@ -46,6 +46,7 @@ namespace dse::esv
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 		void OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);
 		void OnActionMachineResetState(esv::ActionMachine* self, bool force);
+		void OnParseStructureFolder(RPGStats* self, ObjectSet<STDString>* paths);
 		stats::PropertyData* OnParseSkillProperties(stats::RPGStats::ParsePropertiesProc* next, stats::RPGStats* self, STDString* str);
 		void OnSkillFormatDescriptionParam(stats::SkillPrototype::FormatDescriptionParamProc* next, stats::SkillPrototype *skillPrototype,
 			stats::Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,

@@ -124,7 +124,7 @@ void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameSt
 	switch (fromState) {
 	case GameState::LoadModule:
 		INFO("ScriptExtender::OnServerGameStateChanged(): Loaded module");
-		LoadExtensionState();
+		LoadExtensionState(ExtensionStateContext::Game);
 		break;
 
 	case GameState::LoadSession:
@@ -152,13 +152,13 @@ void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameSt
 
 	case GameState::LoadGMCampaign:
 		INFO("ScriptExtender::OnServerGameStateChanged(): Loading GM campaign");
-		LoadExtensionState();
+		LoadExtensionState(ExtensionStateContext::Game);
 		network_.ExtendNetworking();
 		break;
 
 	case GameState::LoadSession:
 		INFO("ScriptExtender::OnServerGameStateChanged(): Loading game session");
-		LoadExtensionState();
+		LoadExtensionState(ExtensionStateContext::Game);
 		network_.ExtendNetworking();
 		networkFixedStrings_.FlushQueuedRequests();
 		if (extensionState_) {
@@ -251,9 +251,11 @@ void ScriptExtender::ResetExtensionState()
 	extensionLoaded_ = false;
 }
 
-void ScriptExtender::LoadExtensionState()
+void ScriptExtender::LoadExtensionState(ExtensionStateContext ctx)
 {
-	if (extensionLoaded_) return;
+	if (extensionLoaded_ && (!extensionState_ || ctx == extensionState_->Context())) {
+		return;
+	}
 
 	PostStartup();
 
@@ -264,10 +266,11 @@ void ScriptExtender::LoadExtensionState()
 	extensionState_->LoadConfigs();
 
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
+		OsiMsg("Initializing server with target context " << ContextToString(ctx));
 		gExtender->GetLibraryManager().ApplyCodePatches();
 		network_.ExtendNetworking();
 		osiris_.GetCustomFunctionManager().ClearDynamicEntries();
-		extensionState_->LuaReset(true);
+		extensionState_->LuaReset(ctx, true);
 	}
 
 	extensionLoaded_ = true;

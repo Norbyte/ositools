@@ -221,6 +221,9 @@ namespace dse::esv
 			std::bind(&CustomFunctionLibrary::OnProjectileExplode, this, _1)
 		);
 
+		lib.RPGStats__ParseStructureFolder.SetPostHook(
+			std::bind(&CustomFunctionLibrary::OnParseStructureFolder, this, _1, _2)
+		);
 		lib.RPGStats__ParseProperties.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnParseSkillProperties, this, _1, _2, _3)
 		);

@@ -35,6 +35,9 @@ void ExtensionState::DoLuaReset()
 {
 	if (Lua) Lua->Shutdown();
 	Lua.reset();
+
+	context_ = nextContext_;
+	assert(context_ != ExtensionStateContext::Uninitialized);
 	Lua = std::make_unique<lua::ClientState>(nextGenerationId_++);
 	Lua->Initialize();
 }

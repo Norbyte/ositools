@@ -177,7 +177,9 @@ namespace dse
 		esv::ActionMachine::ResetStateProc* ecl__ActionMachine__ResetState{ nullptr };
 		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
 
-		stats::RPGStats::LoadProc RPGStats__Load{ nullptr };
+		stats::RPGStats::LoadProc* RPGStats__Load{ nullptr };
+		stats::RPGStats::ParseStructureFolderProc* RPGStats__ParseStructureFolder{ nullptr };
+		stats::RPGStats::ParseStructureFolderProc* RPGStats__ParseDataFolder{ nullptr };
 		stats::RPGStats::ParsePropertiesProc* RPGStats__ParseProperties{ nullptr };
 		stats::SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		stats::StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };

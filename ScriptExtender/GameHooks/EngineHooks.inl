@@ -20,7 +20,11 @@ HOOK_DEFN(esv__ProjectileHelpers__ShootProjectile, esv__ProjectileHelpers__Shoot
 HOOK_DEFN(esv__Projectile__Explode, esv__Projectile__Explode, esv::Projectile::ExplodeProc, PreHookableFunction)
 HOOK_DEFN(esv__ActionMachine__SetState, esv__ActionMachine__SetState, esv::ActionMachine::SetStateProc, HookableFunction)
 HOOK_DEFN(esv__ActionMachine__ResetState, esv__ActionMachine__ResetState, esv::ActionMachine::ResetStateProc, PreHookableFunction)
+
+HOOK_DEFN(RPGStats__Load, RPGStats__Load, stats::RPGStats::LoadProc, HookableFunction)
+HOOK_DEFN(RPGStats__ParseStructureFolder, RPGStats__ParseStructureFolder, stats::RPGStats::ParseStructureFolderProc, PostHookableFunction)
 HOOK_DEFN(RPGStats__ParseProperties, RPGStats__ParseProperties, stats::RPGStats::ParsePropertiesProc, WrappableFunction)
+
 HOOK_DEFN(SkillPrototype__FormatDescriptionParam, SkillPrototype__FormatDescriptionParam, stats::SkillPrototype::FormatDescriptionParamProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetSkillDamage, SkillPrototype__GetSkillDamage, stats::SkillPrototype::GetSkillDamageProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetAttackAPCost, SkillPrototype__GetAttackAPCost, stats::SkillPrototype::GetAttackAPCostProc, WrappableFunction)

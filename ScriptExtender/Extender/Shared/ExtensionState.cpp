@@ -17,6 +17,19 @@ namespace dse
 		"DisableFolding"
 	};
 
+	char const* sContextNames[] = {
+		"Uninitialized",
+		"Game",
+		"Load"
+	};
+
+	static_assert(std::size(sContextNames) == (unsigned)ExtensionStateContext::Max + 1);
+
+	char const* ContextToString(ExtensionStateContext ctx)
+	{
+		return sContextNames[(unsigned)ctx];
+	}
+
 	ExtensionStateBase::~ExtensionStateBase()
 	{}
 
@@ -328,6 +341,12 @@ namespace dse
 		}
 	}
 
+	void ExtensionStateBase::LuaReset(ExtensionStateContext nextContext, bool startup)
+	{
+		nextContext_ = nextContext;
+		LuaReset(startup);
+	}
+
 	void ExtensionStateBase::LuaReset(bool startup)
 	{
 		if (LuaPendingDelete) {
@@ -554,7 +573,13 @@ namespace dse
 						gExtender->GetClient().UpdateServerProgress(mod.Info.Name);
 					}
 
-					LuaLoadBootstrap(config, mod);
+					if (context_ == ExtensionStateContext::Game) {
+						LuaLoadGameBootstrap(config, mod);
+					} else if (context_ == ExtensionStateContext::Load) {
+						LuaLoadPreinitBootstrap(config, mod);
+					} else {
+						ERR("Bootstrap request with Uninitialized extension context?");
+					}
 				}
 			}
 		}
@@ -562,7 +587,7 @@ namespace dse
 		lua->FinishStartup();
 	}
 
-	void ExtensionStateBase::LuaLoadBootstrap(ExtensionModConfig const& config, Module const& mod)
+	void ExtensionStateBase::LuaLoadGameBootstrap(ExtensionModConfig const& config, Module const& mod)
 	{
 		auto bootstrapFileName = GetBootstrapFileName();
 		auto const& sym = GetStaticSymbols();
@@ -598,5 +623,32 @@ namespace dse
 			lua::push(L, nullptr);
 			lua_setglobal(L, "ModuleUUID");
 		}
+	}
+
+	void ExtensionStateBase::LuaLoadPreinitBootstrap(ExtensionModConfig const& config, Module const& mod)
+	{
+		// Mods before v58 can't have support for preinit Lua code
+		if (config.MinimumVersion < 58) {
+			return;
+		}
+
+		auto bootstrapFileName = "BootstrapModule.lua";
+		auto const& sym = GetStaticSymbols();
+
+		auto path = ResolveModScriptPath(mod, bootstrapFileName);
+		if (!sym.FileExists(path)) {
+			return;
+		}
+
+		LuaVirtualPin lua(*this);
+		auto L = lua->GetState();
+		lua::push(L, mod.Info.ModuleUUID);
+		lua_setglobal(L, "ModuleUUID");
+
+		OsiMsg("Loading preinit bootstrap script: " << path);
+		lua->LoadBootstrap(bootstrapFileName, config.ModTable);
+
+		lua::push(L, nullptr);
+		lua_setglobal(L, "ModuleUUID");
 	}
 }

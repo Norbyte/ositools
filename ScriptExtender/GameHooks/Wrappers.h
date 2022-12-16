@@ -19,7 +19,7 @@ namespace dse {
 
 		bool IsWrapped() const
 		{
-			return OriginalFunc != nullptr;
+			return TrampolineFunc != nullptr;
 		}
 
 		void Wrap(HMODULE Module, char const * ProcName, FuncType NewFunction)
@@ -43,8 +43,9 @@ namespace dse {
 			}
 
 			OriginalFunc = Function;
+			TrampolineFunc = Function;
 			NewFunc = NewFunction;
-			auto status = DetourAttachEx((PVOID *)&OriginalFunc, (PVOID)NewFunc, (PDETOUR_TRAMPOLINE *)&FuncTrampoline, NULL, NULL);
+			auto status = DetourAttachEx((PVOID *)&TrampolineFunc, (PVOID)NewFunc, (PDETOUR_TRAMPOLINE *)&FuncTrampoline, NULL, NULL);
 			if (status != NO_ERROR) {
 				Fail("Detour attach failed");
 			}
@@ -53,12 +54,13 @@ namespace dse {
 		void Unwrap()
 		{
 			if (IsWrapped()) {
-				DWORD result = DetourDetach((PVOID *)&OriginalFunc, (PVOID)NewFunc);
+				DWORD result = DetourDetach((PVOID *)&TrampolineFunc, (PVOID)NewFunc);
 				if (result != NO_ERROR) {
 					Fail("DetourDetach failed!");
 				}
 
 				OriginalFunc = nullptr;
+				TrampolineFunc = nullptr;
 				NewFunc = nullptr;
 				FuncTrampoline = nullptr;
 			}
@@ -76,6 +78,7 @@ namespace dse {
 
 	private:
 		void * OriginalFunc{ nullptr };
+		void * TrampolineFunc{ nullptr };
 		FuncType NewFunc{ nullptr };
 		FuncType FuncTrampoline{ nullptr };
 	};

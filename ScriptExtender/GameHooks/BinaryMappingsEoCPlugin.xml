@@ -445,6 +445,20 @@
       <Target Type="Indirect" Offset="21" Symbol="eoc__SkillPrototypeManager" />
     </Mapping>
 
+    <Mapping Name="RPGStats::ParseStructureFolder">
+      @ref1 e8 ?? ?? ?? ?? // call    RPGStats__ParseStructureFolder
+      48 8b d6 // mov     rdx, rsi
+      48 8b cb // mov     rcx, rbx
+      @ref2 e8 ?? ?? ?? ?? // call    RPGStats__ParseDataFolder
+      48 8b d6 // mov     rdx, rsi
+      48 8b cb // mov     rcx, rbx
+      e8 ?? ?? ?? ?? // call    RPGStats__ParseDeltaFolder
+      48 8d 8b d8 00 00 00 // lea     rcx, [rbx+0D8h]
+      48 8b 01 // mov     rax, [rcx]
+      <Target Type="Indirect" Offset="@ref1" Symbol="RPGStats__ParseStructureFolder" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="RPGStats__ParseDataFolder" />
+    </Mapping>
+
     <Mapping Name="RPGStats::Load">
       48 8B D6  // mov     rdx, rsi
       49 8B CC  // mov     rcx, r12
@@ -455,6 +469,7 @@
       48 8B CF  // mov     rcx, rdi
       48 89 7D EF  // mov     [rbp+57h+var_68], rdi
       <Target Type="Indirect" Offset="6" Symbol="RPGStats__Load" />
+      <Target Type="Indirect" Offset="@func" NextSymbol="RPGStats::ParseStructureFolder" NextSymbolSeekSize="0x100" />
     </Mapping>
 
     <Mapping Name="eoc::StatusPrototypeManager::Init">

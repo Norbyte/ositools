@@ -15,6 +15,19 @@ namespace dse
 		std::unordered_set<STDString> FeatureFlags;
 	};
 
+	enum class ExtensionStateContext
+	{
+		Uninitialized,
+		// Game context; created when the engine leaves LoadModule state
+		// and all static game data is loaded
+		Game,
+		// Load context; created when the engine enters LoadModule
+		Load,
+		Max = Load
+	};
+
+	char const* ContextToString(ExtensionStateContext ctx);
+
 	class ExtensionStateBase : Noncopyable<ExtensionStateBase>
 	{
 	public:
@@ -33,6 +46,11 @@ namespace dse
 		bool LoadConfig(Module const & mod, Json::Value & json, ExtensionModConfig & config);
 		bool HasFeatureFlag(char const * flag) const;
 
+		inline ExtensionStateContext Context() const
+		{
+			return context_;
+		}
+
 		inline bool WasStatLoadTriggered() const
 		{
 			return StatLoadTriggered;
@@ -49,6 +67,7 @@ namespace dse
 
 		void IncLuaRefs();
 		void DecLuaRefs();
+		void LuaReset(ExtensionStateContext nextContext, bool startup);
 		void LuaReset(bool startup);
 		void AddPostResetCallback(PostResetCallback callback);
 
@@ -103,6 +122,8 @@ namespace dse
 		bool LuaPendingDelete{ false };
 		bool LuaPendingStartup{ false };
 		bool StatLoadTriggered{ false };
+		ExtensionStateContext context_{ ExtensionStateContext::Uninitialized };
+		ExtensionStateContext nextContext_{ ExtensionStateContext::Uninitialized };
 
 		// Keep track of the list of loaded files so we can pass them to the debugger
 		std::unordered_map<STDString, STDString> loadedFiles_;
@@ -111,7 +132,8 @@ namespace dse
 		void LuaResetInternal();
 		virtual void DoLuaReset() = 0;
 		virtual void LuaStartup();
-		void LuaLoadBootstrap(ExtensionModConfig const& config, Module const& mod);
+		void LuaLoadGameBootstrap(ExtensionModConfig const& config, Module const& mod);
+		void LuaLoadPreinitBootstrap(ExtensionModConfig const& config, Module const& mod);
 	};
 
 

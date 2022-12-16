@@ -1191,6 +1191,8 @@ namespace dse::esv
 	{
 		if (Lua) Lua->Shutdown();
 		Lua.reset();
+
+		context_ = nextContext_;
 		Lua = std::make_unique<lua::ServerState>(*this, nextGenerationId_++);
 		LuaStatePin<ExtensionState, lua::ServerState> pin(*this);
 		pin->Initialize();

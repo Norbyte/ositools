@@ -46,7 +46,7 @@ public:
 	bool IsInClientThread() const;
 	void ResetLuaState();
 	void ResetExtensionState();
-	void LoadExtensionState();
+	void LoadExtensionState(ExtensionStateContext ctx);
 
 	void UpdateServerProgress(STDWString const& status);
 	void UpdateClientProgress(STDWString const& status);

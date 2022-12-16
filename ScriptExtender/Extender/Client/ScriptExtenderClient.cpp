@@ -189,12 +189,12 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 	switch (fromState) {
 	case GameState::LoadModule:
 		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Loaded module");
-		LoadExtensionState();
+		LoadExtensionState(ExtensionStateContext::Game);
 		break;
 
 	// Initialize client state when exiting from a game and returning to menu
 	case GameState::LoadMenu:
-		LoadExtensionState();
+		LoadExtensionState(ExtensionStateContext::Game);
 		break;
 
 	case GameState::LoadSession:
@@ -237,13 +237,13 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 
 	case GameState::LoadGMCampaign:
 		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Loading GM campaign");
-		LoadExtensionState();
+		LoadExtensionState(ExtensionStateContext::Game);
 		network_.ExtendNetworking();
 		break;
 
 	case GameState::LoadSession:
 		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Loading game session");
-		LoadExtensionState();
+		LoadExtensionState(ExtensionStateContext::Game);
 		network_.ExtendNetworking();
 		if (extensionState_) {
 			extensionState_->OnGameSessionLoading();
@@ -366,9 +366,11 @@ void ScriptExtender::ResetExtensionState()
 	extensionLoaded_ = false;
 }
 
-void ScriptExtender::LoadExtensionState()
+void ScriptExtender::LoadExtensionState(ExtensionStateContext ctx)
 {
-	if (extensionLoaded_) return;
+	if (extensionLoaded_ && (!extensionState_ || ctx == extensionState_->Context())) {
+		return;
+	}
 
 	PostStartup();
 
@@ -379,10 +381,10 @@ void ScriptExtender::LoadExtensionState()
 	extensionState_->LoadConfigs();
 
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
-		DEBUG("ecl::ScriptExtender::LoadExtensionStateClient(): Re-initializing module state.");
+		OsiMsg("Initializing client with target context " << ContextToString(ctx));
 		gExtender->GetLibraryManager().ApplyCodePatches();
 		network_.ExtendNetworking();
-		extensionState_->LuaReset(true);
+		extensionState_->LuaReset(ctx, true);
 	}
 
 	extensionLoaded_ = true;

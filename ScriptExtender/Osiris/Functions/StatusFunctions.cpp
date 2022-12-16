@@ -335,6 +335,14 @@ namespace dse::esv
 		}
 	}
 
+	void CustomFunctionLibrary::OnParseStructureFolder(RPGStats* self, ObjectSet<STDString>* paths)
+	{
+		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+		if (lua) {
+			lua->OnStatsStructureLoaded();
+		}
+	}
+
 	Projectile* CustomFunctionLibrary::OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, ShootProjectileHelper* helper)
 	{
 		// Work around crash where the caster handle is no longer valid.

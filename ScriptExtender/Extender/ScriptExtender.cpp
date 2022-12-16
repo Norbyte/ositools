@@ -90,8 +90,6 @@ void ScriptExtender::Initialize()
 	Wrappers.SkillPrototypeManagerInit.SetPreHook(std::bind(&ScriptExtender::OnSkillPrototypeManagerInit, this, _1));
 	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(std::bind(&ScriptExtender::OnSavegameVisit, this, _1, _2));
 	//Wrappers.TranslatedStringRepository__UnloadOverrides.SetPreHook(std::bind(&ScriptExtender::OnModuleLoadStarted, this, _1));
-	Wrappers.RPGStats__Load.AddPreHook(std::bind(&ScriptExtender::OnStatsLoadStarted, this, _1));
-	Wrappers.RPGStats__Load.AddPostHook(std::bind(&ScriptExtender::OnStatsLoadFinished, this, _1));
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (config_.EnableLuaDebugger && luaDebuggerThread_ == nullptr) {
@@ -237,15 +235,21 @@ void ScriptExtender::OnInitNetworkFixedStrings(eoc::NetworkFixedStrings * self, 
 void ScriptExtender::OnStatsLoadStarted(stats::RPGStats* mgr)
 {
 	statLoadOrderHelper_.OnLoadStarted();
+
+	if (client_.IsInClientThread()) {
+		client_.LoadExtensionState(ExtensionStateContext::Load);
+	} else if (server_.IsInServerThread()) {
+		server_.LoadExtensionState(ExtensionStateContext::Load);
+	}
 }
 
 void ScriptExtender::OnStatsLoadFinished(stats::RPGStats* mgr)
 {
 	statLoadOrderHelper_.OnLoadFinished();
 	if (client_.IsInClientThread()) {
-		client_.LoadExtensionState();
+		client_.LoadExtensionState(ExtensionStateContext::Game);
 	} else if (server_.IsInServerThread()) {
-		server_.LoadExtensionState();
+		server_.LoadExtensionState(ExtensionStateContext::Game);
 	}
 
 	auto state = GetCurrentExtensionState();
@@ -317,9 +321,9 @@ void ScriptExtender::OnSkillPrototypeManagerInit(void * self)
 	}
 	
 	if (server_.IsInServerThread()) {
-		server_.LoadExtensionState();
+		server_.LoadExtensionState(ExtensionStateContext::Game);
 	} else {
-		client_.LoadExtensionState();
+		client_.LoadExtensionState(ExtensionStateContext::Game);
 	}
 
 	extState->OnModuleLoading();
@@ -404,6 +408,9 @@ void ScriptExtender::PostStartup()
 
 		using namespace std::placeholders;
 		hooks_.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
+
+		hooks_.RPGStats__Load.AddPreHook(std::bind(&ScriptExtender::OnStatsLoadStarted, this, _1));
+		hooks_.RPGStats__Load.AddPostHook(std::bind(&ScriptExtender::OnStatsLoadFinished, this, _1));
 	}
 
 	GameVersionInfo gameVersion;

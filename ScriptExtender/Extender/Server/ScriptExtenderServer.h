@@ -63,7 +63,7 @@ public:
 	void ResetLuaState();
 	bool RequestResetClientLuaState();
 	void ResetExtensionState();
-	void LoadExtensionState();
+	void LoadExtensionState(ExtensionStateContext ctx);
 
 
 	enum class GameStateWorkerStartTag {};

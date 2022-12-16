@@ -666,4 +666,10 @@ namespace dse::lua
 		lua_gc(L, LUA_GCSTEP, 10);
 	}
 
+	void State::OnStatsStructureLoaded()
+	{
+		EmptyEvent params;
+		ThrowEvent("StatsStructureLoaded", params, false, 0);
+	}
+
 }

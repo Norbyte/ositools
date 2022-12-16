@@ -226,6 +226,7 @@ namespace dse::lua
 		void OnModuleResume();
 		void OnResetCompleted();
 		virtual void OnUpdate(GameTime const& time);
+		void OnStatsStructureLoaded();
 
 		std::optional<int> LoadScript(STDString const & script, STDString const & name = "", int globalsIdx = 0);
 

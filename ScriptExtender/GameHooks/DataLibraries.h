@@ -33,7 +33,7 @@ public:
 	bool GetGameVersion(GameVersionInfo & version);
 
 	bool ApplyCodePatch(std::string const& mapping);
-	void UndoCodePatch(std::string const& mapping);
+	bool UndoCodePatch(std::string const& mapping);
 
 	void ShowStartupError(STDWString const & msg, bool wait, bool exitGame);
 	void ShowStartupError(STDWString const & msg, bool exitGame);
@@ -77,8 +77,8 @@ private:
 	bool CanShowError();
 	bool CanShowMessages();
 
-	void ApplyPatch(SymbolMappings::Patch& patch);
-	void UndoPatch(SymbolMappings::Patch& patch);
+	bool ApplyPatch(SymbolMappings::Patch& patch);
+	bool UndoPatch(SymbolMappings::Patch& patch);
 
 	SymbolMappings mappings_;
 	SymbolMapper symbolMapper_;

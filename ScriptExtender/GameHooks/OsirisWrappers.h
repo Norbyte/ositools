@@ -74,7 +74,6 @@ public:
 	POSTHOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientAcceptMessage__Serialize);
 	PREHOOKABLE(bool(void*, ObjectVisitor*), esv__OsirisVariableHelper__SavegameVisit);
 	PREHOOKABLE(void(TranslatedStringRepository*), TranslatedStringRepository__UnloadOverrides);
-	HOOKABLE(void(stats::RPGStats*, char const*, uint32_t), RPGStats__Load);
 
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;

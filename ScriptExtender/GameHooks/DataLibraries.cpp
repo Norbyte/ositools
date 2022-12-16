@@ -139,6 +139,8 @@ namespace dse
 		SYM_OFF(esv__ActionMachine__ResetState);
 
 		SYM_OFF(RPGStats__Load);
+		SYM_OFF(RPGStats__ParseStructureFolder);
+		SYM_OFF(RPGStats__ParseDataFolder);
 		SYM_OFF(RPGStats__ParseProperties);
 		SYM_OFF(eoc__SkillPrototypeManager);
 		SYM_OFF(eoc__StatusPrototypeManager);
@@ -512,47 +514,55 @@ namespace dse
 			return false;
 		}
 
+		bool hasChanges = false;
 		for (auto& patch : it->second.Patches) {
-			ApplyPatch(patch);
+			hasChanges = ApplyPatch(patch) || hasChanges;
 		}
 
-		return true;
+		return hasChanges;
 	}
 
 
-	void LibraryManager::UndoCodePatch(std::string const& mapping)
+	bool LibraryManager::UndoCodePatch(std::string const& mapping)
 	{
 		auto it = mappings_.Mappings.find(mapping);
 		if (it == mappings_.Mappings.end()) {
 			ERR("Cannot undo patch - no such mapping: '%s'", mapping.c_str());
-			return;
+			return false;
 		}
 
+		bool hasChanges = false;
 		for (auto& patch : it->second.Patches) {
-			UndoPatch(patch);
+			hasChanges = UndoPatch(patch) || hasChanges;
 		}
+
+		return hasChanges;
 	}
 
 
-	void LibraryManager::ApplyPatch(SymbolMappings::Patch& patch)
+	bool LibraryManager::ApplyPatch(SymbolMappings::Patch& patch)
 	{
-		if (patch.WasApplied || patch.ResolvedRef == nullptr) return;
+		if (patch.WasApplied || patch.ResolvedRef == nullptr) {
+			return false;
+		}
 
 		WriteAnchor code(patch.ResolvedRef, patch.Bytes.size());
 		patch.OriginalBytes.resize(patch.Bytes.size());
 		memcpy(patch.OriginalBytes.data(), patch.ResolvedRef, patch.OriginalBytes.size());
 		memcpy(const_cast<uint8_t*>(patch.ResolvedRef), patch.Bytes.data(), patch.Bytes.size());
 		patch.WasApplied = true;
+		return true;
 	}
 
 
-	void LibraryManager::UndoPatch(SymbolMappings::Patch& patch)
+	bool LibraryManager::UndoPatch(SymbolMappings::Patch& patch)
 	{
-		if (!patch.WasApplied) return;
+		if (!patch.WasApplied) return false;
 
 		WriteAnchor code(patch.ResolvedRef, patch.OriginalBytes.size());
 		memcpy(const_cast<uint8_t*>(patch.ResolvedRef), patch.OriginalBytes.data(), patch.OriginalBytes.size());
 		patch.WasApplied = false;
+		return true;
 	}
 
 
@@ -595,8 +605,9 @@ namespace dse
 	{
 #if defined(OSI_EOCAPP)
 		if (gExtender->HasFeatureFlag("DisableFolding")) {
-			ApplyCodePatch("Item::FoldDynamicAttributes");
-			DEBUG("Dynamic item stat folding disabled.");
+			if (ApplyCodePatch("Item::FoldDynamicAttributes")) {
+				DEBUG("Dynamic item stat folding disabled.");
+			}
 		}
 #endif
 	}
@@ -606,9 +617,10 @@ namespace dse
 	{
 #if defined(OSI_EOCAPP)
 		if (gExtender->GetConfig().EnableAchievements) {
-			ApplyCodePatch("ls::ModuleSettings::HasCustomMods");
-			ApplyCodePatch("ls::ModuleSettings::HasCustomModsGB5");
-			DEBUG("Modded achievements enabled.");
+			if (ApplyCodePatch("ls::ModuleSettings::HasCustomMods")
+				&& ApplyCodePatch("ls::ModuleSettings::HasCustomModsGB5")) {
+				DEBUG("Modded achievements enabled.");
+			}
 		}
 #endif
 	}
