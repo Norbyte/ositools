@@ -5,6 +5,7 @@
 #include <Extender/Shared/SavegameSerializer.h>
 #include <Extender/Shared/ExtenderConfig.h>
 #include <Extender/Shared/ModuleHasher.h>
+#include <Extender/Shared/CustomDamageTypes.h>
 #include <Osiris/OsirisExtender.h>
 
 #include <Extender/Client/ExtensionStateClient.h>
@@ -120,6 +121,11 @@ public:
 		return propertyMapManager_;
 	}
 
+	inline CustomDamageTypeHelpers& GetCustomDamageTypes()
+	{
+		return customDamageTypes_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 	std::optional<STDString> GetPathOverride(STDString const& path);
@@ -141,6 +147,7 @@ private:
 	ModuleHasher hasher_;
 	lua::LuaBundle luaBuiltinBundle_;
 	lua::CppPropertyMapManager propertyMapManager_;
+	CustomDamageTypeHelpers customDamageTypes_;
 
 	ExtenderConfig config_;
 	bool extensionsEnabled_{ false };

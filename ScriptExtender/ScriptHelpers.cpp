@@ -120,6 +120,20 @@ bool GetTranslatedString(char const* handle, STDWString& translated)
 	}
 }
 
+bool GetTranslatedString(char const* handle, char const* fallback, TranslatedString& translated)
+{
+	STDWString ts;
+	if (GetTranslatedString(handle, ts)) {
+		translated.Handle.Handle = FixedString(handle);
+		translated.Handle.ReferenceString = ts;
+		return true;
+	} else {
+		translated.Handle.Handle = GFS.strNullStringHandle;
+		translated.Handle.ReferenceString = FromUTF8(fallback);
+		return false;
+	}
+}
+
 bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& translated)
 {
 	auto keyMgr = GetStaticSymbols().GetTranslatedStringKeyManager();

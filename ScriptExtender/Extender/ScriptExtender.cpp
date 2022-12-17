@@ -13,6 +13,7 @@
 
 #include <Extender/Shared/StatLoadOrderHelper.inl>
 #include <Extender/Shared/SavegameSerializer.inl>
+#include <Extender/Shared/CustomDamageTypes.inl>
 
 #undef DEBUG_SERVER_CLIENT
 

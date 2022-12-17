@@ -290,6 +290,29 @@ namespace dse::esv
 		);
 #endif
 
+		auto cdt = &gExtender->GetCustomDamageTypes();
+		lib.eoc__GetDamageType.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetDamageType, cdt, _1, _2)
+		);
+		lib.eoc__GetDamageTypeString.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetDamageTypeString, cdt, _1, _2)
+		);
+		lib.eoc__DamageTypeToTranslateString.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::DamageTypeToTranslateString, cdt, _1, _2, _3)
+		);
+		lib.eoc__DamageDescriptionToTranslateString.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::DamageDescriptionToTranslateString, cdt, _1, _2, _3)
+		);
+		lib.eoc__DamageTypeToTranslateStringExtended.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::DamageTypeToTranslateStringExtended, cdt, _1, _2, _3)
+		);
+		lib.fmt__GetColorCodeDmg.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetColorCodeDmg, cdt, _1, _2)
+		);
+		lib.fmt__ColorCodeAndTypeDmg.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetColorCodeAndTypeDmg, cdt, _1, _2, _3, _4, _5)
+		);
+
 		loaded_ = true;
 	}
 }

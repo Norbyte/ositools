@@ -337,6 +337,8 @@ namespace dse::esv
 
 	void CustomFunctionLibrary::OnParseStructureFolder(RPGStats* self, ObjectSet<STDString>* paths)
 	{
+		gExtender->GetCustomDamageTypes().Clear();
+
 		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
 		if (lua) {
 			lua->OnStatsStructureLoaded();

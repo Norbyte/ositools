@@ -25,6 +25,14 @@ HOOK_DEFN(RPGStats__Load, RPGStats__Load, stats::RPGStats::LoadProc, HookableFun
 HOOK_DEFN(RPGStats__ParseStructureFolder, RPGStats__ParseStructureFolder, stats::RPGStats::ParseStructureFolderProc, PostHookableFunction)
 HOOK_DEFN(RPGStats__ParseProperties, RPGStats__ParseProperties, stats::RPGStats::ParsePropertiesProc, WrappableFunction)
 
+HOOK_DEFN(eoc__GetDamageType, eoc__GetDamageType, stats::GetDamageTypeProc, WrappableFunction)
+HOOK_DEFN(eoc__GetDamageTypeString, eoc__GetDamageTypeString, stats::GetDamageTypeStringProc, WrappableFunction)
+HOOK_DEFN(eoc__DamageTypeToTranslateString, eoc__DamageTypeToTranslateString, stats::DamageTypeToTranslateStringProc, WrappableFunction)
+HOOK_DEFN(eoc__DamageDescriptionToTranslateString, eoc__DamageDescriptionToTranslateString, stats::DamageDescriptionToTranslateStringProc, WrappableFunction)
+HOOK_DEFN(eoc__DamageTypeToTranslateStringExtended, eoc__DamageTypeToTranslateStringExtended, stats::DamageTypeToTranslateStringExtendedProc, WrappableFunction)
+HOOK_DEFN(fmt__GetColorCodeDmg, fmt__GetColorCodeDmg, stats::GetColorCodeDmgProc, WrappableFunction)
+HOOK_DEFN(fmt__ColorCodeAndTypeDmg, fmt__ColorCodeAndTypeDmg, stats::ColorCodeAndTypeDmgProc, WrappableFunction)
+
 HOOK_DEFN(SkillPrototype__FormatDescriptionParam, SkillPrototype__FormatDescriptionParam, stats::SkillPrototype::FormatDescriptionParamProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetSkillDamage, SkillPrototype__GetSkillDamage, stats::SkillPrototype::GetSkillDamageProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetAttackAPCost, SkillPrototype__GetAttackAPCost, stats::SkillPrototype::GetAttackAPCostProc, WrappableFunction)

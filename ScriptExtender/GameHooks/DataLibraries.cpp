@@ -145,6 +145,14 @@ namespace dse
 		SYM_OFF(eoc__SkillPrototypeManager);
 		SYM_OFF(eoc__StatusPrototypeManager);
 
+		SYM_OFF(eoc__GetDamageType);
+		SYM_OFF(eoc__GetDamageTypeString);
+		SYM_OFF(eoc__DamageTypeToTranslateString);
+		SYM_OFF(eoc__DamageDescriptionToTranslateString);
+		SYM_OFF(eoc__DamageTypeToTranslateStringExtended);
+		SYM_OFF(fmt__GetColorCodeDmg);
+		SYM_OFF(fmt__ColorCodeAndTypeDmg);
+
 		SYM_OFF(esv__ExecutePropertyDataOnGroundHit);
 		SYM_OFF(esv__ExecutePropertyDataOnPositionOnly);
 		SYM_OFF(esv__ExecuteCharacterSetExtraProperties);

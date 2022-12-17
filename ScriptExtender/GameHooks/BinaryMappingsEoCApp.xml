@@ -1795,5 +1795,94 @@
       48 8b 8b ?? ?? ?? ?? // mov     rcx, [rbx+108h]
       <Target Type="Absolute" Offset="0x200" NextSymbol="ecl::gMaterialManager" NextSymbolSeekSize="0x100" />
     </Mapping>
+
+    <Mapping Name="esv::StoryUtils::GetDamageType">
+      e8 ?? ?? ?? ?? // call    CDamageList__EnsureFullSize
+      48 8b cb // mov     rcx, rbx; String2
+      44 89 7d f7 // mov     dword ptr [rbp+57h+var_60], r15d
+      89 7d fb // mov     dword ptr [rbp+57h+var_60+4], edi
+      44 89 7d 33 // mov     dword ptr [rbp+57h+var_30.Items+4], r15d
+      @ref1 e8 ?? ?? ?? ?? // call    esv__StoryUtils__GetDamageType
+      83 f8 05 // cmp     eax, 5
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__GetDamageType" />
+    </Mapping>
+
+    <Mapping Name="esv::StoryUtils::GetDamageTypeString">
+      48 85 ed // test    rbp, rbp
+      0f 84 99 01 00 00 // jz      loc_1419333D0
+      4d 85 ff // test    r15, r15
+      0f 84 90 01 00 00 // jz      loc_1419333D0
+      8b cb // mov     ecx, ebx
+      4c 89 ac 24 98 00 00 00 // mov     [rsp+88h+arg_8], r13
+      @ref1 e8 ?? ?? ?? ?? // call    esv__StoryUtils__GetDamageTypeString
+      41 0f b6 cc // movzx   ecx, r12b
+      4c 8b e8 // mov     r13, rax
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__GetDamageTypeString" />
+    </Mapping>
+
+    <Mapping Name="eoc::DamageTypeToTranslateString">
+      ba 03 00 00 00 // mov     edx, 3
+      44 8d 42 1d // lea     r8d, [rdx+1Dh]
+      e8 92 03 f5 ff // call    sub_141C79570
+      41 8b 17 // mov     edx, [r15]
+      48 8d 4d 90 // lea     rcx, [rbp+1D0h+var_240]
+      @ref1 e8 ?? ?? ?? ?? // call    eoc__DamageTypeToTranslateString
+      4c 8b c0 // mov     r8, rax
+      ba 04 00 00 00 // mov     edx, 4
+      48 8b ce // mov     rcx, rsi
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__DamageTypeToTranslateString" />
+    </Mapping>
+
+    <Mapping Name="eoc::DamageDescriptionToTranslateString">
+      49 8d 45 a0 // lea     rax, [r13-60h]
+      49 03 c7 // add     rax, r15
+      8b 50 08 // mov     edx, [rax+8]
+      48 8d 4c 24 50 // lea     rcx, [rsp+290h+var_240]
+      @ref1 e8 ?? ?? ?? ?? // call    eoc__DamageDescriptionToTranslateString
+      48 8b 0d 94 8e c9 00 // mov     rcx, cs:qword_142959848
+      48 8d 50 58 // lea     rdx, [rax+58h]
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__DamageDescriptionToTranslateString" />
+    </Mapping>
+
+    <Mapping Name="eoc::DamageTypeToTranslateStringExtended">
+      ba 20 00 00 00 // mov     edx, 20h ; ' '
+      48 8b cf // mov     rcx, rdi
+      e8 ?? ?? ?? ?? // call    ls__Text__Concat
+      8b d6 // mov     edx, esi
+      48 8d 4c 24 40 // lea     rcx, [rsp+138h+var_F8]
+      @ref1 e8 ?? ?? ?? ?? // call    eoc__DamageTypeToTranslateStringExtended
+      48 8b 0d ab 0f c3 00 // mov     rcx, cs:qword_142959848
+      48 8d 50 58 // lea     rdx, [rax+58h]
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__DamageTypeToTranslateStringExtended" />
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg">
+      83 3e 00 // cmp     dword ptr [rsi], 0
+      8b 5e 04 // mov     ebx, [rsi+4]
+      0f 8e 5b 01 00 00 // jle     loc_14172BFE0
+      83 fb 0c // cmp     ebx, 0Ch
+      77 09 // ja      short loc_14172BE93
+      8b cb // mov     ecx, ebx
+      @ref1 e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      eb 03 // jmp     short loc_14172BE96
+      83 c8 ff // or      eax, 0FFFFFFFFh
+      <Target Type="Indirect" Offset="@ref1" Symbol="fmt__GetColorCodeDmg" />
+    </Mapping>
+
+    <Mapping Name="fmt::ColorCodeAndTypeDmg">
+      c1 e9 09 // shr     ecx, 9
+      41 33 d1 // xor     edx, r9d
+      80 e1 01 // and     cl, 1
+      41 2b d0 // sub     edx, r8d
+      44 0f b6 c1 // movzx   r8d, cl
+      44 8b cb // mov     r9d, ebx
+      48 8d 8d 00 03 00 00 // lea     rcx, [rbp+3E0h+var_E0]
+      @ref1 e8 ?? ?? ?? ?? // call    fmt__ColorCodeAndTypeDmg
+      40 84 ff // test    dil, dil
+      74 13 // jz      short loc_14172BEF8
+      48 8d 15 ?? ?? ?? ?? // lea     rdx, qword_1420E8658
+      48 8d 8d 00 03 00 00 // lea     rcx, [rbp+3E0h+var_E0]
+      <Target Type="Indirect" Offset="@ref1" Symbol="fmt__ColorCodeAndTypeDmg" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

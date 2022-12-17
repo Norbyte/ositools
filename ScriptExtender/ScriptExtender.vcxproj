@@ -32,6 +32,7 @@
     <ClInclude Include="Extender\Server\ScriptExtenderServer.h" />
     <ClInclude Include="Extender\Server\StatusHelpers.h" />
     <ClInclude Include="Extender\Shared\Console.h" />
+    <ClInclude Include="Extender\Shared\CustomDamageTypes.h" />
     <ClInclude Include="Extender\Shared\ExtenderConfig.h" />
     <ClInclude Include="Extender\Shared\ExtensionHelpers.h" />
     <ClInclude Include="Extender\Shared\ExtensionState.h" />
@@ -263,6 +264,7 @@
     <None Include="Extender\Client\CharacterTaskBinder.inl" />
     <None Include="Extender\Client\StatusHelpers.inl" />
     <None Include="Extender\Server\StatusHelpers.inl" />
+    <None Include="Extender\Shared\CustomDamageTypes.inl" />
     <None Include="Extender\Shared\ModuleHasher.inl" />
     <None Include="Extender\Shared\SavegameSerializer.inl" />
     <None Include="Extender\Shared\ScriptExtensions.proto" />

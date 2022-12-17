@@ -58,6 +58,14 @@ END_NS()
 
 BEGIN_NS(stats)
 
+using GetDamageTypeProc = DamageType (char const*);
+using GetDamageTypeStringProc = char const* (DamageType);
+using DamageTypeToTranslateStringProc = TranslatedString* (TranslatedString*, DamageType);
+using DamageDescriptionToTranslateStringProc = TranslatedString* (TranslatedString*, DamageType);
+using DamageTypeToTranslateStringExtendedProc = TranslatedString* (TranslatedString*, DamageType);
+using GetColorCodeDmgProc = uint64_t (DamageType);
+using ColorCodeAndTypeDmgProc = void (eoc::Text* text, DamageType* pDamageType, unsigned int amount, bool reflected);
+
 struct TDamagePair
 {
 	int32_t Amount;

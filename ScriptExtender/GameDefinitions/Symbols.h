@@ -184,6 +184,14 @@ namespace dse
 		stats::SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		stats::StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
 
+		stats::GetDamageTypeProc* eoc__GetDamageType{ nullptr };
+		stats::GetDamageTypeStringProc* eoc__GetDamageTypeString{ nullptr };
+		stats::DamageTypeToTranslateStringProc* eoc__DamageTypeToTranslateString{ nullptr };
+		stats::DamageDescriptionToTranslateStringProc* eoc__DamageDescriptionToTranslateString{ nullptr };
+		stats::DamageTypeToTranslateStringExtendedProc* eoc__DamageTypeToTranslateStringExtended{ nullptr };
+		stats::GetColorCodeDmgProc* fmt__GetColorCodeDmg{ nullptr };
+		stats::ColorCodeAndTypeDmgProc* fmt__ColorCodeAndTypeDmg{ nullptr };
+
 		esv::ExecutePropertyDataOnGroundHitProc* esv__ExecutePropertyDataOnGroundHit{ nullptr };
 		esv::ExecutePropertyDataOnPositionOnlyProc* esv__ExecutePropertyDataOnPositionOnly{ nullptr };
 		esv::ExecuteCharacterSetExtraPropertiesProc* esv__ExecuteCharacterSetExtraProperties{ nullptr };

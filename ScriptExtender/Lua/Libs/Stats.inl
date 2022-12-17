@@ -1319,6 +1319,18 @@ std::optional<int32_t> AddEnumerationValue(FixedString const& typeName, FixedStr
 	return value;
 }
 
+CustomDamageTypeDescriptor* AddDamageType(FixedString const& typeName, std::optional<bool> overwrite)
+{
+	CustomDamageTypeDescriptor* cdt;
+	if (overwrite && *overwrite) {
+		cdt = gExtender->GetCustomDamageTypes().AssignType(typeName);
+	} else {
+		cdt = gExtender->GetCustomDamageTypes().RegisterNewType(typeName);
+	}
+
+	return cdt;
+}
+
 void RegisterStatsLib()
 {
 	DECLARE_MODULE(Stats, Both)
@@ -1341,6 +1353,7 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(AddVoiceMetaData)
 	MODULE_FUNCTION(AddAttribute)
 	MODULE_FUNCTION(AddEnumerationValue)
+	MODULE_FUNCTION(AddDamageType)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, DeltaMod, Both)

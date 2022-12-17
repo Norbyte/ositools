@@ -453,6 +453,9 @@
     <ClInclude Include="Lua\Client\CharacterTaskRegistry.h">
       <Filter>Lua\Client</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Shared\CustomDamageTypes.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -958,6 +961,9 @@
     </None>
     <None Include="Extender\Client\CharacterTaskBinder.inl">
       <Filter>Extender\Client</Filter>
+    </None>
+    <None Include="Extender\Shared\CustomDamageTypes.inl">
+      <Filter>Extender\Shared</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
