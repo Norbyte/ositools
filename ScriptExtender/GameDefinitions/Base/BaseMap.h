@@ -409,7 +409,7 @@ public:
 	{
 		auto elem = *it.CurrentNode;
 		if (elem == it.Element) {
-			*it.CurrentNode = it.Element;
+			*it.CurrentNode = it.Element->Next;
 		} else {
 			while (elem->Next != it.Element) {
 				elem = elem->Next;
