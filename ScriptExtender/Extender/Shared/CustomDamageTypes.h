@@ -37,8 +37,13 @@ public:
 	TranslatedString* DamageTypeToTranslateStringExtended(stats::DamageTypeToTranslateStringExtendedProc* wrapped, 
 		TranslatedString* result, DamageType damageType);
 	uint64_t GetColorCodeDmg(stats::GetColorCodeDmgProc* wrapped, DamageType damageType);
-	void GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, DamageType* pDamageType, 
+#if defined(OSI_EOCAPP)
+	void GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, unsigned int amount,
+		bool reflected, DamageType damageType);
+#else
+	void GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, DamageType& damageType,
 		unsigned int amount, bool reflected);
+#endif
 
 private:
 	std::unordered_map<uint32_t, CustomDamageTypeDescriptor> types_;

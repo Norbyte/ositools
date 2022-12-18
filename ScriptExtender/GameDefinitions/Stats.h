@@ -64,7 +64,11 @@ using DamageTypeToTranslateStringProc = TranslatedString* (TranslatedString*, Da
 using DamageDescriptionToTranslateStringProc = TranslatedString* (TranslatedString*, DamageType);
 using DamageTypeToTranslateStringExtendedProc = TranslatedString* (TranslatedString*, DamageType);
 using GetColorCodeDmgProc = uint64_t (DamageType);
-using ColorCodeAndTypeDmgProc = void (eoc::Text* text, DamageType* pDamageType, unsigned int amount, bool reflected);
+#if defined(OSI_EOCAPP)
+using ColorCodeAndTypeDmgProc = void (eoc::Text* text, unsigned int amount, bool reflected, DamageType damageType);
+#else
+using ColorCodeAndTypeDmgProc = void (eoc::Text* text, DamageType& damageType, unsigned int amount, bool reflected);
+#endif
 
 struct TDamagePair
 {

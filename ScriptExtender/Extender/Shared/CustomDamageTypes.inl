@@ -125,10 +125,15 @@ uint64_t CustomDamageTypeHelpers::GetColorCodeDmg(stats::GetColorCodeDmgProc* wr
 	return wrapped(damageType);
 }
 
-void CustomDamageTypeHelpers::GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, 
-	DamageType* pDamageType, unsigned int amount, bool reflected)
+#if defined(OSI_EOCAPP)
+void CustomDamageTypeHelpers::GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, unsigned int amount,
+	bool reflected, DamageType damageType)
+#else
+void CustomDamageTypeHelpers::GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, DamageType& damageType,
+	unsigned int amount, bool reflected)
+#endif
 {
-	auto it = types_.find((uint32_t)*pDamageType);
+	auto it = types_.find((uint32_t)damageType);
 	if (it != types_.end()) {
 		TranslatedString amountAndType;
 		script::GetTranslatedString(it->second.AmountAndTypeTextHandle.GetStringOrDefault(), it->second.AmountAndTypeText.c_str(), amountAndType);
@@ -149,7 +154,11 @@ void CustomDamageTypeHelpers::GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgP
 		return;
 	}
 
-	return wrapped(text, pDamageType, amount, reflected);
+#if defined(OSI_EOCAPP)
+	return wrapped(text, amount, reflected, damageType);
+#else
+	return wrapped(text, damageType, amount, reflected);
+#endif
 }
 
 END_SE()
