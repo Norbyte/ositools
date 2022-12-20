@@ -116,6 +116,94 @@ namespace dse::lua
 	}
 
 
+	PersistentRegistryEntry::PersistentRegistryEntry()
+		: L_(nullptr), generationId_(0), ref_(-1)
+	{}
+
+	PersistentRegistryEntry::PersistentRegistryEntry(lua_State * L, int index)
+		: L_(L), generationId_(get_generation_id(L))
+	{
+		lua_pushvalue(L, index);
+		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+
+	PersistentRegistryEntry::PersistentRegistryEntry(lua_State* L, Ref const& local)
+		: L_(L), generationId_(get_generation_id(L))
+	{
+		if ((bool)local) {
+			local.Push(L);
+			ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+		} else {
+			ref_ = -1;
+		}
+	}
+
+	PersistentRegistryEntry::~PersistentRegistryEntry()
+	{
+		Release();
+	}
+
+	PersistentRegistryEntry::PersistentRegistryEntry(PersistentRegistryEntry&& other)
+		: L_(other.L_), generationId_(other.generationId_), ref_(other.ref_)
+	{
+		other.ref_ = -1;
+	}
+
+	PersistentRegistryEntry& PersistentRegistryEntry::operator = (PersistentRegistryEntry&& other)
+	{
+		Release();
+
+		L_ = other.L_;
+		generationId_ = other.generationId_;
+		ref_ = other.ref_;
+		other.ref_ = -1;
+		return *this;
+	}
+
+	void PersistentRegistryEntry::Release()
+	{
+		if (ref_ != -1) {
+			auto state = gExtender->GetCurrentExtensionState()->GetLua();
+			if (state && state->GetGenerationId() == generationId_) {
+				luaL_unref(L_, LUA_REGISTRYINDEX, ref_);
+			}
+
+			ref_ = -1;
+		}
+	}
+
+	bool PersistentRegistryEntry::IsValid(lua_State* L) const
+	{
+		return L != nullptr 
+			&& ref_ != -1
+			&& State::FromLua(L)->GetGenerationId() == generationId_;
+	}
+
+	bool PersistentRegistryEntry::TryPush(lua_State* L) const
+	{
+		if (IsValid(L)) {
+			lua_rawgeti(L, LUA_REGISTRYINDEX, ref_);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	void PersistentRegistryEntry::Bind(lua_State* L, Ref const& ref)
+	{
+		assert(ref_ == -1);
+
+		L_ = L;
+		generationId_ = get_generation_id(L);
+		if (ref) {
+			ref.Push(L);
+			ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+		} else {
+			ref_ = -1;
+		}
+	}
+
+
 	int TracebackHandler(lua_State * L)
 	{
 		const char *msg = lua_tostring(L, 1);

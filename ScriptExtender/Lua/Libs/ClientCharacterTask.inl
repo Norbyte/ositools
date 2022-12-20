@@ -208,7 +208,7 @@ public:
 private:
 	FixedString taskType_;
 	Character* character_;
-	RegistryEntry reg_;
+	PersistentRegistryEntry reg_;
 };
 
 struct UserspaceCharacterTask : public CharacterTask

@@ -555,6 +555,43 @@ private:
 	int ref_;
 };
 
+class PersistentRegistryEntry
+{
+public:
+	PersistentRegistryEntry();
+	PersistentRegistryEntry(lua_State * L, int index);
+	PersistentRegistryEntry(lua_State * L, Ref const& local);
+	~PersistentRegistryEntry();
+
+	PersistentRegistryEntry(PersistentRegistryEntry const &) = delete;
+	PersistentRegistryEntry(PersistentRegistryEntry&&);
+
+	PersistentRegistryEntry& operator = (PersistentRegistryEntry const &) = delete;
+	PersistentRegistryEntry& operator = (PersistentRegistryEntry&&);
+
+	bool IsValid(lua_State* L) const;
+	bool TryPush(lua_State* L) const;
+	void Bind(lua_State* L, Ref const& ref);
+
+	inline int GetRef() const
+	{
+		return ref_;
+	}
+
+	inline void ResetWithoutUnbind()
+	{
+		L_ = nullptr;
+		ref_ = -1;
+	}
+
+private:
+	lua_State * L_;
+	uint32_t generationId_;
+	int ref_;
+
+	void Release();
+};
+
 enum class RefType
 {
 	None = 0,
@@ -625,6 +662,10 @@ public:
 
 	inline PersistentRef(lua_State* L, RegistryEntry const& ref)
 		: generationId_(get_generation_id(L)), type_(ref ? RefType::Registry : RefType::None), index_(ref ? ref.GetRef() : 0)
+	{}
+
+	inline PersistentRef(lua_State * L, PersistentRegistryEntry const& ref)
+		: generationId_(get_generation_id(L)), type_(ref.IsValid(L) ? RefType::Registry : RefType::None), index_(ref.IsValid(L) ? ref.GetRef() : 0)
 	{}
 
 	inline PersistentRef(PersistentRef const& ref)
