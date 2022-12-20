@@ -1884,5 +1884,173 @@
       48 8d 8d 00 03 00 00 // lea     rcx, [rbp+3E0h+var_E0]
       <Target Type="Indirect" Offset="@ref1" Symbol="fmt__ColorCodeAndTypeDmg" />
     </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch1">
+      83 3e 00 // cmp     dword ptr [rsi], 0
+      8b 5e 04 // mov     ebx, [rsi+4]
+      0f 8e 5b 01 00 00 // jle     loc_14172BFE0
+      @hook 83 fb 0c // cmp     ebx, 0Ch
+      77 09 // ja      short loc_14172BE93
+      8b cb // mov     ecx, ebx
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      eb 03 // jmp     short loc_14172BE96
+      83 c8 ff // or      eax, 0FFFFFFFFh
+      41 83 c8 ff // or      r8d, 0FFFFFFFFh
+      <Patch Type="Absolute" Offset="@hook">
+        83 fb ff
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch2">
+      85 ff // test    edi, edi
+      7e 35 // jle     short loc_14173F1DF
+      8b 4b 04 // mov     ecx, [rbx+4]
+      @hook 83 f9 0c // cmp     ecx, 0Ch
+      77 0a // ja      short loc_14173F1BC
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      44 8b c0 // mov     r8d, eax
+      eb 04 // jmp     short loc_14173F1C0
+      41 83 c8 ff // or      r8d, 0FFFFFFFFh
+      8b c7 // mov     eax, edi
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch3">
+      83 f9 04 // cmp     ecx, 4
+      0f 84 cd 00 00 00 // jz      loc_141741043
+      41 83 3e 00 // cmp     dword ptr [r14], 0
+      7c 13 // jl      short loc_141740F8F
+      @hook 83 f9 0c // cmp     ecx, 0Ch
+      77 09 // ja      short loc_141740F8A
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      8b d8 // mov     ebx, eax
+      eb 08 // jmp     short loc_141740F92
+      83 cb ff // or      ebx, 0FFFFFFFFh
+      eb 03 // jmp     short loc_141740F92
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch4">
+      8b d8 // mov     ebx, eax
+      83 f8 01 // cmp     eax, 1
+      74 23 // jz      short loc_141C71224
+      @hook 83 f8 0c // cmp     eax, 0Ch
+      77 09 // ja      short loc_141C7120F
+      8b c8 // mov     ecx, eax
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      eb 03 // jmp     short loc_141C71212
+      83 c8 ff // or      eax, 0FFFFFFFFh
+      41 83 c8 ff // or      r8d, 0FFFFFFFFh
+      8b d0 // mov     edx, eax
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch5">
+      ff c0 // inc     eax
+      3b c3 // cmp     eax, ebx
+      0f 4c c3 // cmovl   eax, ebx
+      8b d8 // mov     ebx, eax
+      @hook 83 fe 0c // cmp     esi, 0Ch
+      77 09 // ja      short loc_141CA71A9
+      8b ce // mov     ecx, esi
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      eb 02 // jmp     short loc_141CA71AB
+      8b c7 // mov     eax, edi
+      44 8b c7 // mov     r8d, edi
+      48 8d 4d e0 // lea     rcx, [rbp+0EA0h+var_EC0]
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch6">
+      48 8b 45 90 // mov     rax, [rbp+0EA0h+var_F10]
+      48 03 85 20 09 00 00 // add     rax, [rbp+0EA0h+var_580]
+      48 03 c3 // add     rax, rbx
+      8b 48 08 // mov     ecx, [rax+8]
+      @hook 83 f9 0c // cmp     ecx, 0Ch
+      77 07 // ja      short loc_141CA763A
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      eb 02 // jmp     short loc_141CA763C
+      8b c7 // mov     eax, edi
+      44 8b c7 // mov     r8d, edi
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch7">
+      8b 44 24 48 // mov     eax, dword ptr [rsp+0FA0h+damageType]
+      48 8b 9d 98 00 00 00 // mov     rbx, [rbp+0EA0h+var_E08]
+      @hook 83 f8 0c // cmp     eax, 0Ch
+      0f 87 e3 00 00 00 // ja      loc_141CA819B
+      8b c8 // mov     ecx, eax
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      48 63 f8 // movsxd  rdi, eax
+      83 ff ff // cmp     edi, 0FFFFFFFFh
+      0f 84 d0 00 00 00 // jz      loc_141CA819B
+      48 8b 53 10 // mov     rdx, [rbx+10h]
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch8">
+      48 83 cb ff // or      rbx, 0FFFFFFFFFFFFFFFFh
+      48 89 ac 24 08 01 00 00 // mov     [rsp+138h+var_30], rbp
+      @hook 83 fe 0c // cmp     esi, 0Ch
+      77 58 // ja      short loc_141D28A0C
+      8b ce // mov     ecx, esi
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      48 63 e8 // movsxd  rbp, eax
+      3b eb // cmp     ebp, ebx
+      74 4c // jz      short loc_141D28A0E
+      48 8d 15 ?? ?? ?? ?? // lea     rdx, xmmword_1421EE428
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeDmg_Patch9">
+      85 ff // test    edi, edi
+      7e 35 // jle     short loc_14173F1DF
+      8b 4b 04 // mov     ecx, [rbx+4]
+      @hook 83 f9 0c // cmp     ecx, 0Ch
+      77 0a // ja      short loc_14173F1BC
+      e8 ?? ?? ?? ?? // call    fmt__GetColorCodeDmg
+      44 8b c0 // mov     r8d, eax
+      eb 04 // jmp     short loc_14173F1C0
+      41 83 c8 ff // or      r8d, 0FFFFFFFFh
+      8b c7 // mov     eax, edi
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
+
+    <Mapping Name="fmt::GetColorCodeAndTypeDmg_Patch1">
+      41 c1 f8 1f // sar     r8d, 1Fh
+      @hook 83 fb 0b // cmp     ebx, 0Bh
+      77 26 // ja      short loc_14172BEE0
+      41 8b 4f 20 // mov     ecx, [r15+20h]
+      41 8b d0 // mov     edx, r8d
+      c1 e9 09 // shr     ecx, 9
+      41 33 d1 // xor     edx, r9d
+      80 e1 01 // and     cl, 1
+      41 2b d0 // sub     edx, r8d
+      44 0f b6 c1 // movzx   r8d, cl
+      44 8b cb // mov     r9d, ebx
+      48 8d 8d 00 03 00 00 // lea     rcx, [rbp+3E0h+var_E0]
+      e8 ?? ?? ?? ?? // call    fmt__ColorCodeAndTypeDmg
+      40 84 ff // test    dil, dil
+      <Patch Type="Absolute" Offset="@hook">
+        90 90 90 90 90
+      </Patch>
+    </Mapping>
   </Mappings>
 </BinaryMappings>

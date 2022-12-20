@@ -506,6 +506,18 @@ namespace dse
 		DisableItemFolding();
 		EnableAchievements();
 		ApplyCodePatch("ecl::ShroudManager::InitObjects");
+#if defined(OSI_EOCAPP)
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch1");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch2");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch3");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch4");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch5");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch6");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch7");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch8");
+		ApplyCodePatch("fmt::GetColorCodeDmg_Patch9");
+		ApplyCodePatch("fmt::GetColorCodeAndTypeDmg_Patch1");
+#endif
 	}
 
 
