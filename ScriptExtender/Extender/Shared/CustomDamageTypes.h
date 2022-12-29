@@ -28,6 +28,11 @@ public:
 	CustomDamageTypeDescriptor* RegisterNewType(FixedString const& name);
 	void Clear();
 
+	uint32_t MaxDamageTypeId() const
+	{
+		return nextDamageTypeId_;
+	}
+
 	DamageType GetDamageType(stats::GetDamageTypeProc* wrapped, char const* damageType);
 	char const* GetDamageTypeString(stats::GetDamageTypeStringProc* wrapped, DamageType damageType);
 	TranslatedString* DamageTypeToTranslateString(stats::DamageTypeToTranslateStringProc* wrapped, 
@@ -48,6 +53,8 @@ public:
 	bool ComputeScaledDamage(stats::Character::ComputeScaledDamageProc* wrapped, Character* self, Item* weapon, 
 		DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages);
 #endif
+	bool ComputeItemDamage(stats::Item::ComputeDamageProc* wrapped, Item* self,
+		DamageDescList* damages, bool keepCurrentDamages);
 
 private:
 	std::unordered_map<uint32_t, CustomDamageTypeDescriptor> types_;

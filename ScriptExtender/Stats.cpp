@@ -1380,6 +1380,82 @@ bool Character::IsBoostActive(uint32_t conditionMask)
 		|| (conditionMask & 0x700) && ActiveBoostConditions[15] > 0;
 }
 
+bool Character::ComputeScaledDamage(Item* weapon, DamageDescList& damages, bool keepCurrentDamages)
+{
+	struct DamageRange
+	{
+		int32_t minDamage{ 0 };
+		int32_t maxDamage{ 0 };
+	};
+
+	auto maxDamageType = gExtender->GetCustomDamageTypes().MaxDamageTypeId();
+	ObjectSet<DamageRange> damageRanges;
+	damageRanges.resize(maxDamageType);
+
+	if (!keepCurrentDamages) {
+		damages.clear();
+	}
+
+	auto computeDamageProc = GetStaticSymbols().CDivinityStats_Item__ComputeDamage;
+	auto getDamageBoostProc = GetStaticSymbols().CDivinityStats_Character__GetDamageBoost;
+	auto getWeapopnAbilityProc = GetStaticSymbols().CDivinityStats_Character__GetWeaponAbility;
+	auto getWeapopnAbilityBoostProc = GetStaticSymbols().CDivinityStats_Character__GetWeaponAbilityBoost;
+	auto getItemRequirementAttributeProc = GetStaticSymbols().CDivinityStats_Character__GetItemRequirementAttribute;
+	auto scaledDamageFromPrimaryAttributeProc = GetStaticSymbols().eoc__ScaledDamageFromPrimaryAttribute;
+
+	weapon->ComputeDamage(damages, keepCurrentDamages);
+
+	for (uint32_t i = 0; i < damages.size(); i++) {
+		auto const& dmg = damages[i];
+		damageRanges[(uint32_t)dmg.DamageType].minDamage += dmg.MinDamage;
+		damageRanges[(uint32_t)dmg.DamageType].maxDamage += dmg.MaxDamage;
+	}
+
+	damages.clear();
+
+	auto damageBoost = getDamageBoostProc(this);
+	int32_t weaponAbilityBoost{ 0 };
+	if (weapon->ItemType == EquipmentStatsType::Weapon) {
+#if defined(OSI_EOCAPP)
+		auto weaponAbility = getWeapopnAbilityProc(this, weapon);
+		weaponAbilityBoost = getWeapopnAbilityBoostProc(this, weaponAbility, false, 0);
+#else
+		weaponAbilityBoost = getWeapopnAbilityBoostProc(this, weapon, false);
+#endif
+	}
+
+	uint32_t requirementId{ 0 };
+	int32_t attributeDmgBoost{ 0 };
+	int32_t sneakDamageMultiplier{ 0 };
+	auto itemRequirementAttribute = getItemRequirementAttributeProc(this, weapon, requirementId, false);
+	if (itemRequirementAttribute) {
+		attributeDmgBoost = (int32_t)roundf(scaledDamageFromPrimaryAttributeProc(itemRequirementAttribute) * 100.0f);
+	}
+
+	if ((Flags & CharacterFlags::IsSneaking) == CharacterFlags::IsSneaking) {
+		sneakDamageMultiplier = (int)GetStaticSymbols().GetStats()->GetExtraData(GFS.strSneakDamageMultiplier);
+	}
+
+	auto damageMultiplier = 100 + attributeDmgBoost + weaponAbilityBoost + damageBoost + sneakDamageMultiplier;
+	damageMultiplier = std::max(damageMultiplier, -100);
+
+	for (uint32_t damageType = 0; damageType < maxDamageType; damageType++) {
+		auto& dmgRange = damageRanges[damageType];
+		if (dmgRange.minDamage || dmgRange.maxDamage) {
+			DamageDesc dmgDesc{
+				.MinDamage = (int32_t)ceilf((float)(damageMultiplier * dmgRange.minDamage) / 100.0f),
+				.MaxDamage = (int32_t)ceilf((float)(damageMultiplier * dmgRange.maxDamage) / 100.0f),
+				.DamageType = (DamageType)damageType,
+				.field_C = 0
+			};
+
+			damages.push_back(dmgDesc);
+		}
+	}
+
+	return true;
+}
+
 template <class IterFunc, class ItemFunc>
 int32_t ComputeCharacterResistance(Character * character, IterFunc iter, ItemFunc iterItem, bool excludeBoosts)
 {
@@ -1543,6 +1619,88 @@ int32_t Item::GetAbility(AbilityType ability)
 	return points;
 }
 
+bool Item::ComputeDamage(DamageDescList& damages, bool keepCurrentDamages)
+{
+	struct DamageRange
+	{
+		float minDamage{ .0f };
+		float maxDamage{ .0f };
+	};
+
+	auto maxDamageType = gExtender->GetCustomDamageTypes().MaxDamageTypeId();
+	ObjectSet<DamageRange> damageRanges;
+	damageRanges.resize(maxDamageType);
+
+	if (!keepCurrentDamages) {
+		damages.clear();
+	}
+
+	int32_t damageBoost = 0;
+
+	auto base = (EquipmentAttributesWeapon*)DynamicStats[0];
+	for (auto attr : DynamicStats) {
+		if (attr->StatsType != EquipmentStatsType::Weapon) {
+			continue;
+		}
+
+		auto stat = (EquipmentAttributesWeapon*)attr;
+		auto minDamage = (float)stat->MinDamage;
+		auto maxDamage = (float)stat->MaxDamage;
+		if (stat->DamageFromBase) {
+			if (base == stat) {
+				if (base->MinDamage) {
+					minDamage = fmaxf((stat->DamageFromBase * stat->MinDamage) * 0.01f, 1.0f);
+				}
+				
+				if (base->MaxDamage) {
+					maxDamage = fmaxf((stat->DamageFromBase * stat->MaxDamage) * 0.01f, 1.0f);
+				}
+			} else {
+				auto dmgFromBase = base->DamageFromBase * 0.01f;
+				auto dmgFromBase2 = stat->DamageFromBase * 0.01f;
+				maxDamage = fmaxf(base->MaxDamage * dmgFromBase * dmgFromBase2, 1.0f);
+				minDamage = fmaxf(base->MinDamage * dmgFromBase * dmgFromBase2, 1.0f);
+			}
+		}
+
+		if (minDamage > 0.0f) {
+			maxDamage = fmaxf(maxDamage, minDamage + 1.0f);
+		}
+
+		auto& dmgRange = damageRanges[(uint32_t)stat->DamageType];
+		damageBoost += stat->DamageBoost;
+		dmgRange.minDamage += minDamage;
+		dmgRange.maxDamage += maxDamage;
+	}
+
+	for (uint32_t damageType = 0; damageType < maxDamageType; damageType++) {
+		auto& dmgRange = damageRanges[damageType];
+		if (dmgRange.minDamage || dmgRange.maxDamage) {
+			if (damageBoost) {
+				auto multiplier = (damageBoost * 0.01f) + 1.0f;
+				DamageDesc dmgDesc{
+					.MinDamage = (int32_t)ceilf(multiplier * dmgRange.minDamage),
+					.MaxDamage = (int32_t)ceilf(multiplier * dmgRange.maxDamage),
+					.DamageType = (DamageType)damageType,
+					.field_C = 0
+				};
+
+				damages.push_back(dmgDesc);
+			} else {
+				DamageDesc dmgDesc{
+					.MinDamage = (int32_t)roundf(dmgRange.minDamage),
+					.MaxDamage = (int32_t)roundf(dmgRange.maxDamage),
+					.DamageType = (DamageType)damageType,
+					.field_C = 0
+				};
+
+				damages.push_back(dmgDesc);
+			}
+		}
+	}
+
+	return damages.size() != 0;
+}
 
 bool PropertyExtender::GetDescription(STDWString* Line1)
 {

@@ -696,6 +696,8 @@ struct Item : public ObjectInstance
 
 	bool HasTalent(TalentType talent);
 	int32_t GetAbility(AbilityType ability);
+
+	bool ComputeDamage(DamageDescList& damages, bool keepCurrentDamages);
 };
 
 struct CharacterEquippedItem
@@ -858,6 +860,8 @@ struct Character : public ObjectInstance
 	int32_t GetCorrosiveResistance(bool excludeBoosts);
 	int32_t GetDamageBoost();
 	bool IsBoostActive(uint32_t conditionsMask);
+
+	bool ComputeScaledDamage(Item* weapon, DamageDescList& damages, bool keepCurrentDamages);
 };
 
 typedef int32_t (CDivinityStats_Character__GetStat)(Character * self, bool baseStats);
