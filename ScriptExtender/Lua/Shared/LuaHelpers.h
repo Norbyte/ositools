@@ -6,6 +6,7 @@
 #include <lauxlib.h>
 #include <optional>
 #include <GameDefinitions/Base/Base.h>
+#include <Lua/Shared/LuaTraits.h>
 #include <Lua/Shared/LuaReference.h>
 
 BEGIN_NS(lua)
@@ -475,6 +476,13 @@ inline Version do_get(lua_State* L, int index, Overload<Version>)
 	return Version(minor, major, revision, build);	
 }
 
+template <class T, class... Trait>
+inline Traits<T, Trait...> do_get(lua_State* L, int index, Overload<Traits<T, Trait...>>)
+{
+	(ValidateTrait<Trait>(L, index), ...);
+	return Traits<T, Trait...>(do_get(L, index, Overload<T>{}));
+}
+
 template <class T>
 inline typename std::optional<T> do_get(lua_State* L, int index, Overload<std::optional<T>>)
 {
@@ -624,6 +632,12 @@ inline void push(lua_State* L, Version const& v)
 	settable(L, 1, v.Minor());
 	settable(L, 3, v.Revision());
 	settable(L, 4, v.Build());
+}
+
+template <class T, class... Args>
+inline void push(lua_State* L, Traits<T, Args...> const& v)
+{
+	push(L, *v);
 }
 
 template <class T>

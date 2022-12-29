@@ -132,6 +132,12 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, ig::InvokeDataValue& v);
 	LuaSerializer& operator << (LuaSerializer& s, TypeInformationRef& v);
 
+	template <class T, class... Trait>
+	LuaSerializer& operator << (LuaSerializer& s, Traits<T, Trait...>& v)
+	{
+		return s.Visit(v);
+	}
+
 	template <class T>
 	LuaSerializer& operator << (LuaSerializer& s, OverrideableProperty<T>& v)
 	{

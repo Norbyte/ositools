@@ -456,6 +456,9 @@
     <ClInclude Include="Extender\Shared\CustomDamageTypes.h">
       <Filter>Extender\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaTraits.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
     <ClInclude Include="Lua\Shared\LuaReference.h">
       <Filter>Lua\Shared</Filter>
     </ClInclude>

@@ -991,4 +991,12 @@ uint32_t get_generation_id(lua_State* L)
 	return State::FromLua(L)->GetGenerationId();
 }
 
+template <>
+void ValidateTrait<CallableTrait>(lua_State* L, int index)
+{
+	if (!lua_isfunction(L, index)) {
+		luaL_error(L, "Argument #%d: must be a function, got %s", index, lua_typename(L, lua_type(L, index)));
+	}
+}
+
 END_NS()
