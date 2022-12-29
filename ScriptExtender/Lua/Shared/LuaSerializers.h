@@ -121,6 +121,12 @@ namespace dse::lua
 	inline LuaSerializer& operator << (LuaSerializer& s, glm::mat3& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, glm::mat4& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, Version& v) { return s.Visit(v); }
+
+	inline LuaSerializer& operator << (LuaSerializer& s, Ref& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, RegistryEntry& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, PersistentRef& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, PersistentRegistryEntry& v) { return s.Visit(v); }
+
 	LuaSerializer& operator << (LuaSerializer& s, TranslatedString& v);
 	LuaSerializer& operator << (LuaSerializer& s, char const*& v);
 	LuaSerializer& operator << (LuaSerializer& s, ig::InvokeDataValue& v);

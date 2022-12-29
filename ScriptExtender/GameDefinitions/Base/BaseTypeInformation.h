@@ -1,6 +1,6 @@
 #pragma once
 
-struct lua_State;
+#include <Lua/Shared/LuaTraits.h>
 
 BEGIN_SE()
 
@@ -152,6 +152,12 @@ template <class TKey, class TValue>
 inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overload<RefMap<TKey, TValue>>)
 {
 	return &MakeDeferredMapType<TKey, TValue>;
+}
+
+template <class T, class... Trait>
+inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overload<lua::Traits<T, Trait...>>)
+{
+	return &MakeDeferredOptionalType<T>;
 }
 
 template <class T>

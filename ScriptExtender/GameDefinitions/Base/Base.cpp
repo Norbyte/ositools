@@ -529,6 +529,10 @@ void TypeInformationRepository::Initialize()
 	RegisterStaticType<Guid>("Guid", LuaTypeId::String);
 	RegisterStaticType<TemplateHandle>("TemplateHandle", LuaTypeId::Integer);
 	RegisterStaticType<ig::InvokeDataValue>("IggyInvokeDataValue", LuaTypeId::Any);
+	RegisterStaticType<lua::Ref>("Ref", LuaTypeId::Any);
+	RegisterStaticType<lua::RegistryEntry>("RegistryEntry", LuaTypeId::Any);
+	RegisterStaticType<lua::PersistentRef>("PersistentRef", LuaTypeId::Any);
+	RegisterStaticType<lua::PersistentRegistryEntry>("PersistentRegistryEntry", LuaTypeId::Any);
 
 	auto& ivec2 = RegisterStaticType<glm::ivec2>("ivec2", LuaTypeId::Array);
 	ivec2.ElementType = GetStaticTypeInfo(Overload<int32_t>{});

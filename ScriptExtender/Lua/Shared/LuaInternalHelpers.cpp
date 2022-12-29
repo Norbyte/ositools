@@ -380,6 +380,27 @@ void push(lua_State* L, Ref const& v)
 	v.Push(L);
 }
 
+void push(lua_State* L, PersistentRef const& v)
+{
+	v.Push(L);
+}
+
+void push(lua_State* L, RegistryEntry const& v)
+{
+	if (v) {
+		v.Push();
+	} else {
+		lua_pushnil(L);
+	}
+}
+
+void push(lua_State* L, PersistentRegistryEntry const& v)
+{
+	if (!v.TryPush(L)) {
+		lua_pushnil(L);
+	}
+}
+
 Ref do_get(lua_State* L, int index, Overload<Ref>)
 {
 	return Ref(L, index);
@@ -388,6 +409,16 @@ Ref do_get(lua_State* L, int index, Overload<Ref>)
 RegistryEntry do_get(lua_State* L, int index, Overload<RegistryEntry>)
 {
 	return RegistryEntry(L, index);
+}
+
+PersistentRef do_get(lua_State* L, int index, Overload<PersistentRef>)
+{
+	return PersistentRef(L, index);
+}
+
+PersistentRegistryEntry do_get(lua_State* L, int index, Overload<PersistentRegistryEntry>)
+{
+	return PersistentRegistryEntry(L, index);
 }
 
 void assign(lua_State* L, int idx, glm::vec2 const& v)

@@ -456,6 +456,9 @@
     <ClInclude Include="Extender\Shared\CustomDamageTypes.h">
       <Filter>Extender\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaReference.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
