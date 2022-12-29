@@ -311,6 +311,9 @@ struct ProtectedFunctionCallerBase
 {
 	Ref Function;
 
+	ProtectedFunctionCallerBase() {}
+	ProtectedFunctionCallerBase(Ref const& fun) : Function(fun) {}
+
 	bool ProtectedCall(lua_State* L, lua_CFunction fun);
 	int CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun);
 };
@@ -320,6 +323,18 @@ struct ProtectedFunctionCaller : public ProtectedFunctionCallerBase
 {
 	TArgs Args;
 	ReturnValueContainer<TReturn> Retval;
+
+	inline ProtectedFunctionCaller() {}
+
+	inline ProtectedFunctionCaller(Ref const& fun, TArgs const& args) 
+		: ProtectedFunctionCallerBase(fun),
+		Args(args)
+	{}
+
+	inline ProtectedFunctionCaller(Ref const& fun, TArgs && args) 
+		: ProtectedFunctionCallerBase(fun),
+		Args(std::forward<TArgs>(args))
+	{}
 
 	bool Call(lua_State* L)
 	{
@@ -492,6 +507,17 @@ inline int CallFunctionHelper(lua_State* L, R (* fun)(Args...), std::index_seque
 template <class R, class ...Args>
 inline int CallFunction(lua_State* L, R (* fun)(Args...)) {
 	return CallFunctionHelper(L, fun, std::index_sequence_for<Args...>());
+}
+
+template <class R, class ...Args>
+inline std::optional<R> ProtectedCallFunction(lua_State* L, Ref const& fun, Args&&... args)
+{
+	ProtectedFunctionCaller<std::tuple<Args...>, R> caller{ fun, std::tuple<Args...>(std::forward<Args>(args)...) };
+	if (caller.Call(L)) {
+		return std::move(caller.Retval.Value);
+	} else {
+		return {};
+	}
 }
 
 #define LuaWrapFunction(fun) [](lua_State* L) { return CallFunction(L, fun); }

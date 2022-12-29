@@ -1,6 +1,18 @@
 #include <ScriptHelpers.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 
 BEGIN_SE()
+
+CustomDamageTypeCallbacks* CustomDamageTypeDescriptor::GetCallbacks()
+{
+	LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+	if (lua) {
+		return lua->GetCustomDamageTypes().GetOrRegister(DamageTypeId);
+	} else {
+		return nullptr;
+	}
+}
+
 
 CustomDamageTypeDescriptor* CustomDamageTypeHelpers::AssignType(FixedString const& name)
 {
@@ -175,76 +187,102 @@ bool CustomDamageTypeHelpers::ComputeScaledDamage(stats::Character::ComputeScale
 	DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages)
 #endif
 {
-	struct DamageRange
-	{
-		int32_t minDamage{ 0 };
-		int32_t maxDamage{ 0 };
-	};
+	return self->ComputeScaledDamage(weapon, *damages, keepCurrentDamages);
+}
 
-	ObjectSet<DamageRange> damageRanges;
-	damageRanges.resize(nextDamageTypeId_);
+bool CustomDamageTypeHelpers::ComputeItemDamage(stats::Item::ComputeDamageProc* wrapped, Item* self,
+	DamageDescList* damages, bool keepCurrentDamages)
+{
+	return self->ComputeDamage(*damages, keepCurrentDamages);
+}
 
-	if (!keepCurrentDamages) {
-		damages->clear();
-	}
-
-	auto computeDamageProc = GetStaticSymbols().CDivinityStats_Item__ComputeDamage;
-	auto getDamageBoostProc = GetStaticSymbols().CDivinityStats_Character__GetDamageBoost;
-	auto getWeapopnAbilityProc = GetStaticSymbols().CDivinityStats_Character__GetWeaponAbility;
-	auto getWeapopnAbilityBoostProc = GetStaticSymbols().CDivinityStats_Character__GetWeaponAbilityBoost;
-	auto getItemRequirementAttributeProc = GetStaticSymbols().CDivinityStats_Character__GetItemRequirementAttribute;
-	auto scaledDamageFromPrimaryAttributeProc = GetStaticSymbols().eoc__ScaledDamageFromPrimaryAttribute;
-	computeDamageProc(weapon, damages, keepCurrentDamages);
-
-	for (uint32_t i = 0; i < damages->size(); i++) {
-		auto const& dmg = (*damages)[i];
-		damageRanges[(uint32_t)dmg.DamageType].minDamage += dmg.MinDamage;
-		damageRanges[(uint32_t)dmg.DamageType].maxDamage += dmg.MaxDamage;
-	}
-
-	damages->clear();
-
-	auto damageBoost = getDamageBoostProc(self);
-	int32_t weaponAbilityBoost{ 0 };
-	if (weapon->ItemType == EquipmentStatsType::Weapon) {
 #if defined(OSI_EOCAPP)
-		auto weaponAbility = getWeapopnAbilityProc(self, weapon);
-		weaponAbilityBoost = getWeapopnAbilityBoostProc(self, weaponAbility, false, 0);
+int32_t CustomDamageTypeHelpers::GetResistance(stats::Character::GetResistanceProc* wrapped, Character* self,
+	DamageType damageType, bool baseValues)
 #else
-		weaponAbilityBoost = getWeapopnAbilityBoostProc(self, weapon, false);
+int32_t CustomDamageTypeHelpers::GetResistance(stats::Character::GetResistanceProc* wrapped, Character* self,
+	DamageType damageType, bool baseValues, bool excludeBoosts)
 #endif
-	}
-
-	uint32_t requirementId{ 0 };
-	int32_t attributeDmgBoost{ 0 };
-	int32_t sneakDamageMultiplier{ 0 };
-	auto itemRequirementAttribute = getItemRequirementAttributeProc(self, weapon, requirementId, false);
-	if (itemRequirementAttribute) {
-		attributeDmgBoost = (int32_t)roundf(scaledDamageFromPrimaryAttributeProc(itemRequirementAttribute) * 100.0f);
-	}
-
-	if ((self->Flags & CharacterFlags::IsSneaking) == CharacterFlags::IsSneaking) {
-		sneakDamageMultiplier = (int)GetStaticSymbols().GetStats()->GetExtraData(GFS.strSneakDamageMultiplier);
-	}
-
-	auto damageMultiplier = 100 + attributeDmgBoost + weaponAbilityBoost + damageBoost + sneakDamageMultiplier;
-	damageMultiplier = std::max(damageMultiplier, -100);
-
-	for (uint32_t damageType = 0; damageType < nextDamageTypeId_; damageType++) {
-		auto& dmgRange = damageRanges[damageType];
-		if (dmgRange.minDamage || dmgRange.maxDamage) {
-			DamageDesc dmgDesc{
-				.MinDamage = (int32_t)ceilf((float)(damageMultiplier * dmgRange.minDamage) / 100.0f),
-				.MaxDamage = (int32_t)ceilf((float)(damageMultiplier * dmgRange.maxDamage) / 100.0f),
-				.DamageType = (DamageType)damageType,
-				.field_C = 0
-			};
-
-			damages->push_back(dmgDesc);
+{
+	LuaVirtualPin lua;
+	if (lua) {
+		auto resistance = lua->GetCustomDamageTypes().GetResistance(self, damageType, baseValues);
+		if (resistance) {
+			return *resistance;
 		}
 	}
 
-	return true;
+#if defined(OSI_EOCAPP)
+	return wrapped(self, damageType, baseValues);
+#else
+	return wrapped(self, damageType, baseValues, excludeBoosts);
+#endif
+}
+
+#if defined(OSI_EOCAPP)
+float CustomDamageTypeHelpers::GetDamageBoostByType(stats::Character::GetDamageBoostByTypeProc* wrapped, Character* self,
+	DamageType damageType)
+#else
+float CustomDamageTypeHelpers::GetDamageBoostByType(stats::Character::GetDamageBoostByTypeProc* wrapped, Character* self,
+	DamageType damageType, bool excludeBoosts)
+#endif
+{
+	LuaVirtualPin lua;
+	if (lua) {
+		auto boost = lua->GetCustomDamageTypes().GetDamageBoostByType(self, damageType);
+		if (boost) {
+			return *boost;
+		}
+	}
+
+#if defined(OSI_EOCAPP)
+	return wrapped(self, damageType);
+#else
+	return wrapped(self, damageType, excludeBoosts);
+#endif
+}
+
+CustomDamageTypeCallbacks* CustomDamageTypeCallbackManager::GetOrRegister(uint32_t damageTypeId)
+{
+	auto it = types_.find(damageTypeId);
+	if (it != types_.end()) {
+		return &it->second;
+	}
+
+	auto desc = types_.insert(std::make_pair(damageTypeId, CustomDamageTypeCallbacks{}));
+	desc.first->second.DamageTypeId = damageTypeId;
+	return &desc.first->second;
+}
+
+void CustomDamageTypeCallbackManager::Clear()
+{
+	types_.clear();
+}
+
+std::optional<int32_t> CustomDamageTypeCallbackManager::GetResistance(Character* self, DamageType damageType, bool baseValues)
+{
+	auto it = types_.find((uint32_t)damageType);
+	if (it != types_.end() && *it->second.GetResistanceCallback) {
+		//auto resistance = lua::ProtectedCallFunction<int32_t>(*it->second.GetResistanceCallback, self, damageType, baseValues);
+		//if (resistance) {
+		//	return *resistance;
+		//}
+	}
+
+	return {};
+}
+
+std::optional<float> CustomDamageTypeCallbackManager::GetDamageBoostByType(Character* self, DamageType damageType)
+{
+	auto it = types_.find((uint32_t)damageType);
+	if (it != types_.end() && *it->second.GetDamageBoostCallback) {
+		//auto damageBoost = lua::ProtectedCallFunction<float>(*it->second.GetDamageBoostCallback, self, damageType);
+		//if (damageBoost) {
+		//	return *damageBoost;
+		//}
+	}
+
+	return {};
 }
 
 END_SE()

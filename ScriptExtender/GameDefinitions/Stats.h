@@ -796,9 +796,13 @@ struct Character : public ObjectInstance
 	using GetItemRequirementAttributeProc = int32_t (Character * self, Item * weapon, uint32_t& requirementId, bool excludeBoosts);
 
 #if defined(OSI_EOCAPP)
+	using GetResistanceProc = int32_t (Character * self, DamageType damageType, bool baseValues);
+	using GetDamageBoostByTypeProc = float (Character * self, DamageType damageType);
 	using ComputeScaledDamageProc = bool(Character* self, Item* weapon, DamageDescList* damages, bool keepCurrentDamages);
 	using GetWeaponAbilityBoostProc = int32_t(Character* self, AbilityType weaponAbility, bool excludeBoosts, int abilityOverride);
 #else
+	using GetResistanceProc = int32_t (Character * self, DamageType damageType, bool baseValues, bool excludeBoosts);
+	using GetDamageBoostByTypeProc = float (Character * self, DamageType damageType, bool excludeBoosts);
 	using ComputeScaledDamageProc = bool(Character* self, Item* weapon, DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages);
 	using GetWeaponAbilityBoostProc = int32_t(Character* self, Item* weapon, bool excludeBoosts);
 #endif

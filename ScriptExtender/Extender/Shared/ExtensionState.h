@@ -136,6 +136,8 @@ namespace dse
 		void LuaLoadPreinitBootstrap(ExtensionModConfig const& config, Module const& mod);
 	};
 
+	ExtensionStateBase* GetCurrentExtensionState();
+
 
 	class LuaVirtualPin
 	{
@@ -148,6 +150,12 @@ namespace dse
 
 		inline LuaVirtualPin(ExtensionStateBase* state)
 			: state_(state)
+		{
+			if (state_) state_->IncLuaRefs();
+		}
+
+		inline LuaVirtualPin()
+			: state_(GetCurrentExtensionState())
 		{
 			if (state_) state_->IncLuaRefs();
 		}
@@ -232,5 +240,19 @@ namespace dse
 	private:
 		T & state_;
 	};
-
 }
+
+BEGIN_NS(lua)
+
+template <class R, class ...Args>
+inline std::optional<R> ProtectedCallFunction(Ref const& fun, Args&&... args)
+{
+	LuaVirtualPin lua;
+	if (lua) {
+		return ProtectedCallFunction<R, Args...>(lua->GetState(), fun, std::forward<Args>(args)...);
+	} else {
+		return {};
+	}
+}
+
+END_NS()

@@ -1856,6 +1856,33 @@
       <Target Type="Indirect" Offset="@ref1" Symbol="eoc__DamageTypeToTranslateStringExtended" />
     </Mapping>
 
+    <Mapping Name="CDivinityStats_Character::GetResistance">
+      49 8b 8f f8 00 00 00 // mov     rcx, [r15+0F8h]; this
+      48 85 c9 // test    rcx, rcx
+      0f 84 66 01 00 00 // jz      loc_14173F5F8
+      41 8b 55 68 // mov     edx, [r13+68h]; damageType
+      45 33 c0 // xor     r8d, r8d; excludeTalentBoosts
+      @ref1 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__GetResistance
+      83 f8 64 // cmp     eax, 64h ; 'd'
+      0f 85 51 01 00 00 // jnz     loc_14173F5F8
+      48 8d 8d d0 0b 00 00 // lea     rcx, [rbp+3380h+var_27B0]
+      <Target Type="Indirect" Offset="@ref1" Symbol="CDivinityStats_Character__GetResistance" />
+    </Mapping>
+
+    <Mapping Name="CDivinityStats_Character::GetDamageBoostByType">
+      48 8b 4c 24 70 // mov     rcx, [rsp+0FA0h+srcCharStats]; this
+      f3 0f 2c c0 // cvttss2si eax, xmm0
+      3b c3 // cmp     eax, ebx
+      0f 4f d8 // cmovg   ebx, eax
+      @ref1 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__GetDamageBoostByType
+      f3 0f 10 35 ?? ?? ?? ?? // movss   xmm6, cs:dword_14225BD44
+      0f 28 d0 // movaps  xmm2, xmm0
+      0f 57 ff // xorps   xmm7, xmm7
+      0f 2e d7 // ucomiss xmm2, xmm7
+      7a 02 // jp      short loc_141CA713C
+      <Target Type="Indirect" Offset="@ref1" Symbol="CDivinityStats_Character__GetDamageBoostByType" />
+    </Mapping>
+
     <Mapping Name="CDivinityStats_Item::ComputeDamage">
       44 0f b6 c6 // movzx   r8d, sil; keepCurrentDamages
       48 8b d3 // mov     rdx, rbx; damages

@@ -1328,6 +1328,10 @@ CustomDamageTypeDescriptor* AddDamageType(FixedString const& typeName, std::opti
 		cdt = gExtender->GetCustomDamageTypes().RegisterNewType(typeName);
 	}
 
+	if (cdt) {
+		gExtender->GetCurrentExtensionState()->GetLua()->GetCustomDamageTypes().GetOrRegister(cdt->DamageTypeId);
+	}
+
 	return cdt;
 }
 

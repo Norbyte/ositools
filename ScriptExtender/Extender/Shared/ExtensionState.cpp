@@ -651,4 +651,9 @@ namespace dse
 		lua::push(L, nullptr);
 		lua_setglobal(L, "ModuleUUID");
 	}
+
+	ExtensionStateBase* GetCurrentExtensionState()
+	{
+		return gExtender->GetCurrentExtensionState();
+	}
 }

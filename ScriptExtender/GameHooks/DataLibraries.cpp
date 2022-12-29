@@ -169,6 +169,8 @@ namespace dse
 		SYM_OFF(CDivinityStats_Character__GetDamageBoost);
 		SYM_OFF(CDivinityStats_Character__GetWeaponAbility);
 		SYM_OFF(CDivinityStats_Character__GetItemRequirementAttribute);
+		SYM_OFF(CDivinityStats_Character__GetResistance);
+		SYM_OFF(CDivinityStats_Character__GetDamageBoostByType);
 		SYM_OFF(CDivinityStats_Character__ComputeScaledDamage);
 		SYM_OFF(CDivinityStats_Character__GetWeaponAbilityBoost);
 

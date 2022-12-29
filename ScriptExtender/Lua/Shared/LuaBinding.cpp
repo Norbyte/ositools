@@ -507,6 +507,7 @@ namespace dse::lua
 	void State::Shutdown()
 	{
 		RestoreLevelMaps(IsClient());
+		customDamageTypes_.Clear();
 	}
 
 	State* State::FromLua(lua_State* L)

@@ -316,11 +316,27 @@ namespace dse::esv
 		lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(
 			std::bind(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt, _1, _2, _3, _4, _5)
 		);
+		lib.CDivinityStats_Character__GetResistance.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetResistance, cdt, _1, _2, _3, _4)
+		);
+		lib.CDivinityStats_Character__GetDamageBoostByType.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetDamageBoostByType, cdt, _1, _2, _3)
+		);
 #else
 		lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(
 			std::bind(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt, _1, _2, _3, _4, _5, _6)
 		);
+		lib.CDivinityStats_Character__GetResistance.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetResistance, cdt, _1, _2, _3, _4, _5)
+		);
+		lib.CDivinityStats_Character__GetDamageBoostByType.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::GetDamageBoostByType, cdt, _1, _2, _3, _4)
+		);
 #endif
+
+		lib.CDivinityStats_Item__ComputeDamage.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::ComputeItemDamage, cdt, _1, _2, _3, _4)
+		);
 
 		loaded_ = true;
 	}

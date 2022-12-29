@@ -205,6 +205,8 @@ namespace dse
 		stats::Character::GetDamageBoostProc* CDivinityStats_Character__GetDamageBoost{ nullptr };
 		stats::Character::GetWeaponAbilityProc* CDivinityStats_Character__GetWeaponAbility{ nullptr };
 		stats::Character::GetItemRequirementAttributeProc* CDivinityStats_Character__GetItemRequirementAttribute{ nullptr };
+		stats::Character::GetResistanceProc* CDivinityStats_Character__GetResistance{ nullptr };
+		stats::Character::GetDamageBoostByTypeProc* CDivinityStats_Character__GetDamageBoostByType{ nullptr };
 		stats::Character::ComputeScaledDamageProc* CDivinityStats_Character__ComputeScaledDamage{ nullptr };
 		stats::Character::GetWeaponAbilityBoostProc* CDivinityStats_Character__GetWeaponAbilityBoost{ nullptr };
 

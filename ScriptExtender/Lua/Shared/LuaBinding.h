@@ -17,6 +17,7 @@
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>
 #include <GameDefinitions/GameObjects/Status.h>
+#include <Extender/Shared/CustomDamageTypes.h>
 
 #include <mutex>
 #include <unordered_set>
@@ -212,6 +213,11 @@ namespace dse::lua
 			return metatableManager_;
 		}
 
+		inline CustomDamageTypeCallbackManager& GetCustomDamageTypes()
+		{
+			return customDamageTypes_;
+		}
+
 		virtual void Initialize() = 0;
 		virtual void Shutdown();
 		virtual bool IsClient() = 0;
@@ -260,6 +266,8 @@ namespace dse::lua
 		LifetimeHandle globalLifetime_;
 
 		CppMetatableManager metatableManager_;
+
+		CustomDamageTypeCallbackManager customDamageTypes_;
 
 		void OpenLibs();
 		EventResult DispatchEvent(EventBase& evt, char const* eventName, bool canPreventAction, uint32_t restrictions);
