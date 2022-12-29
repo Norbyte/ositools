@@ -239,3 +239,6 @@ FS(Labels);
 FS(__Labels);
 FS(EnumName);
 FS(__EnumName);
+
+// Extra data keys
+FS_NAME(SneakDamageMultiplier, "Sneak Damage Multiplier");

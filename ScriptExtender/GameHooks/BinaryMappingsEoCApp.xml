@@ -1856,6 +1856,71 @@
       <Target Type="Indirect" Offset="@ref1" Symbol="eoc__DamageTypeToTranslateStringExtended" />
     </Mapping>
 
+    <Mapping Name="CDivinityStats_Item::ComputeDamage">
+      44 0f b6 c6 // movzx   r8d, sil; keepCurrentDamages
+      48 8b d3 // mov     rdx, rbx; damages
+      49 8b ce // mov     rcx, r14; this
+      @ref1 e8 ?? ?? ?? ?? // call    CDivinityStats_Item__ComputeDamage
+      44 8b 53 60 // mov     r10d, [rbx+60h]
+      4c 8b cf // mov     r9, rdi
+      4d 85 d2 // test    r10, r10
+      74 35 // jz      short loc_141C8749E
+      49 c7 c0 a0 ff ff ff // mov     r8, 0FFFFFFFFFFFFFFA0h
+      <Target Type="Indirect" Offset="@ref1" Symbol="CDivinityStats_Item__ComputeDamage" />
+    </Mapping>
+
+    <Mapping Name="CDivinityStats_Character::ComputeScaledDamageInternals">
+      49 8b cf // mov     rcx, r15; this
+      89 7b 60 // mov     [rbx+60h], edi
+      @ref1 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__GetDamageBoost
+      8b f0 // mov     esi, eax
+      41 39 be dc 01 00 00 // cmp     [r14+1DCh], edi
+      74 04 // jz      short loc_141C874D3
+      8b c7 // mov     eax, edi
+      eb 1b // jmp     short loc_141C874EE
+      49 8b d6 // mov     rdx, r14; weapon
+      49 8b cf // mov     rcx, r15; this
+      @ref2 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__GetWeaponAbility
+      45 33 c9 // xor     r9d, r9d
+      45 33 c0 // xor     r8d, r8d
+      8b d0 // mov     edx, eax
+      49 8b cf // mov     rcx, r15
+      @ref3 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__GetWeaponAbilityBoost
+      45 33 c9 // xor     r9d, r9d; excludeBoosts
+      89 7c 24 20 // mov     [rsp+100h+requirement], edi
+      4c 8d 44 24 20 // lea     r8, [rsp+100h+requirement]; requirement
+      49 8b d6 // mov     rdx, r14; weapon
+      49 8b cf // mov     rcx, r15; this
+      03 f0 // add     esi, eax
+      @ref4 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__GetItemRequirementAttribute
+      f3 0f 10 35 ?? ?? ?? ?? // movss   xmm6, cs:dword_14225BD44
+      8b cf // mov     ecx, edi
+      85 c0 // test    eax, eax
+      74 15 // jz      short loc_141C8752A
+      8b c8 // mov     ecx, eax; attrVal
+      @ref5 e8 ?? ?? ?? ?? // call    eoc__ScaledDamageFromPrimaryAttribute
+      <Target Type="Indirect" Offset="@ref1" Symbol="CDivinityStats_Character__GetDamageBoost" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="CDivinityStats_Character__GetWeaponAbility" />
+      <Target Type="Indirect" Offset="@ref3" Symbol="CDivinityStats_Character__GetWeaponAbilityBoost" />
+      <Target Type="Indirect" Offset="@ref4" Symbol="CDivinityStats_Character__GetItemRequirementAttribute" />
+      <Target Type="Indirect" Offset="@ref5" Symbol="eoc__ScaledDamageFromPrimaryAttribute" />
+    </Mapping>
+
+    <Mapping Name="CDivinityStats_Character::ComputeScaledDamage">
+      48 89 b4 24 a8 00 00 00 // mov     qword ptr [rsp+108h+damages.AdditionalDescs.Capacity], rsi
+      39 b2 dc 01 00 00 // cmp     [rdx+1DCh], esi
+      75 1f // jnz     short loc_141C89384
+      45 33 c9 // xor     r9d, r9d; keepCurrentDamages
+      4c 8d 44 24 30 // lea     r8, [rsp+108h+damages]; damages
+      49 8b ca // mov     rcx, r10; this
+      @ref1 e8 ?? ?? ?? ?? // call    CDivinityStats_Item__ComputeScaledDamage
+      8b 84 24 90 00 00 00 // mov     eax, [rsp+108h+damages.NumDamageDescs]
+      4c 8b ac 24 a0 00 00 00 // mov     r13, [rsp+108h+damages.AdditionalDescs.Buf]
+      <Target Type="Indirect" Offset="@ref1" Symbol="CDivinityStats_Character__ComputeScaledDamage" />
+      <Target Type="Indirect" Offset="@ref1" NextSymbol="CDivinityStats_Item::ComputeDamage" NextSymbolSeekSize="0x100" />
+      <Target Type="Indirect" Offset="@ref1" NextSymbol="CDivinityStats_Character::ComputeScaledDamageInternals" NextSymbolSeekSize="0x200" />
+    </Mapping>
+
     <Mapping Name="fmt::GetColorCodeDmg">
       83 3e 00 // cmp     dword ptr [rsi], 0
       8b 5e 04 // mov     ebx, [rsi+4]

@@ -184,6 +184,7 @@ namespace dse
 		stats::SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		stats::StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
 
+		stats::ScaledDamageFromPrimaryAttributeProc* eoc__ScaledDamageFromPrimaryAttribute{ nullptr };
 		stats::GetDamageTypeProc* eoc__GetDamageType{ nullptr };
 		stats::GetDamageTypeStringProc* eoc__GetDamageTypeString{ nullptr };
 		stats::DamageTypeToTranslateStringProc* eoc__DamageTypeToTranslateString{ nullptr };
@@ -196,9 +197,16 @@ namespace dse
 		esv::ExecutePropertyDataOnPositionOnlyProc* esv__ExecutePropertyDataOnPositionOnly{ nullptr };
 		esv::ExecuteCharacterSetExtraPropertiesProc* esv__ExecuteCharacterSetExtraProperties{ nullptr };
 
+		stats::Item::ComputeDamageProc* CDivinityStats_Item__ComputeDamage{ nullptr };
+
 		esv::Character::HitProc* esv__Character__Hit{ nullptr };
 		esv::Character::ApplyDamageProc* esv__Character__ApplyDamage{ nullptr };
 		stats::Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
+		stats::Character::GetDamageBoostProc* CDivinityStats_Character__GetDamageBoost{ nullptr };
+		stats::Character::GetWeaponAbilityProc* CDivinityStats_Character__GetWeaponAbility{ nullptr };
+		stats::Character::GetItemRequirementAttributeProc* CDivinityStats_Character__GetItemRequirementAttribute{ nullptr };
+		stats::Character::ComputeScaledDamageProc* CDivinityStats_Character__ComputeScaledDamage{ nullptr };
+		stats::Character::GetWeaponAbilityBoostProc* CDivinityStats_Character__GetWeaponAbilityBoost{ nullptr };
 
 		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
 		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };

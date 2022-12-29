@@ -145,6 +145,7 @@ namespace dse
 		SYM_OFF(eoc__SkillPrototypeManager);
 		SYM_OFF(eoc__StatusPrototypeManager);
 
+		SYM_OFF(eoc__ScaledDamageFromPrimaryAttribute);
 		SYM_OFF(eoc__GetDamageType);
 		SYM_OFF(eoc__GetDamageTypeString);
 		SYM_OFF(eoc__DamageTypeToTranslateString);
@@ -160,9 +161,16 @@ namespace dse
 		SYM_OFF(esv__AiHelpers__PeekAction);
 		SYM_OFF(esv__AiHelpers__SortActions);
 
+		SYM_OFF(CDivinityStats_Item__ComputeDamage);
+
 		SYM_OFF(esv__Character__Hit);
 		SYM_OFF(esv__Character__ApplyDamage);
 		SYM_OFF(CDivinityStats_Character__HitInternal);
+		SYM_OFF(CDivinityStats_Character__GetDamageBoost);
+		SYM_OFF(CDivinityStats_Character__GetWeaponAbility);
+		SYM_OFF(CDivinityStats_Character__GetItemRequirementAttribute);
+		SYM_OFF(CDivinityStats_Character__ComputeScaledDamage);
+		SYM_OFF(CDivinityStats_Character__GetWeaponAbilityBoost);
 
 		SYM_OFF(esv__SurfaceActionFactory);
 		SYM_OFF(esv__SurfaceActionFactory__CreateAction);

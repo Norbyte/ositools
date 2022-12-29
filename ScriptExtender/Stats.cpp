@@ -1146,6 +1146,15 @@ IScriptCheckObject* RPGStats::BuildScriptCheckBlockFromProperties(STDString cons
 	return BuildScriptCheckBlock(updated);
 }
 
+float RPGStats::GetExtraData(FixedString const& key, float defaultVal) const
+{
+	auto it = ExtraData->Properties.find(key);
+	if (it != ExtraData->Properties.end()) {
+		return it.Value();
+	} else {
+		return defaultVal;
+	}
+}
 
 Object * StatFindObject(char const * name, bool warnOnError)
 {

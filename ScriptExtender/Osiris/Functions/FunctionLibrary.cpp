@@ -312,6 +312,15 @@ namespace dse::esv
 		lib.fmt__ColorCodeAndTypeDmg.SetWrapper(
 			std::bind(&CustomDamageTypeHelpers::GetColorCodeAndTypeDmg, cdt, _1, _2, _3, _4, _5)
 		);
+#if defined(OSI_EOCAPP)
+		lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt, _1, _2, _3, _4, _5)
+		);
+#else
+		lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(
+			std::bind(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt, _1, _2, _3, _4, _5, _6)
+		);
+#endif
 
 		loaded_ = true;
 	}

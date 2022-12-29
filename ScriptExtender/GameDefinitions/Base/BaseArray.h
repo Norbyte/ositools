@@ -893,4 +893,114 @@ private:
 	}
 };
 
+template <class T, uint32_t CacheSize>
+class SmallSet
+{
+public:
+	using value_type = T;
+	using reference = T&;
+	using const_reference = T const&;
+	using difference_type = int32_t;
+	using size_type = uint32_t;
+
+	inline SmallSet() {}
+
+	SmallSet(SmallSet const& other)
+	{
+		assign(other);
+	}
+
+	SmallSet(SmallSet&& other)
+		: small_(other.small_),
+		size_(other.size_),
+		large_(other.large_)
+	{
+		other.size_ = 0;
+	}
+
+	~SmallSet() {}
+
+	SmallSet& operator = (SmallSet const& other)
+	{
+		assign(other);
+		return *this;
+	}
+
+	SmallSet& operator = (SmallSet&& other)
+	{
+		small_ = std::move(other.small_);
+		size_ = other.size_;
+		large_ = std::move(other.large_);
+		other.size_ = 0;
+		return *this;
+	}
+
+	void assign(SmallSet const& other)
+	{
+		for (size_type i = other.size_; i < CacheSize; i++) {
+			small_[i] = T();
+		}
+
+		for (size_type i = 0; i < std::min(other.size_, CacheSize); i++) {
+			small_[i] = other.small_[i];
+		}
+
+		size_ = other.size_;
+		large_ = other;
+	}
+
+	size_type size() const
+	{
+		return size_;
+	}
+
+	bool empty() const
+	{
+		return size_ == 0;
+	}
+
+	inline T const& operator [] (size_type index) const
+	{
+		if (index >= CacheSize) {
+			return large_[index];
+		} else {
+			return small_[index];
+		}
+	}
+
+	inline T& operator [] (size_type index)
+	{
+		if (index >= CacheSize) {
+			return large_[index];
+		} else {
+			return small_[index];
+		}
+	}
+
+	void clear()
+	{
+		large_.clear();
+
+		for (size_type i = 0; i < std::min(size_, CacheSize); i++) {
+			small_[i] = T();
+		}
+
+		size_ = 0;
+	}
+
+	void push_back(T const& value)
+	{
+		if (size_ < CacheSize) {
+			small_[size_++] = value;
+		} else {
+			large_.push_back(value);
+		}
+	}
+
+private:
+	T small_[CacheSize];
+	size_type size_{ 0 };
+	ObjectSet<T> large_;
+};
+
 END_SE()

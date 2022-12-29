@@ -58,6 +58,7 @@ END_NS()
 
 BEGIN_NS(stats)
 
+using ScaledDamageFromPrimaryAttributeProc = float (int attrVal);
 using GetDamageTypeProc = DamageType (char const*);
 using GetDamageTypeStringProc = char const* (DamageType);
 using DamageTypeToTranslateStringProc = TranslatedString* (TranslatedString*, DamageType);
@@ -90,6 +91,17 @@ struct DamagePairList : public ObjectSet<TDamagePair>
 	UserReturn LuaToTable(lua_State* L);
 	void LuaCopyFrom(lua_State* L);
 };
+
+struct DamageDesc
+{
+	int MinDamage;
+	int MaxDamage;
+	DamageType DamageType;
+	uint8_t field_C;
+};
+
+using DamageDescList = SmallSet<DamageDesc, 6>;
+
 
 struct HitDamageInfo
 {
@@ -640,6 +652,8 @@ struct EquipmentAttributesArmor : public EquipmentAttributes
 
 struct Item : public ObjectInstance
 {
+	using ComputeDamageProc = bool (Item* self, DamageDescList* damages, bool keepCurrentDamages);
+
 	uint32_t U1;
 	EquipmentStatsType ItemType;
 	ItemSlot32 ItemSlot;
@@ -775,6 +789,17 @@ struct Character : public ObjectInstance
 		Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 		bool forceReduceDurability, HitDamageInfo *damageInfo, PropertyList *skillProperties,
 		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
+	using GetDamageBoostProc = int32_t(Character* self);
+	using GetWeaponAbilityProc = AbilityType (Character * self, Item * weapon);
+	using GetItemRequirementAttributeProc = int32_t (Character * self, Item * weapon, uint32_t& requirementId, bool excludeBoosts);
+
+#if defined(OSI_EOCAPP)
+	using ComputeScaledDamageProc = bool(Character* self, Item* weapon, DamageDescList* damages, bool keepCurrentDamages);
+	using GetWeaponAbilityBoostProc = int32_t(Character* self, AbilityType weaponAbility, bool excludeBoosts, int abilityOverride);
+#else
+	using ComputeScaledDamageProc = bool(Character* self, Item* weapon, DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages);
+	using GetWeaponAbilityBoostProc = int32_t(Character* self, Item* weapon, bool excludeBoosts);
+#endif
 
 	int32_t CurrentVitality;
 	int32_t CurrentArmor;
@@ -1348,6 +1373,8 @@ struct RPGStats : public ProtectedGameObject<RPGStats>
 	std::optional<StatAttributeFlags> StringToAttributeFlags(const char * value);
 	IScriptCheckObject* BuildScriptCheckBlock(STDString const& source);
 	IScriptCheckObject* BuildScriptCheckBlockFromProperties(STDString const& source);
+
+	float GetExtraData(FixedString const& key, float defaultVal = 0.0f) const;
 };
 
 typedef IScriptCheckObject* (*ScriptCheckBlock__Build)(STDString const& str, ObjectSet<STDString> const& variables, int offset, int length);

@@ -40,9 +40,13 @@ public:
 #if defined(OSI_EOCAPP)
 	void GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, unsigned int amount,
 		bool reflected, DamageType damageType);
+	bool ComputeScaledDamage(stats::Character::ComputeScaledDamageProc* wrapped, Character* self, Item* weapon, 
+		DamageDescList* damages, bool keepCurrentDamages);
 #else
 	void GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, DamageType& damageType,
 		unsigned int amount, bool reflected);
+	bool ComputeScaledDamage(stats::Character::ComputeScaledDamageProc* wrapped, Character* self, Item* weapon, 
+		DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages);
 #endif
 
 private:

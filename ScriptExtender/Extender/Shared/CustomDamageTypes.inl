@@ -20,9 +20,15 @@ CustomDamageTypeDescriptor* CustomDamageTypeHelpers::AssignType(FixedString cons
 
 CustomDamageTypeDescriptor* CustomDamageTypeHelpers::RegisterNewType(FixedString const& name)
 {
-	if (EnumInfo<DamageType>::Find(name)) {
-		OsiError("Tried to register damage type '" << name << "' multiple times!");
-		return nullptr;
+	auto damageType = EnumInfo<DamageType>::Find(name);
+	if (damageType) {
+		if (*damageType <= DamageType::Sentinel) {
+			OsiError("Tried to register damage type '" << name << "' multiple times!");
+		}
+
+		auto it = types_.find((uint32_t)*damageType);
+		assert(it != types_.end());
+		return &it->second;
 	}
 
 	auto id = nextDamageTypeId_++;
@@ -159,6 +165,86 @@ void CustomDamageTypeHelpers::GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgP
 #else
 	return wrapped(text, damageType, amount, reflected);
 #endif
+}
+
+#if defined(OSI_EOCAPP)
+bool CustomDamageTypeHelpers::ComputeScaledDamage(stats::Character::ComputeScaledDamageProc* wrapped, Character* self, Item* weapon,
+	DamageDescList* damages, bool keepCurrentDamages)
+#else
+bool CustomDamageTypeHelpers::ComputeScaledDamage(stats::Character::ComputeScaledDamageProc* wrapped, Character* self, Item* weapon,
+	DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages)
+#endif
+{
+	struct DamageRange
+	{
+		int32_t minDamage{ 0 };
+		int32_t maxDamage{ 0 };
+	};
+
+	ObjectSet<DamageRange> damageRanges;
+	damageRanges.resize(nextDamageTypeId_);
+
+	if (!keepCurrentDamages) {
+		damages->clear();
+	}
+
+	auto computeDamageProc = GetStaticSymbols().CDivinityStats_Item__ComputeDamage;
+	auto getDamageBoostProc = GetStaticSymbols().CDivinityStats_Character__GetDamageBoost;
+	auto getWeapopnAbilityProc = GetStaticSymbols().CDivinityStats_Character__GetWeaponAbility;
+	auto getWeapopnAbilityBoostProc = GetStaticSymbols().CDivinityStats_Character__GetWeaponAbilityBoost;
+	auto getItemRequirementAttributeProc = GetStaticSymbols().CDivinityStats_Character__GetItemRequirementAttribute;
+	auto scaledDamageFromPrimaryAttributeProc = GetStaticSymbols().eoc__ScaledDamageFromPrimaryAttribute;
+	computeDamageProc(weapon, damages, keepCurrentDamages);
+
+	for (uint32_t i = 0; i < damages->size(); i++) {
+		auto const& dmg = (*damages)[i];
+		damageRanges[(uint32_t)dmg.DamageType].minDamage += dmg.MinDamage;
+		damageRanges[(uint32_t)dmg.DamageType].maxDamage += dmg.MaxDamage;
+	}
+
+	damages->clear();
+
+	auto damageBoost = getDamageBoostProc(self);
+	int32_t weaponAbilityBoost{ 0 };
+	if (weapon->ItemType == EquipmentStatsType::Weapon) {
+#if defined(OSI_EOCAPP)
+		auto weaponAbility = getWeapopnAbilityProc(self, weapon);
+		weaponAbilityBoost = getWeapopnAbilityBoostProc(self, weaponAbility, false, 0);
+#else
+		weaponAbilityBoost = getWeapopnAbilityBoostProc(self, weapon, false);
+#endif
+	}
+
+	uint32_t requirementId{ 0 };
+	int32_t attributeDmgBoost{ 0 };
+	int32_t sneakDamageMultiplier{ 0 };
+	auto itemRequirementAttribute = getItemRequirementAttributeProc(self, weapon, requirementId, false);
+	if (itemRequirementAttribute) {
+		attributeDmgBoost = (int32_t)roundf(scaledDamageFromPrimaryAttributeProc(itemRequirementAttribute) * 100.0f);
+	}
+
+	if ((self->Flags & CharacterFlags::IsSneaking) == CharacterFlags::IsSneaking) {
+		sneakDamageMultiplier = (int)GetStaticSymbols().GetStats()->GetExtraData(GFS.strSneakDamageMultiplier);
+	}
+
+	auto damageMultiplier = 100 + attributeDmgBoost + weaponAbilityBoost + damageBoost + sneakDamageMultiplier;
+	damageMultiplier = std::max(damageMultiplier, -100);
+
+	for (uint32_t damageType = 0; damageType < nextDamageTypeId_; damageType++) {
+		auto& dmgRange = damageRanges[damageType];
+		if (dmgRange.minDamage || dmgRange.maxDamage) {
+			DamageDesc dmgDesc{
+				.MinDamage = (int32_t)ceilf((float)(damageMultiplier * dmgRange.minDamage) / 100.0f),
+				.MaxDamage = (int32_t)ceilf((float)(damageMultiplier * dmgRange.maxDamage) / 100.0f),
+				.DamageType = (DamageType)damageType,
+				.field_C = 0
+			};
+
+			damages->push_back(dmgDesc);
+		}
+	}
+
+	return true;
 }
 
 END_SE()
