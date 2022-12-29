@@ -263,10 +263,10 @@ std::optional<int32_t> CustomDamageTypeCallbackManager::GetResistance(Character*
 {
 	auto it = types_.find((uint32_t)damageType);
 	if (it != types_.end() && *it->second.GetResistanceCallback) {
-		//auto resistance = lua::ProtectedCallFunction<int32_t>(*it->second.GetResistanceCallback, self, damageType, baseValues);
-		//if (resistance) {
-		//	return *resistance;
-		//}
+		auto resistance = lua::ProtectedCallFunction<int32_t>(*it->second.GetResistanceCallback, self, damageType, baseValues);
+		if (resistance) {
+			return *resistance;
+		}
 	}
 
 	return {};
@@ -276,10 +276,10 @@ std::optional<float> CustomDamageTypeCallbackManager::GetDamageBoostByType(Chara
 {
 	auto it = types_.find((uint32_t)damageType);
 	if (it != types_.end() && *it->second.GetDamageBoostCallback) {
-		//auto damageBoost = lua::ProtectedCallFunction<float>(*it->second.GetDamageBoostCallback, self, damageType);
-		//if (damageBoost) {
-		//	return *damageBoost;
-		//}
+		auto damageBoost = lua::ProtectedCallFunction<float>(*it->second.GetDamageBoostCallback, self, damageType);
+		if (damageBoost) {
+			return *damageBoost;
+		}
 	}
 
 	return {};

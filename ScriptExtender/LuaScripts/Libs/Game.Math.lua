@@ -199,15 +199,23 @@ DamageBoostTable = {
     end
 }
 
+--- Base implementation code for reference purposes;
+--- GetDamageBoostByType (below) is used instead for custom damage type support.
 --- @param character StatCharacter
 --- @param damageType string See DamageType enum
-function GetDamageBoostByType(character, damageType)
+function GetDamageBoostByTypeVanilla(character, damageType)
     local boostFunc = DamageBoostTable[damageType]
     if boostFunc ~= nil then
         return boostFunc(character) / 100.0
     else
         return 0.0
     end
+end
+
+--- @param character StatCharacter
+--- @param damageType string See DamageType enum
+function GetDamageBoostByType(character, damageType)
+    return Ext.Stats.Math.GetDamageBoostByType(character, damageType)
 end
 
 --- @param character StatCharacter
@@ -710,11 +718,7 @@ end
 --- @param character StatCharacter
 --- @param type string DamageType enumeration
 function GetResistance(character, type)
-    if type == "None" or type == "Chaos" then
-        return 0
-    end
-
-    return character[type .. "Resistance"]
+    return Ext.Stats.Math.GetResistance(character, type, false)
 end
 
 --- @param character StatCharacter

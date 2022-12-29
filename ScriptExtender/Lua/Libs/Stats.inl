@@ -1335,6 +1335,25 @@ CustomDamageTypeDescriptor* AddDamageType(FixedString const& typeName, std::opti
 	return cdt;
 }
 
+
+int32_t GetResistance(ProxyParam<Character> self, DamageType damageType, std::optional<bool> baseValues)
+{
+#if defined(OSI_EOCAPP)
+	return GetStaticSymbols().CDivinityStats_Character__GetResistance(self, damageType, baseValues && *baseValues);
+#else
+	return GetStaticSymbols().CDivinityStats_Character__GetResistance(self, damageType, baseValues && *baseValues, false);
+#endif
+}
+
+float GetDamageBoostByType(ProxyParam<Character> self, DamageType damageType)
+{
+#if defined(OSI_EOCAPP)
+	return GetStaticSymbols().CDivinityStats_Character__GetDamageBoostByType(self, damageType);
+#else
+	return GetStaticSymbols().CDivinityStats_Character__GetDamageBoostByType(self, damageType, false);
+#endif
+}
+
 void RegisterStatsLib()
 {
 	DECLARE_MODULE(Stats, Both)
@@ -1364,6 +1383,12 @@ void RegisterStatsLib()
 	BEGIN_MODULE()
 	MODULE_NAMED_FUNCTION("GetLegacy", GetDeltaMod)
 	MODULE_NAMED_FUNCTION("Update", UpdateDeltaMod)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, Math, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetResistance", GetResistance)
+	MODULE_NAMED_FUNCTION("GetDamageBoostByType", GetDamageBoostByType)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, SkillSet, Both)
