@@ -791,6 +791,7 @@ struct Character : public ObjectInstance
 		Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 		bool forceReduceDurability, HitDamageInfo *damageInfo, PropertyList *skillProperties,
 		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
+	using GetAttackAPCostProc = int32_t(Character* self);
 	using GetDamageBoostProc = int32_t(Character* self);
 	using GetWeaponAbilityProc = AbilityType (Character * self, Item * weapon);
 	using GetItemRequirementAttributeProc = int32_t (Character * self, Item * weapon, uint32_t& requirementId, bool excludeBoosts);

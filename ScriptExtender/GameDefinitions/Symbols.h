@@ -202,6 +202,7 @@ namespace dse
 		esv::Character::HitProc* esv__Character__Hit{ nullptr };
 		esv::Character::ApplyDamageProc* esv__Character__ApplyDamage{ nullptr };
 		stats::Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
+		stats::Character::GetAttackAPCostProc* CDivinityStats_Character__GetAttackAPCost{ nullptr };
 		stats::Character::GetDamageBoostProc* CDivinityStats_Character__GetDamageBoost{ nullptr };
 		stats::Character::GetWeaponAbilityProc* CDivinityStats_Character__GetWeaponAbility{ nullptr };
 		stats::Character::GetItemRequirementAttributeProc* CDivinityStats_Character__GetItemRequirementAttribute{ nullptr };

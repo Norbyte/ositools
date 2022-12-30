@@ -38,6 +38,7 @@ namespace dse::esv
 
 		int32_t OnGetHitChance(stats::CDivinityStats_Character__GetHitChance * wrappedGetHitChance,
 			stats::Character * attacker, stats::Character * target);
+		int32_t OnGetAttackAPCost(stats::Character::GetAttackAPCostProc* wrapped, stats::Character* self);
 
 		bool OnOsiShowNotification(osi::OsirisCallHandlerProc* wrappedHandler, void* proc, osi::ExecutionContext* ctx);
 

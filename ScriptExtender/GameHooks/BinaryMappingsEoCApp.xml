@@ -630,6 +630,19 @@
       <Target Type="Absolute" Offset="0" Symbol="CharacterStatGetters__GetHitChance" NextSymbol="CharacterStatGetters::GetChanceToHitBoost" NextSymbolSeekSize="0x200" />
     </Mapping>
 
+    <Mapping Name="CharacterStatGetters::GetAttackAPCost">
+      40 0f b6 c7 // movzx   eax, dil
+      ff 84 81 a0 02 00 00 // inc     dword ptr [rcx+rax*4+2A0h]
+      48 8b 76 08 // mov     rsi, [rsi+8]
+      48 8b 8e f8 00 00 00 // mov     rcx, [rsi+0F8h]; this
+      @ref1 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__GetAttackAPCost
+      8b d8 // mov     ebx, eax
+      85 c0 // test    eax, eax
+      74 18 // jz      short loc_1416EB999
+      48 8b 8e f8 00 00 00 // mov     rcx, [rsi+0F8h]
+      <Target Type="Indirect" Offset="@ref1" Symbol="CDivinityStats_Character__GetAttackAPCost" />
+    </Mapping>
+
     <Mapping Name="Character::_HitInternal" Scope="Custom">
       88 44 24 28  // mov     [rsp+98h+noHitRoll], al
       89 7C 24 20  // mov     [rsp+98h+hitType], edi

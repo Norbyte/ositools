@@ -51,6 +51,7 @@ HOOK_DEFN(UIObjectManager__CreateUIObject, UIObjectManager__CreateUIObject, UIOb
 HOOK_DEFN(esv__Character_Hit, esv__Character__Hit, esv::Character::HitProc, WrappableFunction)
 HOOK_DEFN(esv__Character_ApplyDamageHook, esv__Character__ApplyDamage, esv::Character::ApplyDamageProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__HitInternal, CDivinityStats_Character__HitInternal, stats::Character::HitInternalProc, WrappableFunction)
+HOOK_DEFN(CDivinityStats_Character__GetAttackAPCost, CDivinityStats_Character__GetAttackAPCost, stats::Character::GetAttackAPCostProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__GetResistance, CDivinityStats_Character__GetResistance, stats::Character::GetResistanceProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__GetDamageBoostByType, CDivinityStats_Character__GetDamageBoostByType, stats::Character::GetDamageBoostByTypeProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__ComputeScaledDamage, CDivinityStats_Character__ComputeScaledDamage, stats::Character::ComputeScaledDamageProc, WrappableFunction)

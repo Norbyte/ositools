@@ -19,7 +19,11 @@ _I._PublishedSharedEvents = {
 	"ResetCompleted",
 	"DoConsoleCommand",
 	"Tick",
-	"StatsStructureLoaded"
+	"StatsStructureLoaded",
+	"GetSkillDamage",
+	"GetSkillAPCost",
+	"GetAttackAPCost",
+	"GetHitChance"
 }
 
 _I._WarningShown = {}

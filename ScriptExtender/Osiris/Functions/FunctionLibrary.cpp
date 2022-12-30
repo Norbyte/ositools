@@ -289,6 +289,9 @@ namespace dse::esv
 			std::bind(&CustomFunctionLibrary::OnOsiShowNotification, this, _1, _2, _3)
 		);
 #endif
+		lib.CDivinityStats_Character__GetAttackAPCost.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnGetAttackAPCost, this, _1, _2)
+		);
 
 		auto cdt = &gExtender->GetCustomDamageTypes();
 		lib.eoc__GetDamageType.SetWrapper(

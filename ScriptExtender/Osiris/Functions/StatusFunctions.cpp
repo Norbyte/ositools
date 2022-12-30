@@ -275,6 +275,20 @@ namespace dse::esv
 		return wrappedHandler(proc, ctx);
 	}
 
+	int32_t CustomFunctionLibrary::OnGetAttackAPCost(stats::Character::GetAttackAPCostProc * wrapped,
+		stats::Character* self)
+	{
+		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+		if (lua) {
+			auto ap = lua->GetAttackAPCost(self);
+			if (ap) {
+				return *ap;
+			}
+		}
+
+		return wrapped(self);
+	}
+
 	void CustomFunctionLibrary::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer)
 	{
 		if (actionLayer >= 3 || self->IsEntering[actionLayer]) return;

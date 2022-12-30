@@ -88,6 +88,12 @@ namespace dse::lua
 		std::optional<int32_t> HitChance;
 	};
 
+	struct GetAttackAPCostEvent : public EventBase
+	{
+		stats::Character* Attacker;
+		std::optional<int32_t> APCost;
+	};
+
 	struct GetSkillDamageEvent : public EventBase
 	{
 		stats::SkillPrototype* Skill;
@@ -237,6 +243,7 @@ namespace dse::lua
 		std::optional<int> LoadScript(STDString const & script, STDString const & name = "", int globalsIdx = 0);
 
 		std::optional<int32_t> GetHitChance(stats::Character * attacker, stats::Character * target);
+		std::optional<int32_t> GetAttackAPCost(stats::Character* attacker);
 		bool GetSkillDamage(stats::SkillPrototype * self, stats::DamagePairList * damageList,
 			stats::ObjectInstance *attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
 			glm::vec3 const& targetPosition, stats::DeathType * pDeathType, int level, bool noRandomization);

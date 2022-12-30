@@ -35,6 +35,12 @@ P_REF(Target)
 P(HitChance)
 END_CLS()
 
+BEGIN_CLS(lua::GetAttackAPCostEvent)
+INHERIT(lua::EventBase)
+P_REF(Attacker)
+P(APCost)
+END_CLS()
+
 BEGIN_CLS(lua::GetSkillDamageEvent)
 INHERIT(lua::EventBase)
 P_REF(Skill)

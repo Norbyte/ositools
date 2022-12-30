@@ -166,6 +166,7 @@ namespace dse
 		SYM_OFF(esv__Character__Hit);
 		SYM_OFF(esv__Character__ApplyDamage);
 		SYM_OFF(CDivinityStats_Character__HitInternal);
+		SYM_OFF(CDivinityStats_Character__GetAttackAPCost);
 		SYM_OFF(CDivinityStats_Character__GetDamageBoost);
 		SYM_OFF(CDivinityStats_Character__GetWeaponAbility);
 		SYM_OFF(CDivinityStats_Character__GetItemRequirementAttribute);

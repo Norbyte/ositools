@@ -1,12 +1,8 @@
 local _I = Ext._Internal
 
 _I._PublishedEvents = {
-	"GameStateChanged",
-	"GetSkillDamage",
-	"GetSkillAPCost",
 	"ComputeCharacterHit",
 	"CalculateTurnOrder",
-	"GetHitChance",
 	"StatusGetEnterChance",
 	"BeforeStatusApply",
 	"StatusHitEnter",

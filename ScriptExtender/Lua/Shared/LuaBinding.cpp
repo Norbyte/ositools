@@ -617,6 +617,15 @@ namespace dse::lua
 		return params.HitChance;
 	}
 
+	std::optional<int32_t> State::GetAttackAPCost(stats::Character* attacker)
+	{
+		GetAttackAPCostEvent params {
+			.Attacker = attacker
+		};
+		ThrowEvent("GetAttackAPCost", params, false, RestrictAll);
+		return params.APCost;
+	}
+
 	bool State::GetSkillDamage(stats::SkillPrototype * skill, stats::DamagePairList * damageList,
 		stats::ObjectInstance *attacker, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
 		glm::vec3 const& targetPosition, stats::DeathType * pDeathType, int level, bool noRandomization)

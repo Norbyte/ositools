@@ -215,7 +215,7 @@ end
 --- @param character StatCharacter
 --- @param damageType string See DamageType enum
 function GetDamageBoostByType(character, damageType)
-    return Ext.Stats.Math.GetDamageBoostByType(character, damageType)
+    return Ext.Stats.Math.GetDamageBoostByType(character, damageType) / 100.0
 end
 
 --- @param character StatCharacter
