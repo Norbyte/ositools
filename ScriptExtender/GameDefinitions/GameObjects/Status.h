@@ -702,12 +702,12 @@ struct Status
 	virtual void GetTooltipText(eoc::Text& text) = 0;
 	virtual void FetchData() = 0;
 
-	FixedString field_8;
+	FixedString GUID; // Unused
 	NetId NetID;
 	ComponentHandle OwnerHandle;
-	__int64 field_20;
+	ComponentHandle StatusHandle;
 	FixedString StatusId;
-	int field_30;
+	float StartTimer;
 	float LifeTime;
 	float CurrentLifeTime;
 	float StatsMultiplier;

@@ -1618,6 +1618,8 @@ BEGIN_BITMASK_NS(ecl, StatusFlags, uint8_t)
 	EV(RequestDelete, 0x01)
 	EV(Started, 0x02)
 	EV(KeepAlive, 0x08)
+	EV(RequestRefreshLifeTime, 0x10)
+	EV(Ticking, 0x20)
 	EV(HasVisuals, 0x40)
 END_ENUM_NS()
 
