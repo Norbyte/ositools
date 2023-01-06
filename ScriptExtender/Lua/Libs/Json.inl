@@ -1,4 +1,5 @@
 #include <Lua/Shared/LuaSerializers.h>
+#include <Lua/Libs/Json.h>
 
 #include <fstream>
 #include <unordered_set>
@@ -71,6 +72,21 @@ void Parse(lua_State * L, Json::Value const & val)
 	}
 }
 
+bool Parse(lua_State * L, StringView json)
+{
+	Json::CharReaderBuilder factory;
+	std::unique_ptr<Json::CharReader> reader(factory.newCharReader());
+
+	Json::Value root;
+	std::string errs;
+	if (!reader->parse(json.data(), json.data() + json.size(), &root, &errs)) {
+		ERR("Unable to parse JSON: %s", errs.c_str());
+		return false;
+	}
+
+	Parse(L, root);
+	return true;
+}
 
 UserReturn LuaParse(lua_State * L)
 {
@@ -90,18 +106,6 @@ UserReturn LuaParse(lua_State * L)
 	Parse(L, root);
 	return 1;
 }
-
-struct StringifyContext
-{
-	bool StringifyInternalTypes{ false };
-	bool IterateUserdata{ false };
-	bool Beautify{ true };
-	bool AvoidRecursion{ false };
-	uint32_t MaxDepth{ 64 };
-	int32_t LimitDepth{ -1 };
-	int32_t LimitArrayElements{ -1 };
-	std::unordered_set<void*> SeenUserdata;
-};
 
 TValue* GetStackElem(lua_State* L, int idx)
 {
@@ -525,6 +529,24 @@ Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext
 }
 
 
+std::string Stringify(lua_State * L, StringifyContext& ctx, int index)
+{
+	StackCheck _(L);
+
+	Json::Value root;
+	root = Stringify(L, index, 0, ctx);
+
+	Json::StreamWriterBuilder builder;
+	if (ctx.Beautify) {
+		builder["indentation"] = "\t";
+	}
+	std::stringstream ss;
+	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+	writer->write(root, &ss);
+
+	return ss.str();
+}
+
 UserReturn LuaStringify(lua_State * L)
 {
 	StackCheck _(L, 1);
@@ -567,22 +589,12 @@ UserReturn LuaStringify(lua_State * L)
 		}
 	}
 
-	Json::Value root;
 	try {
-		root = Stringify(L, 1, 0, ctx);
-	} catch (std::runtime_error & e) {
+		push(L, Stringify(L, ctx, 1));
+	} catch (std::runtime_error& e) {
 		return luaL_error(L, "%s", e.what());
 	}
 
-	Json::StreamWriterBuilder builder;
-	if (ctx.Beautify) {
-		builder["indentation"] = "\t";
-	}
-	std::stringstream ss;
-	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-	writer->write(root, &ss);
-
-	push(L, ss.str());
 	return 1;
 }
 

@@ -462,6 +462,9 @@
     <ClInclude Include="Lua\Shared\LuaReference.h">
       <Filter>Lua\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Libs\Json.h">
+      <Filter>Lua\Libs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
