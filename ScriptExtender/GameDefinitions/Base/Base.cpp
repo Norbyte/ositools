@@ -353,6 +353,7 @@ ScratchBuffer& ScratchBuffer::operator = (ScratchBuffer&& o)
 	return *this;
 }
 
+const ComponentHandle NullComponentHandle;
 
 char const* GetHandleTypeName(ComponentHandle const& handle)
 {
@@ -533,6 +534,7 @@ void TypeInformationRepository::Initialize()
 	RegisterStaticType<lua::RegistryEntry>("RegistryEntry", LuaTypeId::Any);
 	RegisterStaticType<lua::PersistentRef>("PersistentRef", LuaTypeId::Any);
 	RegisterStaticType<lua::PersistentRegistryEntry>("PersistentRegistryEntry", LuaTypeId::Any);
+	RegisterStaticType<UserReturn>("UserReturn", LuaTypeId::Any);
 
 	auto& ivec2 = RegisterStaticType<glm::ivec2>("ivec2", LuaTypeId::Array);
 	ivec2.ElementType = GetStaticTypeInfo(Overload<int32_t>{});

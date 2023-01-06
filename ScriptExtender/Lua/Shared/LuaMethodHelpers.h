@@ -428,6 +428,12 @@ inline void CallGetter(lua_State* L, T* obj, R(T::* fun)()) {
 	PushReturnValue(L, retval);
 }
 
+template <class T>
+inline void CallGetter(lua_State* L, T* obj, UserReturn (T::* fun)(lua_State* L)) {
+	StackCheck _(L, 1);
+	(obj->*fun)(L);
+}
+
 
 template <class R, class T, class TEnum>
 inline void CallFlagGetter(lua_State* L, T* obj, R(T::* fun)(TEnum), TEnum flag) {

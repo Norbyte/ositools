@@ -229,6 +229,8 @@ enum GenericComponentHandleTag {};
 using EntityHandle = TypedHandle<EntityHandleTag>;
 using ComponentHandle = TypedHandle<GenericComponentHandleTag>;
 
+extern const ComponentHandle NullComponentHandle;
+
 char const* GetHandleTypeName(ComponentHandle const& handle);
 
 template <class T>
