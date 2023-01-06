@@ -14,6 +14,7 @@
 #include <Extender/Shared/StatLoadOrderHelper.inl>
 #include <Extender/Shared/SavegameSerializer.inl>
 #include <Extender/Shared/CustomDamageTypes.inl>
+#include <Extender/Shared/UserVariables.inl>
 
 #undef DEBUG_SERVER_CLIENT
 
@@ -386,7 +387,7 @@ FileReader * ScriptExtender::OnFileReaderCreate(FileReader::CtorProc* next, File
 
 void ScriptExtender::OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor)
 {
-	savegameSerializer_.SavegameVisit(visitor);
+	server_.OnSavegameVisit(visitor);
 }
 
 void ScriptExtender::PostStartup()

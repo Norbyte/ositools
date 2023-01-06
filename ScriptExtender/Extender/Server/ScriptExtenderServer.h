@@ -7,6 +7,7 @@
 #include <Extender/Server/NetworkManagerServer.h>
 #include <Extender/Server/StatusHelpers.h>
 #include <Extender/Server/OsirisStatusHelpers.h>
+#include <Extender/Shared/SavegameSerializer.h>
 #include <GameHooks/OsirisWrappers.h>
 #include <GameDefinitions/Symbols.h>
 #include <Osiris/OsirisExtender.h>
@@ -64,6 +65,7 @@ public:
 	bool RequestResetClientLuaState();
 	void ResetExtensionState();
 	void LoadExtensionState(ExtensionStateContext ctx);
+	void OnSavegameVisit(ObjectVisitor* visitor);
 
 
 	enum class GameStateWorkerStartTag {};
@@ -82,6 +84,7 @@ private:
 	NetworkFixedStringSender networkFixedStrings_;
 	StatusHelpers statusHelpers_;
 	OsirisStatusHelpers osirisStatusHelpers_;
+	SavegameSerializer savegameSerializer_;
 
 	void OnBaseModuleLoaded(void * self);
 	void OnGameStateChanged(void * self, GameState fromState, GameState toState);

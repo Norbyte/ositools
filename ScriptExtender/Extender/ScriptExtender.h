@@ -2,7 +2,6 @@
 
 #include <GameDefinitions/Osiris.h>
 #include <Extender/Shared/StatLoadOrderHelper.h>
-#include <Extender/Shared/SavegameSerializer.h>
 #include <Extender/Shared/ExtenderConfig.h>
 #include <Extender/Shared/ModuleHasher.h>
 #include <Extender/Shared/CustomDamageTypes.h>
@@ -141,7 +140,6 @@ private:
 	std::recursive_mutex globalStateLock_;
 	std::shared_mutex pathOverrideMutex_;
 	std::unordered_map<STDString, STDString> pathOverrides_;
-	SavegameSerializer savegameSerializer_;
 	StatLoadOrderHelper statLoadOrderHelper_;
 	esv::HitProxy hitProxy_;
 	ModuleHasher hasher_;

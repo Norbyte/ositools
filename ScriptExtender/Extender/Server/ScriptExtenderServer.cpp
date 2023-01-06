@@ -45,8 +45,6 @@ ScriptExtender::ScriptExtender(ExtenderConfig& config)
 
 void ScriptExtender::Initialize()
 {
-	ResetExtensionState();
-
 	auto& lib = GetStaticSymbols();
 
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
@@ -175,9 +173,11 @@ void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameSt
 		}
 	}
 
-	LuaServerPin lua(ExtensionState::Get());
-	if (lua) {
-		lua->OnGameStateChanged(fromState, toState);
+	if (extensionState_) {
+		LuaServerPin lua(*extensionState_);
+		if (lua) {
+			lua->OnGameStateChanged(fromState, toState);
+		}
 	}
 }
 
@@ -274,6 +274,11 @@ void ScriptExtender::LoadExtensionState(ExtensionStateContext ctx)
 	}
 
 	extensionLoaded_ = true;
+}
+
+void ScriptExtender::OnSavegameVisit(ObjectVisitor* visitor)
+{
+	savegameSerializer_.SavegameVisit(visitor);
 }
 
 END_NS()

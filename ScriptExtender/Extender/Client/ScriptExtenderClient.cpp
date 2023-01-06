@@ -68,8 +68,6 @@ ScriptExtender::ScriptExtender(ExtenderConfig& config)
 
 void ScriptExtender::Initialize()
 {
-	ResetExtensionState();
-
 	// Wrap state change functions even if extension startup failed, otherwise
 	// we won't be able to show any startup errors
 
@@ -217,6 +215,10 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		}
 		break;
 
+	case GameState::Init:
+		ResetExtensionState();
+		break;
+
 	case GameState::InitNetwork:
 	case GameState::Disconnect:
 		network_.Reset();
@@ -261,9 +263,11 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		break;
 	}
 
-	LuaClientPin lua(ecl::ExtensionState::Get());
-	if (lua) {
-		lua->OnGameStateChanged(fromState, toState);
+	if (extensionState_) {
+		LuaClientPin lua(*extensionState_);
+		if (lua) {
+			lua->OnGameStateChanged(fromState, toState);
+		}
 	}
 }
 
