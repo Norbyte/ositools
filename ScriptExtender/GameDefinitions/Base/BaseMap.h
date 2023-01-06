@@ -268,6 +268,17 @@ public:
 		}
 	}
 
+	MapBase(MapBase<TInternals> && other)
+	{
+		this->HashTable = other.HashTable;
+		this->HashSize = other.HashSize;
+		this->ItemCount = other.ItemCount;
+
+		other.HashTable = nullptr;
+		other.HashSize = 0;
+		other.ItemCount = 0;
+	}
+
 	~MapBase()
 	{
 		if (this->HashTable) {
@@ -282,6 +293,19 @@ public:
 		for (auto const& pair : other) {
 			insert(pair.Key, pair.Value);
 		}
+
+		return *this;
+	}
+
+	MapBase<TInternals>& operator =(MapBase<TInternals> && other)
+	{
+		this->HashTable = other.HashTable;
+		this->HashSize = other.HashSize;
+		this->ItemCount = other.ItemCount;
+
+		other.HashTable = nullptr;
+		other.HashSize = 0;
+		other.ItemCount = 0;
 
 		return *this;
 	}
