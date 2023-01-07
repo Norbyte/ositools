@@ -77,6 +77,12 @@ void Item::LuaSetFlag(ItemFlags flag, bool set)
 	}
 }
 
+UserReturn Item::LuaGetUserVariables(lua_State* L)
+{
+	lua::UserVariableHolderMetatable::Make(L, Base.Entity);
+	return 1;
+}
+
 PropertyOperationResult Item::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop)
 {
 	auto const& map = StaticLuaPropertyMap<stats::Item>::PropertyMap;

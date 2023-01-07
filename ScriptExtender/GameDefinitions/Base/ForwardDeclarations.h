@@ -66,6 +66,8 @@ struct InjectInputData;
 struct SkillAIParams;
 struct PlayerManager;
 
+class ScriptExtenderMessage;
+
 namespace stats
 {
 	struct RPGStats;
@@ -216,6 +218,7 @@ namespace lua
 	struct CppObjectMetadata;
 	class Ref;
 	class UserspaceClassBase;
+	class CachedUserVariableManager;
 }
 
 END_SE()

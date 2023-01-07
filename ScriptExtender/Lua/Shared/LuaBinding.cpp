@@ -476,10 +476,11 @@ namespace dse::lua
 		}
 	}
 
-	State::State(uint32_t generationId)
+	State::State(uint32_t generationId, bool isServer)
 		: generationId_(generationId),
 		lifetimeStack_(lifetimePool_),
-		globalLifetime_(lifetimePool_.Allocate())
+		globalLifetime_(lifetimePool_.Allocate()),
+		variableManager_(isServer ? gExtender->GetServer().GetExtensionState().GetUserVariables() : gExtender->GetClient().GetExtensionState().GetUserVariables(), isServer)
 	{
 		L = lua_newstate(LuaAlloc, nullptr);
 		internal_ = lua_new_internal_state();
@@ -762,6 +763,7 @@ namespace dse::lua
 		ThrowEvent("Tick", params, false, 0);
 
 		lua_gc(L, LUA_GCSTEP, 10);
+		variableManager_.Flush();
 	}
 
 	void State::OnStatsStructureLoaded()

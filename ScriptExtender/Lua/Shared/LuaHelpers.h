@@ -18,7 +18,8 @@ enum class MetatableTag : uint8_t
 	MapProxy = 2,
 	EnumValue = 3,
 	BitfieldValue = 4,
-	Max = BitfieldValue
+	UserVariableHolder = 5,
+	Max = UserVariableHolder
 };
 
 #if !defined(NDEBUG)

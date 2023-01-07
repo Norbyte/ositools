@@ -13,6 +13,7 @@ class ExtensionState : public ExtensionStateBase
 public:
 	static ExtensionState & Get();
 
+	ExtensionState();
 	~ExtensionState() override;
 
 	lua::State * GetLua() override;

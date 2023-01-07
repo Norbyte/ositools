@@ -35,6 +35,12 @@ void ExtenderProtocol::ProcessExtenderMessage(net::MessageContext& context, Mess
 		break;
 	}
 
+	case MessageWrapper::kUserVars:
+	{
+		gExtender->GetServer().GetExtensionState().GetUserVariables().OnNetworkSync(msg.user_vars());
+		break;
+	}
+
 	default:
 		OsiErrorS("Unknown extension message type received!");
 	}
@@ -156,6 +162,11 @@ ScriptExtenderMessage * NetworkManager::GetFreeMessage(UserId userId)
 		return nullptr;
 	}
 
+	return GetFreeMessage();
+}
+
+ScriptExtenderMessage * NetworkManager::GetFreeMessage()
+{
 	auto server = GetServer();
 	if (server != nullptr) {
 		return server->GetFreeMessage<ScriptExtenderMessage>();

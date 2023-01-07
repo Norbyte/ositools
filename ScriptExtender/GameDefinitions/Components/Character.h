@@ -281,6 +281,7 @@ struct Character : public IEoCServerObject
 	void LuaSetFlags(CharacterFlags flags);
 	bool LuaHasFlag(CharacterFlags flag);
 	void LuaSetFlag(CharacterFlags flag, bool set);
+	UserReturn LuaGetUserVariables(lua_State* L);
 };
 
 struct CharacterFactory : public NetworkComponentFactory<Character>
@@ -519,6 +520,7 @@ struct Character : public IEoCClientReplicatedObject
 	void LuaSetFlags(CharacterFlags flags);
 	bool LuaHasFlag(CharacterFlags flag);
 	void LuaSetFlag(CharacterFlags flag, bool set);
+	UserReturn LuaGetUserVariables(lua_State* L);
 };
 
 

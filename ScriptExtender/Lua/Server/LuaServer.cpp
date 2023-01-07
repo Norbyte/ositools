@@ -726,7 +726,7 @@ namespace dse::esv::lua
 	}
 
 	ServerState::ServerState(ExtensionState& state, uint32_t generationId)
-		: State(generationId),
+		: State(generationId, true),
 		osiris_(state)
 	{}
 
@@ -1153,6 +1153,10 @@ namespace dse::esv
 	{
 		return gExtender->GetServer().GetExtensionState();
 	}
+
+	ExtensionState::ExtensionState()
+		: ExtensionStateBase(true)
+	{}
 
 	ExtensionState::~ExtensionState()
 	{

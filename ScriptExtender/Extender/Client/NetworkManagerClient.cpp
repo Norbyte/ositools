@@ -84,6 +84,12 @@ void ExtenderProtocol::ProcessExtenderMessage(net::MessageContext& context, Mess
 		break;
 	}
 
+	case MessageWrapper::kUserVars:
+	{
+		gExtender->GetClient().GetExtensionState().GetUserVariables().OnNetworkSync(msg.user_vars());
+		break;
+	}
+
 	default:
 		OsiErrorS("Unknown extension message type received!");
 	}

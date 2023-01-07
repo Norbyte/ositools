@@ -42,6 +42,7 @@
     <ClInclude Include="Extender\Shared\ScriptExtensions.pb.h" />
     <ClInclude Include="Extender\Shared\StatLoadOrderHelper.h" />
     <ClInclude Include="Extender\Shared\tinyxml2.h" />
+    <ClInclude Include="Extender\Shared\UserVariables.h" />
     <ClInclude Include="GameDefinitions\Alignment.h" />
     <ClInclude Include="GameDefinitions\Base\Base.h" />
     <ClInclude Include="GameDefinitions\Base\BaseArray.h" />
@@ -139,6 +140,7 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMap.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaUserVariableHolder.h" />
     <ClInclude Include="Lua\Shared\Proxies\PropertyMapDependencies.h" />
     <ClInclude Include="NetProtocol.h" />
     <ClInclude Include="Osiris\Debugger\Debugger.h" />
@@ -273,6 +275,7 @@
     <None Include="Extender\Shared\ScriptExtensions.proto" />
     <None Include="Extender\Shared\StatLoadOrderHelper.inl" />
     <None Include="Extender\Shared\ThreadedExtenderState.inl" />
+    <None Include="Extender\Shared\UserVariables.inl" />
     <None Include="GameDefinitions\CharacterGetters.inl" />
     <None Include="GameDefinitions\Enumerations.inl" />
     <None Include="GameDefinitions\GlobalFixedStrings.inl" />
@@ -368,6 +371,7 @@
     <None Include="Lua\Shared\Proxies\LuaEvent.inl" />
     <None Include="Lua\Shared\Proxies\LuaMapProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaObjectProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaUserVariableHolder.inl" />
     <None Include="Osiris\Debugger\osidebug.proto" />
   </ItemGroup>
   <ItemGroup>

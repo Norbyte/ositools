@@ -14,8 +14,10 @@ namespace dse
 		static constexpr uint32_t VerAddedKickMessage = 1;
 		// Version that fixed mod hashes so they ignore path overrides
 		static constexpr uint32_t VerCorrectedHashes = 2;
+		// Added user variable sync
+		static constexpr uint32_t VerUserVariables = 3;
 		// Version of protocol, increment each time the protobuf changes
-		static constexpr uint32_t ProtoVersion = 2;
+		static constexpr uint32_t ProtoVersion = VerUserVariables;
 
 		ScriptExtenderMessage();
 		~ScriptExtenderMessage() override;

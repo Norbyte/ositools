@@ -40,7 +40,7 @@ struct ObjectVisitor : public ProtectedGameObject<ObjectVisitor>
 	virtual void VisitWCharT2() = 0;
 	virtual void VisitCharArray() = 0;
 	virtual void VisitCharArray2() = 0;
-	virtual void VisitObjectHandle(FixedString const&, void*, void const*) = 0;
+	virtual void VisitObjectHandle(FixedString const&, ComponentHandle&, ComponentHandle const&) = 0;
 	virtual void VisitQuaternion(FixedString const&, float&, float const&) = 0;
 	virtual void VisitMatrix4x3(FixedString const&, float&, float const&) = 0;
 	virtual void VisitMatrix3x4(FixedString const&, float&, float const&) = 0;

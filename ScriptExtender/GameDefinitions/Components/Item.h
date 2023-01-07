@@ -182,6 +182,7 @@ namespace dse
 			void LuaSetFlags(ItemFlags flags);
 			bool LuaHasFlag(ItemFlags flag);
 			void LuaSetFlag(ItemFlags flag, bool set);
+			UserReturn LuaGetUserVariables(lua_State* L);
 
 			static PropertyOperationResult LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
 			static PropertyOperationResult LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);
@@ -337,6 +338,7 @@ namespace dse
 			void LuaSetFlags(ItemFlags flags);
 			bool LuaHasFlag(ItemFlags flag);
 			void LuaSetFlag(ItemFlags flag, bool set);
+			UserReturn LuaGetUserVariables(lua_State* L);
 
 			static PropertyOperationResult LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
 			static PropertyOperationResult LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);

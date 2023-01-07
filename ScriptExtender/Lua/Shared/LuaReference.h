@@ -136,6 +136,16 @@ public:
 		}
 	}
 
+	inline int Index() const
+	{
+		return index_;
+	}
+
+	inline RefType Type() const
+	{
+		return type_;
+	}
+
 private:
 	RefType type_;
 	int index_;

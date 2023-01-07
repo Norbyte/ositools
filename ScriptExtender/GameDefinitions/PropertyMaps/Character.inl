@@ -282,6 +282,7 @@ P_FUN(GetSummons, GetSummonGuids)
 P_FUN(GetCustomStat, GetCustomStatValue)
 P_FUN(SetCustomStat, SetCustomStatValue)
 P_FUN(SetScale, LuaSetScale)
+P_GETTER(UserVars, LuaGetUserVariables)
 
 END_CLS()
 
@@ -453,6 +454,7 @@ P_FUN(GetItemBySlot, GetItemGuidBySlot)
 P_FUN(GetItemObjectBySlot, GetItemBySlot)
 P_FUN(GetCustomStat, GetCustomStatValue)
 P_FUN(SetScale, LuaSetScale)
+P_GETTER(UserVars, LuaGetUserVariables)
 END_CLS()
 
 

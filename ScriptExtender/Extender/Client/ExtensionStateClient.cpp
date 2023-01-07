@@ -12,6 +12,10 @@ ExtensionState & ExtensionState::Get()
 	return gExtender->GetClient().GetExtensionState();
 }
 
+ExtensionState::ExtensionState()
+	: ExtensionStateBase(false)
+{}
+
 ExtensionState::~ExtensionState()
 {
 	if (Lua) Lua->Shutdown();

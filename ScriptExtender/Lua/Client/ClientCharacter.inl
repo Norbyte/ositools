@@ -83,4 +83,10 @@ void Character::LuaSetFlag(CharacterFlags flag, bool set)
 	}
 }
 
+UserReturn Character::LuaGetUserVariables(lua_State* L)
+{
+	lua::UserVariableHolderMetatable::Make(L, Base.Entity);
+	return 1;
+}
+
 END_NS()

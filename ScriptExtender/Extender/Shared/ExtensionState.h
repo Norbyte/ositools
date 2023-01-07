@@ -2,6 +2,7 @@
 
 #include "ExtensionHelpers.h"
 #include <Lua/Shared/LuaBinding.h>
+#include <Extender/Shared/UserVariables.h>
 #include <random>
 #include <unordered_set>
 
@@ -34,6 +35,7 @@ namespace dse
 		using PostResetCallback = std::function<void()>;
 		std::mt19937_64 OsiRng;
 
+		ExtensionStateBase(bool isServer);
 		virtual ~ExtensionStateBase();
 
 		virtual void Reset();
@@ -108,6 +110,11 @@ namespace dse
 			return luaRefs_;
 		}
 
+		inline UserVariableManager& GetUserVariables()
+		{
+			return userVariables_;
+		}
+
 	protected:
 		friend class LuaVirtualPin;
 		static std::unordered_set<std::string_view> sAllFeatureFlags;
@@ -128,6 +135,8 @@ namespace dse
 		// Keep track of the list of loaded files so we can pass them to the debugger
 		std::unordered_map<STDString, STDString> loadedFiles_;
 		std::unordered_map<STDString, STDString> loadedFileFullPaths_;
+
+		UserVariableManager userVariables_;
 
 		void LuaResetInternal();
 		virtual void DoLuaReset() = 0;

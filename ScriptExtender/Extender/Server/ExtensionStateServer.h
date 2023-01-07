@@ -2,6 +2,7 @@
 
 #include <Extender/Shared/ExtensionState.h>
 #include <Lua/Server/LuaBindingServer.h>
+#include <Extender/Shared/UserVariables.h>
 #include <Hit.h>
 
 BEGIN_NS(esv)
@@ -30,6 +31,7 @@ public:
 	std::unique_ptr<ObjectSet<eoc::ItemDefinition>> PendingItemClone;
 	std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
 
+	ExtensionState();
 	~ExtensionState() override;
 
 	void Reset() override;

@@ -29,6 +29,8 @@ public:
 	void ExtendNetworking();
 
 	ScriptExtenderMessage * GetFreeMessage(UserId userId);
+	ScriptExtenderMessage * GetFreeMessage();
+	net::GameServer* GetServer() const;
 
 	void Send(ScriptExtenderMessage * msg, UserId userId);
 	void Broadcast(ScriptExtenderMessage * msg, UserId excludeUserId, bool excludeLocalPeer = false);
@@ -39,8 +41,6 @@ private:
 
 	// List of clients that support the extender protocol
 	std::unordered_map<PeerId, uint32_t> extenderPeerVersions_;
-
-	net::GameServer * GetServer() const;
 
 	void HookMessages(net::MessageFactory* messageFactory);
 };

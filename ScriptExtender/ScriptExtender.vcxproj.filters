@@ -462,8 +462,14 @@
     <ClInclude Include="Lua\Shared\LuaReference.h">
       <Filter>Lua\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Shared\UserVariables.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
     <ClInclude Include="Lua\Libs\Json.h">
       <Filter>Lua\Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaUserVariableHolder.h">
+      <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -973,6 +979,12 @@
     </None>
     <None Include="Extender\Shared\CustomDamageTypes.inl">
       <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="Extender\Shared\UserVariables.inl">
+      <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaUserVariableHolder.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

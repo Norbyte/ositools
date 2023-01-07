@@ -186,6 +186,11 @@ FS(StatType);
 FS(Blob);
 FS(StatsEntry);
 
+FS(UserVariables);
+FS(Entity);
+FS(EntityHandle);
+FS(Variable);
+
 // LuaEvent properties
 FS(ReadOnly);
 FS(CanPreventAction);

@@ -30,6 +30,10 @@ namespace dse
 		return sContextNames[(unsigned)ctx];
 	}
 
+	ExtensionStateBase::ExtensionStateBase(bool isServer)
+		: userVariables_(isServer)
+	{}
+
 	ExtensionStateBase::~ExtensionStateBase()
 	{}
 
@@ -321,6 +325,8 @@ namespace dse
 		if (lua) {
 			lua->OnUpdate(time);
 		}
+
+		userVariables_.Update();
 	}
 
 

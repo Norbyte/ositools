@@ -288,6 +288,70 @@ GraphicSettings* GetGraphicSettings()
 	return *GetStaticSymbols().ls__GraphicSettings;
 }
 
+UserVariableFlags ParseUserVariableFlags(lua_State* L, int index)
+{
+	UserVariableFlags flags{ 0 };
+
+	if (try_gettable<bool>(L, "Server", index, true)) {
+		flags |= UserVariableFlags::IsOnServer;
+	}
+
+	if (try_gettable<bool>(L, "Client", index, false)) {
+		flags |= UserVariableFlags::IsOnClient;
+	}
+
+	if ((flags & UserVariableFlags::IsOnServer) == UserVariableFlags::IsOnServer) {
+		if (try_gettable<bool>(L, "WriteableOnServer", index, true)) {
+			flags |= UserVariableFlags::WriteableOnServer;
+		}
+
+		if (try_gettable<bool>(L, "Persistent", index, true)) {
+			flags |= UserVariableFlags::Persistent;
+		}
+	}
+
+	if ((flags & UserVariableFlags::IsOnClient) == UserVariableFlags::IsOnClient) {
+		if (try_gettable<bool>(L, "WriteableOnClient", index, false)) {
+			flags |= UserVariableFlags::WriteableOnClient;
+		}
+	}
+
+	if ((flags & (UserVariableFlags::IsOnClient|UserVariableFlags::IsOnServer)) == (UserVariableFlags::IsOnClient | UserVariableFlags::IsOnServer)) {
+		if (try_gettable<bool>(L, "SyncToClient", index, false)) {
+			flags |= UserVariableFlags::SyncServerToClient;
+		}
+
+		if (try_gettable<bool>(L, "SyncToServer", index, false)) {
+			flags |= UserVariableFlags::SyncClientToServer;
+		}
+	}
+
+	if (try_gettable<bool>(L, "SyncOnWrite", index, false)) {
+		flags |= UserVariableFlags::SyncOnWrite;
+	}
+
+	if (try_gettable<bool>(L, "DontCache", index, false)) {
+		flags |= UserVariableFlags::DontCache;
+	}
+
+	if (try_gettable<bool>(L, "SyncOnTick", index, true)) {
+		flags |= UserVariableFlags::SyncOnTick;
+	}
+
+	return flags;
+}
+
+void RegisterUserVariable(lua_State* L, FixedString name)
+{
+	auto& vars = gExtender->GetCurrentExtensionState()->GetUserVariables();
+	UserVariablePrototype proto;
+
+	luaL_checktype(L, 2, LUA_TTABLE);
+	proto.Flags = ParseUserVariableFlags(L, 2);
+
+	vars.RegisterPrototype(name, proto);
+}
+
 void RegisterUtilsLib()
 {
 	DECLARE_MODULE(Utils, Both)
@@ -313,6 +377,7 @@ void RegisterUtilsLib()
 	MODULE_FUNCTION(ShowErrorAndExitGame)
 	MODULE_FUNCTION(GetGlobalSwitches)
 	MODULE_FUNCTION(GetGraphicSettings)
+	MODULE_FUNCTION(RegisterUserVariable)
 	END_MODULE()
 }
 

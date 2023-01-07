@@ -32,6 +32,10 @@ void SavegameSerializer::Serialize(ObjectVisitor* visitor, uint32_t version)
 {
 	SerializePersistentVariables(visitor, version);
 	SerializeStatObjects(visitor, version);
+
+	if (version >= 58) {
+		gExtender->GetServer().GetExtensionState().GetUserVariables().SavegameVisit(visitor);
+	}
 }
 
 
