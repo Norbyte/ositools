@@ -128,7 +128,9 @@ void UserVariableManager::Set(EntityHandle const& entity, FixedString const& key
 	if (value.Dirty && proto.NeedsSyncFor(isServer_)) {
 		if (proto.Has(UserVariableFlags::SyncOnWrite)) {
 			USER_VAR_DBG("Immediate sync var %016llx/%s", entity.Handle, key.GetStringOrDefault());
-			Sync(entity, key, value);
+			if (MakeSyncMessage()) {
+				Sync(entity, key, value);
+			}
 		} else if (proto.Has(UserVariableFlags::SyncOnTick)) {
 			USER_VAR_DBG("Request next tick sync for var %016llx/%s", entity.Handle, key.GetStringOrDefault());
 			nextTickSyncs_.push_back(SyncRequest{
@@ -737,7 +739,15 @@ void CachedUserVariableManager::Set(lua_State* L, EntityHandle const& entity, Fi
 {
 	if (!proto.Has(UserVariableFlags::DontCache)) {
 		USER_VAR_DBG("Set cached var %016llx/%s", entity.Handle, key.GetStringOrDefault());
-		PutCache(entity, key, proto, std::move(var), true);
+		auto cachedVar = PutCache(entity, key, proto, std::move(var), true);
+
+		if (cachedVar->Dirty && proto.NeedsSyncFor(isServer_) && proto.Has(UserVariableFlags::SyncOnWrite)) {
+			USER_VAR_DBG("Set global var %016llx/%s", entity.Handle, key.GetStringOrDefault());
+			auto userVar = cachedVar->ToUserVariable(L);
+			cachedVar->Dirty = false;
+			userVar.Dirty = true;
+			global_.Set(entity, key, proto, std::move(userVar));
+		}
 	} else {
 		USER_VAR_DBG("Set global var %016llx/%s", entity.Handle, key.GetStringOrDefault());
 		auto userVar = var.ToUserVariable(L);

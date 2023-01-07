@@ -69,10 +69,10 @@ public:
 
 
 	enum class GameStateWorkerStartTag {};
-	enum class GameStateMachcineUpdateTag {};
+	enum class GameStateMachineUpdateTag {};
 	enum class GameStateChangedEventTag {};
 	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
-	HookableFunction<GameStateMachcineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
+	HookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
 	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
 
 private:
