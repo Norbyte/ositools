@@ -346,6 +346,10 @@ void UserVariableManager::SavegameVisit(ObjectVisitor* visitor)
 				}
 			}
 		} else {
+			if (cache_) {
+				cache_->Flush();
+			}
+
 			for (auto& component : vars_) {
 				if (visitor->EnterNode(GFS.strComponent, GFS.strComponentHandle)) {
 					ComponentHandle componentHandle(component.Key.Handle);
