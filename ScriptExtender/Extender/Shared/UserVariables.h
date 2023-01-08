@@ -88,9 +88,9 @@ public:
 		: isServer_(isServer)
 	{}
 
-	UserVariable* Get(EntityHandle const& entity, FixedString const& key);
-	Map<FixedString, UserVariable>* GetAll(EntityHandle const& entity);
-	void Set(EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
+	UserVariable* Get(ComponentHandle component, FixedString const& key);
+	Map<FixedString, UserVariable>* GetAll(ComponentHandle component);
+	void Set(ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
 	UserVariablePrototype const* GetPrototype(FixedString const& key) const;
 	void RegisterPrototype(FixedString const& key, UserVariablePrototype const& proto);
 
@@ -103,11 +103,11 @@ public:
 private:
 	struct SyncRequest
 	{
-		EntityHandle Entity;
+		ComponentHandle Component;
 		FixedString Variable;
 	};
 
-	Map<EntityHandle, Map<FixedString, UserVariable>> vars_;
+	Map<ComponentHandle, Map<FixedString, UserVariable>> vars_;
 	Map<FixedString, UserVariablePrototype> prototypes_;
 	ObjectSet<SyncRequest> deferredSyncs_;
 	ObjectSet<SyncRequest> nextTickSyncs_;
@@ -116,9 +116,9 @@ private:
 	lua::CachedUserVariableManager* cache_{ nullptr };
 
 	void NetworkSync(UserVar const& var);
-	std::optional<EntityHandle> NetIdToEntityHandle(UserVar const& var);
-	void Sync(EntityHandle const& entity, FixedString const& key, UserVariable const& value);
-	void EntityHandleToNetId(EntityHandle const& entity, UserVar* var);
+	std::optional<ComponentHandle> NetIdToComponentHandle(UserVar const& var);
+	void Sync(ComponentHandle component, FixedString const& key, UserVariable const& value);
+	void ComponentHandleToNetId(ComponentHandle component, UserVar* var);
 	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
 	bool MakeSyncMessage();
 	void SendSyncs();
@@ -176,29 +176,29 @@ public:
 		return isServer_;
 	}
 
-	void Push(lua_State* L, EntityHandle const& entity, FixedString const& key);
-	void Push(lua_State* L, EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto);
-	void Set(lua_State* L, EntityHandle const& entity, FixedString const& key, CachedUserVariable && var);
-	void Set(lua_State* L, EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && var);
-	void Invalidate(EntityHandle const& entity, FixedString const& key);
+	void Push(lua_State* L, ComponentHandle component, FixedString const& key);
+	void Push(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto);
+	void Set(lua_State* L, ComponentHandle component, FixedString const& key, CachedUserVariable && var);
+	void Set(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && var);
+	void Invalidate(ComponentHandle component, FixedString const& key);
 	void Flush();
 
 private:
 	struct FlushRequest
 	{
-		EntityHandle Entity;
+		ComponentHandle Component;
 		FixedString Variable;
 		UserVariablePrototype const* Proto;
 	};
 
 	UserVariableManager& global_;
 	bool isServer_;
-	Map<EntityHandle, Map<FixedString, CachedUserVariable>> vars_;
+	Map<ComponentHandle, Map<FixedString, CachedUserVariable>> vars_;
 	ObjectSet<FlushRequest> flushQueue_;
 
-	CachedUserVariable* GetFromCache(EntityHandle const& entity, FixedString const& key);
-	CachedUserVariable* PutCache(lua_State* L, EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, UserVariable const& value);
-	CachedUserVariable* PutCache(EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && value, bool isWrite);
+	CachedUserVariable* GetFromCache(ComponentHandle component, FixedString const& key);
+	CachedUserVariable* PutCache(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, UserVariable const& value);
+	CachedUserVariable* PutCache(ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && value, bool isWrite);
 };
 
 END_NS()

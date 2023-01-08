@@ -100,9 +100,9 @@ void UserVariable::FromNetMessage(UserVar const& var)
 	}
 }
 
-UserVariable* UserVariableManager::Get(EntityHandle const& entity, FixedString const& key)
+UserVariable* UserVariableManager::Get(ComponentHandle component, FixedString const& key)
 {
-	auto it = vars_.find(entity);
+	auto it = vars_.find(component);
 	if (it != vars_.end()) {
 		auto valueIt = it.Value().find(key);
 		if (valueIt != it.Value().end()) {
@@ -113,9 +113,9 @@ UserVariable* UserVariableManager::Get(EntityHandle const& entity, FixedString c
 	return nullptr;
 }
 
-Map<FixedString, UserVariable>* UserVariableManager::GetAll(EntityHandle const& entity)
+Map<FixedString, UserVariable>* UserVariableManager::GetAll(ComponentHandle component)
 {
-	auto it = vars_.find(entity);
+	auto it = vars_.find(component);
 	if (it != vars_.end()) {
 		return &it.Value();
 	} else {
@@ -123,30 +123,30 @@ Map<FixedString, UserVariable>* UserVariableManager::GetAll(EntityHandle const& 
 	}
 }
 
-void UserVariableManager::Set(EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
+void UserVariableManager::Set(ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
 {
 	if (value.Dirty && proto.NeedsSyncFor(isServer_)) {
 		if (proto.Has(UserVariableFlags::SyncOnWrite)) {
-			USER_VAR_DBG("Immediate sync var %016llx/%s", entity.Handle, key.GetStringOrDefault());
+			USER_VAR_DBG("Immediate sync var %016llx/%s", component.Handle, key.GetStringOrDefault());
 			if (MakeSyncMessage()) {
-				Sync(entity, key, value);
+				Sync(component, key, value);
 			}
 		} else if (proto.Has(UserVariableFlags::SyncOnTick)) {
-			USER_VAR_DBG("Request next tick sync for var %016llx/%s", entity.Handle, key.GetStringOrDefault());
+			USER_VAR_DBG("Request next tick sync for var %016llx/%s", component.Handle, key.GetStringOrDefault());
 			nextTickSyncs_.push_back(SyncRequest{
-				.Entity = entity,
+				.Component = component,
 				.Variable = key
 			});
 		} else {
-			USER_VAR_DBG("Request deferred sync for var %016llx/%s", entity.Handle, key.GetStringOrDefault());
+			USER_VAR_DBG("Request deferred sync for var %016llx/%s", component.Handle, key.GetStringOrDefault());
 			deferredSyncs_.push_back(SyncRequest{
-				.Entity = entity,
+				.Component = component,
 				.Variable = key
 			});
 		}
 	}
 
-	auto it = vars_.find(entity);
+	auto it = vars_.find(component);
 	if (it != vars_.end()) {
 		auto valueIt = it.Value().find(key);
 		if (valueIt != it.Value().end()) {
@@ -155,52 +155,71 @@ void UserVariableManager::Set(EntityHandle const& entity, FixedString const& key
 			it.Value().insert(std::make_pair(key, std::move(value)));
 		}
 	} else {
-		auto entityVars = vars_.insert(std::make_pair(entity, Map<FixedString, UserVariable>{}));
-		entityVars->insert(std::make_pair(key, std::move(value)));
+		auto componentVars = vars_.insert(std::make_pair(component, Map<FixedString, UserVariable>{}));
+		componentVars->insert(std::make_pair(key, std::move(value)));
 	}
 }
 
-void UserVariableManager::Sync(EntityHandle const& entity, FixedString const& key, UserVariable const& value)
+void UserVariableManager::Sync(ComponentHandle component, FixedString const& key, UserVariable const& value)
 {
 	auto var = syncMsg_->GetMessage().mutable_user_vars()->add_vars();
-	EntityHandleToNetId(entity, var);
+	ComponentHandleToNetId(component, var);
 	var->set_key(key.GetStringOrDefault());
 	value.ToNetMessage(*var);
 }
 
-void UserVariableManager::EntityHandleToNetId(EntityHandle const& entity, UserVar* var)
+void UserVariableManager::ComponentHandleToNetId(ComponentHandle component, UserVar* var)
 {
 	if (isServer_) {
-		auto ch = esv::GetEntityWorld()->GetComponent<esv::Character>(entity, false);
-		if (ch) {
-			var->set_net_id_type(NETID_CHARACTER);
-			var->set_net_id(ch->NetID.Id);
-			return;
+		switch ((ObjectHandleType)component.GetType())
+		{
+		case ObjectHandleType::ServerCharacter:
+		{
+			auto ch = esv::GetEntityWorld()->GetComponent<esv::Character>(component, false);
+			if (ch) {
+				var->set_net_id_type(NETID_CHARACTER);
+				var->set_net_id(ch->NetID.Id);
+				return;
+			}
 		}
 
-		auto item = esv::GetEntityWorld()->GetComponent<esv::Item>(entity, false);
-		if (item) {
-			var->set_net_id_type(NETID_ITEM);
-			var->set_net_id(item->NetID.Id);
-			return;
+		case ObjectHandleType::ServerItem:
+		{
+			auto item = esv::GetEntityWorld()->GetComponent<esv::Item>(component, false);
+			if (item) {
+				var->set_net_id_type(NETID_ITEM);
+				var->set_net_id(item->NetID.Id);
+				return;
+			}
+		}
 		}
 	} else {
-		auto ch = ecl::GetEntityWorld()->GetComponent<ecl::Character>(entity, false);
-		if (ch) {
-			var->set_net_id_type(NETID_CHARACTER);
-			var->set_net_id(ch->NetID.Id);
-			return;
+		switch ((ObjectHandleType)component.GetType())
+		{
+		case ObjectHandleType::ClientCharacter:
+		{
+			auto ch = ecl::GetEntityWorld()->GetComponent<ecl::Character>(component, false);
+			if (ch) {
+				var->set_net_id_type(NETID_CHARACTER);
+				var->set_net_id(ch->NetID.Id);
+				return;
+			}
 		}
 
-		auto item = ecl::GetEntityWorld()->GetComponent<ecl::Item>(entity, false);
-		if (item) {
-			var->set_net_id_type(NETID_ITEM);
-			var->set_net_id(item->NetID.Id);
-			return;
+
+		case ObjectHandleType::ClientItem:
+		{
+			auto item = ecl::GetEntityWorld()->GetComponent<ecl::Item>(component, false);
+			if (item) {
+				var->set_net_id_type(NETID_ITEM);
+				var->set_net_id(item->NetID.Id);
+				return;
+			}
+		}
 		}
 	}
 
-	ERR("Tried to sync variables of unknown entity type %16x!", entity.Handle);
+	ERR("Tried to sync variables of unknown component %16x (type %d)!", component.Handle, component.GetType());
 	var->set_net_id_type(NETID_UNKNOWN);
 	var->set_net_id(0);
 }
@@ -210,10 +229,10 @@ void UserVariableManager::FlushSyncQueue(ObjectSet<SyncRequest>& queue)
 	if (!MakeSyncMessage()) return;
 
 	for (auto const& req : queue) {
-		auto value = Get(req.Entity, req.Variable);
+		auto value = Get(req.Component, req.Variable);
 		if (value && value->Dirty) {
-			USER_VAR_DBG("Flush sync var %016llx/%s", req.Entity.Handle, req.Variable.GetStringOrDefault());
-			Sync(req.Entity, req.Variable, *value);
+			USER_VAR_DBG("Flush sync var %016llx/%s", req.Component.Handle, req.Variable.GetStringOrDefault());
+			Sync(req.Component, req.Variable, *value);
 			value->Dirty = false;
 		}
 	}
@@ -300,51 +319,51 @@ void UserVariableManager::SavegameVisit(ObjectVisitor* visitor)
 		if (visitor->IsReading()) {
 			vars_.clear();
 			uint32_t numVars;
-			visitor->VisitCount(GFS.strEntity, &numVars);
+			visitor->VisitCount(GFS.strComponent, &numVars);
 
 			for (uint32_t i = 0; i < numVars; i++) {
-				if (visitor->EnterNode(GFS.strEntity, GFS.strEntityHandle)) {
-					ComponentHandle entityHandle;
-					visitor->VisitObjectHandle(GFS.strEntityHandle, entityHandle, NullComponentHandle);
-					auto entityVars = vars_.insert(std::make_pair(EntityHandle(entityHandle.Handle), Map<FixedString, UserVariable>{}));
+				if (visitor->EnterNode(GFS.strComponent, GFS.strComponentHandle)) {
+					ComponentHandle componentHandle;
+					visitor->VisitObjectHandle(GFS.strComponentHandle, componentHandle, NullComponentHandle);
+					auto componentVars = vars_.insert(std::make_pair(componentHandle, Map<FixedString, UserVariable>{}));
 
-					uint32_t numEntityVars;
-					visitor->VisitCount(GFS.strVariable, &numEntityVars);
+					uint32_t numComponentVars;
+					visitor->VisitCount(GFS.strVariable, &numComponentVars);
 
-					for (uint32_t j = 0; j < numEntityVars; j++) {
+					for (uint32_t j = 0; j < numComponentVars; j++) {
 						if (visitor->EnterNode(GFS.strVariable, GFS.strName)) {
 							FixedString name;
 							visitor->VisitFixedString(GFS.strName, name, GFS.strEmpty);
-							USER_VAR_DBG("Savegame restore var %016llx/%s", entityHandle.Handle, name.GetStringOrDefault());
+							USER_VAR_DBG("Savegame restore var %016llx/%s", componentHandle.Handle, name.GetStringOrDefault());
 							
-							auto var = entityVars->insert(std::make_pair(name, UserVariable{}));
+							auto var = componentVars->insert(std::make_pair(name, UserVariable{}));
 							var->SavegameVisit(visitor);
 							visitor->ExitNode(GFS.strVariable);
 						}
 					}
 
-					visitor->ExitNode(GFS.strEntity);
+					visitor->ExitNode(GFS.strComponent);
 				}
 			}
 		} else {
-			for (auto& entity : vars_) {
-				if (visitor->EnterNode(GFS.strEntity, GFS.strEntityHandle)) {
-					ComponentHandle entityHandle(entity.Key.Handle);
-					visitor->VisitObjectHandle(GFS.strEntityHandle, entityHandle, NullComponentHandle);
+			for (auto& component : vars_) {
+				if (visitor->EnterNode(GFS.strComponent, GFS.strComponentHandle)) {
+					ComponentHandle componentHandle(component.Key.Handle);
+					visitor->VisitObjectHandle(GFS.strComponentHandle, componentHandle, NullComponentHandle);
 
-					for (auto& kv : entity.Value) {
+					for (auto& kv : component.Value) {
 						auto proto = GetPrototype(kv.Key);
 						if (proto && proto->Has(UserVariableFlags::Persistent)) {
 							if (visitor->EnterNode(GFS.strVariable, GFS.strName)) {
 								visitor->VisitFixedString(GFS.strName, kv.Key, GFS.strEmpty);
-								USER_VAR_DBG("Savegame persist var %016llx/%s", entity.Key.Handle, kv.Key.GetStringOrDefault());
+								USER_VAR_DBG("Savegame persist var %016llx/%s", component.Key.Handle, kv.Key.GetStringOrDefault());
 								kv.Value.SavegameVisit(visitor);
 								visitor->ExitNode(GFS.strVariable);
 							}
 						}
 					}
 
-					visitor->ExitNode(GFS.strEntity);
+					visitor->ExitNode(GFS.strComponent);
 				}
 			}
 		}
@@ -364,8 +383,8 @@ void UserVariableManager::OnNetworkSync(MsgUserVars const& msg)
 void UserVariableManager::NetworkSync(UserVar const& var)
 {
 	USER_VAR_DBG("Received sync for %d/%s", var.net_id(), var.key().c_str());
-	auto entity = NetIdToEntityHandle(var);
-	if (!entity) return;
+	auto component = NetIdToComponentHandle(var);
+	if (!component) return;
 
 	FixedString key(var.key());
 	auto proto = GetPrototype(key);
@@ -382,14 +401,14 @@ void UserVariableManager::NetworkSync(UserVar const& var)
 	UserVariable value;
 	value.FromNetMessage(var);
 
-	Set(*entity, key, *proto, std::move(value));
+	Set(*component, key, *proto, std::move(value));
 
 	if (cache_ && !proto->Has(UserVariableFlags::DontCache)) {
-		cache_->Invalidate(*entity, key);
+		cache_->Invalidate(*component, key);
 	}
 }
 
-std::optional<EntityHandle> UserVariableManager::NetIdToEntityHandle(UserVar const& var)
+std::optional<ComponentHandle> UserVariableManager::NetIdToComponentHandle(UserVar const& var)
 {
 	if (isServer_) {
 		switch (var.net_id_type()) {
@@ -397,7 +416,7 @@ std::optional<EntityHandle> UserVariableManager::NetIdToEntityHandle(UserVar con
 		{
 			auto ch = esv::GetEntityWorld()->GetComponent<esv::Character>(NetId(var.net_id()));
 			if (ch) {
-				return ch->Base.Entity;
+				return ch->Base.Component.Handle;
 			}
 			break;
 		}
@@ -406,7 +425,7 @@ std::optional<EntityHandle> UserVariableManager::NetIdToEntityHandle(UserVar con
 		{
 			auto item = esv::GetEntityWorld()->GetComponent<esv::Item>(NetId(var.net_id()));
 			if (item) {
-				return item->Base.Entity;
+				return item->Base.Component.Handle;
 			}
 			break;
 		}
@@ -421,7 +440,7 @@ std::optional<EntityHandle> UserVariableManager::NetIdToEntityHandle(UserVar con
 		{
 			auto ch = ecl::GetEntityWorld()->GetComponent<ecl::Character>(NetId(var.net_id()));
 			if (ch) {
-				return ch->Base.Entity;
+				return ch->Base.Component.Handle;
 			}
 			break;
 		}
@@ -430,7 +449,7 @@ std::optional<EntityHandle> UserVariableManager::NetIdToEntityHandle(UserVar con
 		{
 			auto item = ecl::GetEntityWorld()->GetComponent<ecl::Item>(NetId(var.net_id()));
 			if (item) {
-				return item->Base.Entity;
+				return item->Base.Component.Handle;
 			}
 			break;
 		}
@@ -632,9 +651,9 @@ CachedUserVariableManager::~CachedUserVariableManager()
 	global_.BindCache(nullptr);
 }
 
-CachedUserVariable* CachedUserVariableManager::GetFromCache(EntityHandle const& entity, FixedString const& key)
+CachedUserVariable* CachedUserVariableManager::GetFromCache(ComponentHandle component, FixedString const& key)
 {
-	auto it = vars_.find(entity);
+	auto it = vars_.find(component);
 	if (it != vars_.end()) {
 		auto valueIt = it.Value().find(key);
 		if (valueIt != it.Value().end()) {
@@ -645,12 +664,12 @@ CachedUserVariable* CachedUserVariableManager::GetFromCache(EntityHandle const& 
 	return nullptr;
 }
 
-CachedUserVariable* CachedUserVariableManager::PutCache(EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable&& value, bool isWrite)
+CachedUserVariable* CachedUserVariableManager::PutCache(ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable&& value, bool isWrite)
 {
 	CachedUserVariable* var;
 	bool wasDirty{ false };
 
-	auto it = vars_.find(entity);
+	auto it = vars_.find(component);
 	if (it != vars_.end()) {
 		auto valueIt = it.Value().find(key);
 		if (valueIt != it.Value().end()) {
@@ -664,15 +683,15 @@ CachedUserVariable* CachedUserVariableManager::PutCache(EntityHandle const& enti
 			var->Dirty = isWrite;
 		}
 	} else {
-		auto entityVars = vars_.insert(std::make_pair(entity, Map<FixedString, CachedUserVariable>{}));
-		var = entityVars->insert(std::make_pair(key, std::move(value)));
+		auto componentVars = vars_.insert(std::make_pair(component, Map<FixedString, CachedUserVariable>{}));
+		var = componentVars->insert(std::make_pair(key, std::move(value)));
 		var->Dirty = isWrite;
 	}
 
 	if (!wasDirty && var->Dirty) {
-		USER_VAR_DBG("Mark cached var for flush %016llx/%s", entity.Handle, key.GetStringOrDefault());
+		USER_VAR_DBG("Mark cached var for flush %016llx/%s", component.Handle, key.GetStringOrDefault());
 		flushQueue_.push_back(FlushRequest{
-			.Entity = entity,
+			.Component = component,
 			.Variable = key,
 			.Proto = &proto
 		});
@@ -681,13 +700,13 @@ CachedUserVariable* CachedUserVariableManager::PutCache(EntityHandle const& enti
 	return var;
 }
 
-CachedUserVariable* CachedUserVariableManager::PutCache(lua_State* L, EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, UserVariable const& value)
+CachedUserVariable* CachedUserVariableManager::PutCache(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, UserVariable const& value)
 {
 	CachedUserVariable var(L, value);
-	return PutCache(entity, key, proto, std::move(var), false);
+	return PutCache(component, key, proto, std::move(var), false);
 }
 
-void CachedUserVariableManager::Push(lua_State* L, EntityHandle const& entity, FixedString const& key)
+void CachedUserVariableManager::Push(lua_State* L, ComponentHandle component, FixedString const& key)
 {
 	auto proto = global_.GetPrototype(key);
 	if (!proto) {
@@ -695,28 +714,28 @@ void CachedUserVariableManager::Push(lua_State* L, EntityHandle const& entity, F
 		return;
 	}
 
-	return Push(L, entity, key, *proto);
+	return Push(L, component, key, *proto);
 }
 
-void CachedUserVariableManager::Push(lua_State* L, EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto)
+void CachedUserVariableManager::Push(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto)
 {
 	if (!proto.Has(UserVariableFlags::DontCache)) {
-		auto cached = GetFromCache(entity, key);
+		auto cached = GetFromCache(component, key);
 		if (cached) {
 			cached->Push(L);
 			return;
 		}
 	}
 
-	auto value = global_.Get(entity, key);
+	auto value = global_.Get(component, key);
 	if (!value) {
 		push(L, nullptr);
 		return;
 	}
 
 	if (!proto.Has(UserVariableFlags::DontCache)) {
-		USER_VAR_DBG("Cache global var %016llx/%s", entity.Handle, key.GetStringOrDefault());
-		auto cached = PutCache(L, entity, key, proto, *value);
+		USER_VAR_DBG("Cache global var %016llx/%s", component.Handle, key.GetStringOrDefault());
+		auto cached = PutCache(L, component, key, proto, *value);
 		cached->Push(L);
 	} else {
 		CachedUserVariable cached(L, *value);
@@ -724,7 +743,7 @@ void CachedUserVariableManager::Push(lua_State* L, EntityHandle const& entity, F
 	}
 }
 
-void CachedUserVariableManager::Set(lua_State* L, EntityHandle const& entity, FixedString const& key, CachedUserVariable && var)
+void CachedUserVariableManager::Set(lua_State* L, ComponentHandle component, FixedString const& key, CachedUserVariable && var)
 {
 	auto proto = global_.GetPrototype(key);
 	if (!proto) {
@@ -732,37 +751,37 @@ void CachedUserVariableManager::Set(lua_State* L, EntityHandle const& entity, Fi
 		return;
 	}
 
-	Set(L, entity, key, *proto, std::move(var));
+	Set(L, component, key, *proto, std::move(var));
 }
 
-void CachedUserVariableManager::Set(lua_State* L, EntityHandle const& entity, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && var)
+void CachedUserVariableManager::Set(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && var)
 {
 	if (!proto.Has(UserVariableFlags::DontCache)) {
-		USER_VAR_DBG("Set cached var %016llx/%s", entity.Handle, key.GetStringOrDefault());
-		auto cachedVar = PutCache(entity, key, proto, std::move(var), true);
+		USER_VAR_DBG("Set cached var %016llx/%s", component.Handle, key.GetStringOrDefault());
+		auto cachedVar = PutCache(component, key, proto, std::move(var), true);
 
 		if (cachedVar->Dirty && proto.NeedsSyncFor(isServer_) && proto.Has(UserVariableFlags::SyncOnWrite)) {
-			USER_VAR_DBG("Set global var %016llx/%s", entity.Handle, key.GetStringOrDefault());
+			USER_VAR_DBG("Set global var %016llx/%s", component.Handle, key.GetStringOrDefault());
 			auto userVar = cachedVar->ToUserVariable(L);
 			cachedVar->Dirty = false;
 			userVar.Dirty = true;
-			global_.Set(entity, key, proto, std::move(userVar));
+			global_.Set(component, key, proto, std::move(userVar));
 		}
 	} else {
-		USER_VAR_DBG("Set global var %016llx/%s", entity.Handle, key.GetStringOrDefault());
+		USER_VAR_DBG("Set global var %016llx/%s", component.Handle, key.GetStringOrDefault());
 		auto userVar = var.ToUserVariable(L);
 		userVar.Dirty = true;
-		global_.Set(entity, key, proto, std::move(userVar));
+		global_.Set(component, key, proto, std::move(userVar));
 	}
 }
 
-void CachedUserVariableManager::Invalidate(EntityHandle const& entity, FixedString const& key)
+void CachedUserVariableManager::Invalidate(ComponentHandle component, FixedString const& key)
 {
-	auto it = vars_.find(entity);
+	auto it = vars_.find(component);
 	if (it != vars_.end()) {
 		auto valueIt = it.Value().find(key);
 		if (valueIt != it.Value().end()) {
-			USER_VAR_DBG("Invalidate cached var %016llx/%s", entity.Handle, key.GetStringOrDefault());
+			USER_VAR_DBG("Invalidate cached var %016llx/%s", component.Handle, key.GetStringOrDefault());
 			it.Value().erase(valueIt);
 		}
 	}
@@ -774,12 +793,12 @@ void CachedUserVariableManager::Flush()
 
 	if (lua) {
 		for (auto const& req : flushQueue_) {
-			auto var = GetFromCache(req.Entity, req.Variable);
+			auto var = GetFromCache(req.Component, req.Variable);
 			if (var && var->Dirty) {
-				USER_VAR_DBG("Flush cached var %016llx/%s", req.Entity.Handle, req.Variable.GetStringOrDefault());
+				USER_VAR_DBG("Flush cached var %016llx/%s", req.Component.Handle, req.Variable.GetStringOrDefault());
 				auto userVar = var->ToUserVariable(lua->GetState());
 				userVar.Dirty = true;
-				global_.Set(req.Entity, req.Variable, *req.Proto, std::move(userVar));
+				global_.Set(req.Component, req.Variable, *req.Proto, std::move(userVar));
 				var->Dirty = false;
 			}
 		}

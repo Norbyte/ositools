@@ -102,7 +102,7 @@ void Item::LuaSetFlag(ItemFlags flag, bool set)
 
 UserReturn Item::LuaGetUserVariables(lua_State* L)
 {
-	lua::UserVariableHolderMetatable::Make(L, Base.Entity);
+	lua::UserVariableHolderMetatable::Make(L, Base.Component.Handle);
 	return 1;
 }
 

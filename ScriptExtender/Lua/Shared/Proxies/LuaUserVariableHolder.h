@@ -12,9 +12,9 @@ class UserVariableHolderMetatable : public LightCppValueMetatable<UserVariableHo
 public:
 	static constexpr MetatableTag MetaTag = MetatableTag::UserVariableHolder;
 
-	inline static void Make(lua_State* L, EntityHandle const& entity)
+	inline static void Make(lua_State* L, ComponentHandle const& component)
 	{
-		lua_push_cppvalue(L, MetaTag, 0, entity.Handle);
+		lua_push_cppvalue(L, MetaTag, 0, component.Handle);
 	}
 
 	static int Index(lua_State* L, CppValueMetadata& self);

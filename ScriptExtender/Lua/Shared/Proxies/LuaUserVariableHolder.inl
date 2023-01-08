@@ -20,7 +20,7 @@ int UserVariableHolderMetatable::Index(lua_State* L, CppValueMetadata& self)
 		return 1;
 	}
 
-	vars.Push(L, EntityHandle(self.Value), key, *proto);
+	vars.Push(L, ComponentHandle(self.Value), key, *proto);
 	return 1;
 }
 
@@ -41,41 +41,41 @@ int UserVariableHolderMetatable::NewIndex(lua_State* L, CppValueMetadata& self)
 	}
 
 	CachedUserVariable value(L, Ref(L, 3));
-	vars.Set(L, EntityHandle(self.Value), key, *proto, std::move(value));
+	vars.Set(L, ComponentHandle(self.Value), key, *proto, std::move(value));
 	return 0;
 }
 
 int UserVariableHolderMetatable::Length(lua_State* L, CppValueMetadata& self)
 {
-	auto entityVars = State::FromLua(L)->GetVariableManager().GetGlobal().GetAll(EntityHandle(self.Value));
-	push(L, entityVars ? entityVars->size() : 0);
+	auto componentVars = State::FromLua(L)->GetVariableManager().GetGlobal().GetAll(ComponentHandle(self.Value));
+	push(L, componentVars ? componentVars->size() : 0);
 	return 1;
 }
 
 int UserVariableHolderMetatable::Next(lua_State* L, CppValueMetadata& self)
 {
 	auto& vars = State::FromLua(L)->GetVariableManager();
-	auto entityVars = vars.GetGlobal().GetAll(EntityHandle(self.Value));
-	if (!entityVars) {
+	auto componentVars = vars.GetGlobal().GetAll(ComponentHandle(self.Value));
+	if (!componentVars) {
 		return 0;
 	}
 
 	if (lua_type(L, 2) == LUA_TNIL) {
-		auto it = entityVars->begin();
+		auto it = componentVars->begin();
 		if (it) {
 			push(L, it.Key());
-			vars.Push(L, EntityHandle(self.Value), it.Key());
+			vars.Push(L, ComponentHandle(self.Value), it.Key());
 			return 2;
 		}
 	} else {
 		auto key = get<FixedString>(L, 2);
-		auto it = entityVars->find(key);
+		auto it = componentVars->find(key);
 
 		if (it) {
 			it++;
 			if (it) {
 				push(L, it.Key());
-				vars.Push(L, EntityHandle(self.Value), it.Key());
+				vars.Push(L, ComponentHandle(self.Value), it.Key());
 				return 2;
 			}
 		}
