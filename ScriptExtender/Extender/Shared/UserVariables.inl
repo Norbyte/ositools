@@ -339,6 +339,15 @@ void UserVariableManager::SavegameVisit(ObjectVisitor* visitor)
 							auto var = componentVars->insert(std::make_pair(name, UserVariable{}));
 							var->SavegameVisit(visitor);
 							visitor->ExitNode(GFS.strVariable);
+
+							auto proto = GetPrototype(name);
+							if (proto && proto->NeedsSyncFor(isServer_)) {
+								USER_VAR_DBG("Request deferred sync for var %016llx/%s", componentHandle.Handle, name.GetStringOrDefault());
+								deferredSyncs_.push_back(SyncRequest{
+									.Component = componentHandle,
+									.Variable = name
+								});
+							}
 						}
 					}
 
