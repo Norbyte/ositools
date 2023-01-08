@@ -259,10 +259,10 @@ bool UserVariableManager::MakeSyncMessage()
 
 void UserVariableManager::SendSyncs()
 {
-	if (syncMsg_) {
+	if (syncMsg_ && syncMsg_->GetMessage().user_vars().vars_size() > 0) {
 		if (isServer_) {
 			USER_VAR_DBG("Syncing user vars to client(s)");
-			gExtender->GetServer().GetNetworkManager().Broadcast(syncMsg_, ReservedUserId, false);
+			gExtender->GetServer().GetNetworkManager().BroadcastToConnectedPeers(syncMsg_, ReservedUserId, false);
 		} else {
 			USER_VAR_DBG("Syncing user vars to server");
 			gExtender->GetClient().GetNetworkManager().Send(syncMsg_);
@@ -274,6 +274,25 @@ void UserVariableManager::SendSyncs()
 
 void UserVariableManager::Flush(bool force)
 {
+	if (isServer_) {
+		auto state = GetStaticSymbols().GetServerState();
+		if (!state 
+			|| *state == dse::esv::GameState::LoadSession
+			|| *state == dse::esv::GameState::LoadLevel
+			|| *state == dse::esv::GameState::Sync) {
+			return;
+		}
+	} else {
+		auto state = GetStaticSymbols().GetClientState();
+		if (!state
+			|| *state == dse::ecl::GameState::LoadSession
+			|| *state == dse::ecl::GameState::LoadLevel
+			|| *state == dse::ecl::GameState::PrepareRunning) {
+			return;
+		}
+	}
+
+
 	if (!deferredSyncs_.empty()) {
 		USER_VAR_DBG("Flushing deferred syncs");
 		FlushSyncQueue(deferredSyncs_);
@@ -343,6 +362,7 @@ void UserVariableManager::SavegameVisit(ObjectVisitor* visitor)
 							auto proto = GetPrototype(name);
 							if (proto && proto->NeedsSyncFor(isServer_)) {
 								USER_VAR_DBG("Request deferred sync for var %016llx/%s", componentHandle.Handle, name.GetStringOrDefault());
+								var->Dirty = true;
 								deferredSyncs_.push_back(SyncRequest{
 									.Component = componentHandle,
 									.Variable = name
