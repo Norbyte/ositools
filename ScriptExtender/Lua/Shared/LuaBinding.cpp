@@ -509,6 +509,7 @@ namespace dse::lua
 	{
 		RestoreLevelMaps(IsClient());
 		customDamageTypes_.Clear();
+		variableManager_.Invalidate();
 	}
 
 	State* State::FromLua(lua_State* L)

@@ -809,6 +809,12 @@ void CachedUserVariableManager::Set(lua_State* L, ComponentHandle component, Fix
 	}
 }
 
+void CachedUserVariableManager::Invalidate()
+{
+	vars_.clear();
+	flushQueue_.clear();
+}
+
 void CachedUserVariableManager::Invalidate(ComponentHandle component, FixedString const& key)
 {
 	auto it = vars_.find(component);
