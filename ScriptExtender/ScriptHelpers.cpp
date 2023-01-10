@@ -144,7 +144,14 @@ bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& transl
 		return false;
 	}
 
-	if (getter(keyMgr, translated, key, false)) {
+	bool ok = getter(keyMgr, translated, key, false);
+
+	MARK_EXTERNAL_WSTR(translated.Handle.ReferenceString);
+	MARK_EXTERNAL_STR(translated.Handle.Str);
+	MARK_EXTERNAL_WSTR(translated.ArgumentString.ReferenceString);
+	MARK_EXTERNAL_STR(translated.ArgumentString.Str);
+
+	if (ok) {
 		// If the string key is not localized, use the content from the localization LSB.
 		if (translated.Handle.Handle != GFS.strNullStringHandle) {
 			return GetTranslatedString(translated.Handle.Handle.GetString(), translated.Handle.ReferenceString);

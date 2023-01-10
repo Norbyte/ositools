@@ -26,6 +26,7 @@ namespace net
 	{
 		if (MessagePools.capacity() >= minPools) return;
 
+		MARK_EXTERNAL_MEMORY(&*MessagePools.begin());
 		MessagePools.reallocate(minPools);
 	}
 }
@@ -89,7 +90,7 @@ void ScriptExtenderMessage::Serialize(net::BitstreamSerializer & serializer)
 		uint32_t size = (uint32_t)msg.ByteSizeLong();
 		if (size <= MaxPayloadLength) {
 			serializer.WriteBytes(&size, sizeof(size));
-			void * buf = GameAllocRaw(size);
+			void * buf = GameAllocRaw(size, "ScriptExtenderMessage");
 			msg.SerializeToArray(buf, size);
 			serializer.WriteBytes(buf, size);
 			GameFree(buf);
@@ -106,7 +107,7 @@ void ScriptExtenderMessage::Serialize(net::BitstreamSerializer & serializer)
 		if (size > MaxPayloadLength) {
 			OsiError("Tried to read packet of size " << size << ", max size is " << MaxPayloadLength);
 		} else if (size > 0) {
-			void * buf = GameAllocRaw(size);
+			void * buf = GameAllocRaw(size, "ScriptExtenderMessage");
 			serializer.ReadBytes(buf, size);
 			valid_ = msg.ParseFromArray(buf, size);
 			GameFree(buf);

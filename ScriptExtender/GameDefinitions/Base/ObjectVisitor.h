@@ -32,8 +32,8 @@ struct ObjectVisitor : public ProtectedGameObject<ObjectVisitor>
 	virtual void VisitTransatedFSString() = 0;
 	virtual void VisitGuid(FixedString const&, void*, void const*) = 0;
 	virtual void VisitTranslatedString(FixedString const&, TranslatedString&, TranslatedString const&) = 0;
-	virtual void VisitSTDWString(FixedString const&, STDWString&, STDWString const&) = 0;
-	virtual void VisitSTDString(FixedString const&, STDString&, STDString const&) = 0;
+	virtual void VisitSTDWStringInternal(FixedString const&, STDWString&, STDWString const&) = 0;
+	virtual void VisitSTDStringInternal(FixedString const&, STDString&, STDString const&) = 0;
 	virtual void VisitFixedString(FixedString const&, FixedString&, FixedString const&) = 0;
 	virtual void VisitPath(FixedString const&, Path*, Path*) = 0;
 	virtual void VisitWCharT() = 0;
@@ -64,7 +64,25 @@ struct ObjectVisitor : public ProtectedGameObject<ObjectVisitor>
 	virtual void VisitBool(FixedString const&, bool&, bool) = 0;
 	virtual void VisitUInt8(FixedString const&, uint8_t&, uint8_t) = 0;
 	virtual void VisitInt8(FixedString const&, int8_t&, int8_t) = 0;
-	virtual void VisitBuffer(FixedString const&, ScratchBuffer&) = 0;
+	virtual void VisitBufferInternal(FixedString const&, ScratchBuffer&) = 0;
+
+	inline void VisitSTDString(FixedString const& name, STDString& s, STDString const& def)
+	{
+		VisitSTDStringInternal(name, s, def);
+		MARK_EXTERNAL_STR(s);
+	}
+
+	inline void VisitSTDWString(FixedString const& name, STDWString& s, STDWString const& def)
+	{
+		VisitSTDWStringInternal(name, s, def);
+		MARK_EXTERNAL_WSTR(s);
+	}
+
+	inline void VisitBuffer(FixedString const& name, ScratchBuffer& buf)
+	{
+		VisitBufferInternal(name, buf);
+		MARK_EXTERNAL_MEMORY(buf.Buffer);
+	}
 };
 
 END_SE()

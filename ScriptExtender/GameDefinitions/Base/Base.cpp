@@ -5,12 +5,63 @@
 
 BEGIN_SE()
 
+#if defined(TRACK_ALLOCATIONS)
+void MemoryAllocationTracker::Alloc(void* ptr, size_t sz, char const* tag)
+{
+	std::lock_guard lock(mutex_);
+	auto it = allocs_.find(ptr);
+	if (it != allocs_.end()) {
+		if (it->second.InUse) {
+			ERR("Reusing allocated memory? (%p) %d, %s -> %d, %s", ptr, it->second.Size, it->second.Tag, sz, tag);
+			DebugBreak();
+			return;
+		} else {
+			//DEBUG("Alloc (%p) %d, %s", ptr, sz, tag);
+			it->second = AllocationInfo{
+				.Tag = tag,
+				.Size = sz,
+				.InUse = true
+			};
+		}
+	} else {
+		//DEBUG("Alloc (%p) %d, %s", ptr, sz, tag);
+		allocs_.insert(std::make_pair(ptr, AllocationInfo{
+			.Tag = tag,
+			.Size = sz,
+			.InUse = true
+		}));
+	}
+}
+
+void MemoryAllocationTracker::Free(void* ptr)
+{
+	std::lock_guard lock(mutex_);
+	auto it = allocs_.find(ptr);
+	if (it == allocs_.end()) {
+		ERR("Releasing memory not allocated by us? (%p)", ptr);
+		DebugBreak();
+		return;
+	}
+
+	if (!it->second.InUse) {
+		ERR("Double free? (%p) %d, %s", ptr, it->second.Size, it->second.Tag);
+		DebugBreak();
+		return;
+	}
+
+	it->second.InUse = false;
+	//DEBUG("Free (%p) %d, %s", ptr, it->second.Size, it->second.Tag);
+}
+
+MemoryAllocationTracker gMemoryAllocationTracker;
+#endif
+
 void* MSVCMemoryAllocator::Alloc(std::size_t size)
 {
 	return GetStaticSymbols().CrtAlloc(size);
 }
 
-void * GameAllocRaw(std::size_t size)
+void * GameAllocInternal(std::size_t size)
 {
 #if defined(OSI_EOCAPP)
 	return GetStaticSymbols().EoCAlloc(nullptr, size);
@@ -19,8 +70,35 @@ void * GameAllocRaw(std::size_t size)
 #endif
 }
 
+void * GameAllocRaw(std::size_t size)
+{
+	auto ptr = GameAllocInternal(size);
+
+#if defined(TRACK_ALLOCATIONS)
+	gMemoryAllocationTracker.Alloc(ptr, size, nullptr);
+#endif
+
+	return ptr;
+}
+
+void * GameAllocRaw(std::size_t size, char const* tag)
+{
+	auto ptr = GameAllocInternal(size);
+
+#if defined(TRACK_ALLOCATIONS)
+	gMemoryAllocationTracker.Alloc(ptr, size, tag);
+#endif
+
+	return ptr;
+}
+
 void GameFree(void * ptr)
 {
+#if defined(TRACK_ALLOCATIONS)
+	if (ptr) {
+		gMemoryAllocationTracker.Free(ptr);
+	}
+#endif
 	GetStaticSymbols().EoCFree(nullptr, ptr);
 }
 

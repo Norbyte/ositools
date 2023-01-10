@@ -101,6 +101,10 @@ std::optional<STDWString> IEoCServerObject::LuaGetDisplayName()
 {
 	TranslatedString name;
 	GetDisplayName(name);
+	MARK_EXTERNAL_WSTR(name.Handle.ReferenceString);
+	MARK_EXTERNAL_STR(name.Handle.Str);
+	MARK_EXTERNAL_WSTR(name.ArgumentString.ReferenceString);
+	MARK_EXTERNAL_STR(name.ArgumentString.Str);
 	return name.Handle.ReferenceString;
 }
 

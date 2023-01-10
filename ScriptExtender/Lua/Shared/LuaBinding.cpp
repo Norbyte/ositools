@@ -466,7 +466,7 @@ namespace dse::lua
 			GameFree(ptr);
 			return NULL;
 		} else {
-			auto newBuf = GameAllocRaw(nsize);
+			auto newBuf = GameAllocRaw(nsize, "Lua");
 			if (ptr != nullptr) {
 				memcpy(newBuf, ptr, std::min(nsize, osize));
 				GameFree(ptr);

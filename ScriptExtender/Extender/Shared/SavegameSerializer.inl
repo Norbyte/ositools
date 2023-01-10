@@ -56,7 +56,6 @@ void SavegameSerializer::SerializePersistentVariables(ObjectVisitor* visitor, ui
 					visitor->VisitFixedString(GFS.strModId, modId, GFS.strEmpty);
 					STDString modVars;
 					visitor->VisitSTDString(GFS.strLuaVariables, modVars, nullStr);
-
 					variables.insert(std::make_pair(modId, modVars));
 					visitor->ExitNode(GFS.strMod);
 				}
@@ -196,7 +195,7 @@ bool SavegameSerializer::SerializeStatObject(FixedString const& statId, FixedStr
 	object->ToProtobuf(&msg);
 	uint32_t size = (uint32_t)msg.ByteSizeLong();
 	blob.Size = size;
-	blob.Buffer = GameAllocRaw(size);
+	blob.Buffer = GameAllocRaw(size, "MsgS2CSyncStat");
 	msg.SerializeToArray(blob.Buffer, size);
 	return true;
 }
