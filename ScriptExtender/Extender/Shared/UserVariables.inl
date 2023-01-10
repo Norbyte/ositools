@@ -100,6 +100,21 @@ void UserVariable::FromNetMessage(UserVar const& var)
 	}
 }
 
+
+size_t UserVariable::Budget() const
+{
+	size_t budget = 12;
+	switch (Type) {
+	case UserVariableType::Null: budget += 0; break;
+	case UserVariableType::Int64: budget += 8; break;
+	case UserVariableType::Double: budget += 8; break;
+	case UserVariableType::String: budget += Str.GetMetadata()->Length; break;
+	case UserVariableType::Composite: budget += CompositeStr.size(); break;
+	}
+
+	return budget;
+}
+
 UserVariable* UserVariableManager::Get(ComponentHandle component, FixedString const& key)
 {
 	auto it = vars_.find(component);
@@ -162,13 +177,23 @@ void UserVariableManager::Set(ComponentHandle component, FixedString const& key,
 
 void UserVariableManager::Sync(ComponentHandle component, FixedString const& key, UserVariable const& value)
 {
+	auto netId = ComponentHandleToNetId(component);
+	if (!netId) return;
+
+	if (syncMsgBudget_ > SyncMessageBudget) {
+		SendSyncs();
+		MakeSyncMessage();
+	}
+
 	auto var = syncMsg_->GetMessage().mutable_user_vars()->add_vars();
-	ComponentHandleToNetId(component, var);
+	var->set_net_id_type((NetIdType)netId->first);
+	var->set_net_id(netId->second.Id);
 	var->set_key(key.GetStringOrDefault());
 	value.ToNetMessage(*var);
+	syncMsgBudget_ += value.Budget() + key.GetMetadata()->Length;
 }
 
-void UserVariableManager::ComponentHandleToNetId(ComponentHandle component, UserVar* var)
+std::optional<std::pair<uint32_t, NetId>> UserVariableManager::ComponentHandleToNetId(ComponentHandle component)
 {
 	if (isServer_) {
 		switch ((ObjectHandleType)component.GetType())
@@ -177,9 +202,7 @@ void UserVariableManager::ComponentHandleToNetId(ComponentHandle component, User
 		{
 			auto ch = esv::GetEntityWorld()->GetComponent<esv::Character>(component, false);
 			if (ch) {
-				var->set_net_id_type(NETID_CHARACTER);
-				var->set_net_id(ch->NetID.Id);
-				return;
+				return std::pair{ NETID_CHARACTER, ch->NetID };
 			}
 		}
 
@@ -187,9 +210,7 @@ void UserVariableManager::ComponentHandleToNetId(ComponentHandle component, User
 		{
 			auto item = esv::GetEntityWorld()->GetComponent<esv::Item>(component, false);
 			if (item) {
-				var->set_net_id_type(NETID_ITEM);
-				var->set_net_id(item->NetID.Id);
-				return;
+				return std::pair{ NETID_ITEM, item->NetID };
 			}
 		}
 		}
@@ -200,9 +221,7 @@ void UserVariableManager::ComponentHandleToNetId(ComponentHandle component, User
 		{
 			auto ch = ecl::GetEntityWorld()->GetComponent<ecl::Character>(component, false);
 			if (ch) {
-				var->set_net_id_type(NETID_CHARACTER);
-				var->set_net_id(ch->NetID.Id);
-				return;
+				return std::pair{ NETID_CHARACTER, ch->NetID };
 			}
 		}
 
@@ -211,17 +230,14 @@ void UserVariableManager::ComponentHandleToNetId(ComponentHandle component, User
 		{
 			auto item = ecl::GetEntityWorld()->GetComponent<ecl::Item>(component, false);
 			if (item) {
-				var->set_net_id_type(NETID_ITEM);
-				var->set_net_id(item->NetID.Id);
-				return;
+				return std::pair{ NETID_ITEM, item->NetID };
 			}
 		}
 		}
 	}
 
-	ERR("Tried to sync variables of unknown component %16x (type %d)!", component.Handle, component.GetType());
-	var->set_net_id_type(NETID_UNKNOWN);
-	var->set_net_id(0);
+	ERR("Tried to sync variables of unknown component %016llx (type %d)!", component.Handle, component.GetType());
+	return {};
 }
 
 void UserVariableManager::FlushSyncQueue(ObjectSet<SyncRequest>& queue)
@@ -269,6 +285,7 @@ void UserVariableManager::SendSyncs()
 		}
 
 		syncMsg_ = nullptr;
+		syncMsgBudget_ = 0;
 	}
 }
 

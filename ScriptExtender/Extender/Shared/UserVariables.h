@@ -28,6 +28,7 @@ struct UserVariable
 	void SavegameVisit(ObjectVisitor* visitor);
 	void ToNetMessage(UserVar& var) const;
 	void FromNetMessage(UserVar const& var);
+	size_t Budget() const;
 
 	UserVariableType Type{ UserVariableType::Null };
 	bool Dirty{ false };
@@ -102,6 +103,9 @@ public:
 	void OnNetworkSync(MsgUserVars const& msg);
 
 private:
+	// Max (approximate) size of sync message we're allowed to send
+	static constexpr size_t SyncMessageBudget = 300000;
+
 	struct SyncRequest
 	{
 		ComponentHandle Component;
@@ -113,13 +117,14 @@ private:
 	ObjectSet<SyncRequest> deferredSyncs_;
 	ObjectSet<SyncRequest> nextTickSyncs_;
 	ScriptExtenderMessage* syncMsg_{ nullptr };
+	size_t syncMsgBudget_{ 0 };
 	bool isServer_;
 	lua::CachedUserVariableManager* cache_{ nullptr };
 
 	void NetworkSync(UserVar const& var);
 	std::optional<ComponentHandle> NetIdToComponentHandle(UserVar const& var);
 	void Sync(ComponentHandle component, FixedString const& key, UserVariable const& value);
-	void ComponentHandleToNetId(ComponentHandle component, UserVar* var);
+	std::optional<std::pair<uint32_t, NetId>> ComponentHandleToNetId(ComponentHandle component);
 	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
 	bool MakeSyncMessage();
 	void SendSyncs();
@@ -181,6 +186,7 @@ public:
 	void Push(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto);
 	void Set(lua_State* L, ComponentHandle component, FixedString const& key, CachedUserVariable && var);
 	void Set(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && var);
+	void Invalidate();
 	void Invalidate(ComponentHandle component, FixedString const& key);
 	void Flush();
 
