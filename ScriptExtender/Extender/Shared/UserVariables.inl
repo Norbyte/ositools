@@ -662,7 +662,7 @@ STDString CachedUserVariable::StringifyReference(lua_State* L) const
 
 	STDString str;
 	try {
-		str = json::Stringify(L, ctx, 1);
+		str = json::Stringify(L, ctx, lua_absindex(L, -1));
 	} catch (std::runtime_error& e) {
 		ERR("Error stringifying user variable: %s", e.what());
 		str.clear();
