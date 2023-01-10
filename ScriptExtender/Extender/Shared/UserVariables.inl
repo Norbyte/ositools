@@ -674,7 +674,8 @@ STDString CachedUserVariable::StringifyReference(lua_State* L) const
 
 
 CachedUserVariableManager::CachedUserVariableManager(UserVariableManager& global, bool isServer)
-	: global_(global), isServer_(isServer)
+	: global_(global), isServer_(isServer),
+	vars_(GetNearestLowerPrime(10000))
 {
 	global_.BindCache(this);
 }

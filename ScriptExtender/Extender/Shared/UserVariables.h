@@ -85,7 +85,8 @@ class UserVariableManager
 {
 public:
 	inline UserVariableManager(bool isServer)
-		: isServer_(isServer)
+		: vars_(GetNearestLowerPrime(10000)),
+		isServer_(isServer)
 	{}
 
 	UserVariable* Get(ComponentHandle component, FixedString const& key);
