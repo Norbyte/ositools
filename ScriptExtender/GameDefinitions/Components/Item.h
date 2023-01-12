@@ -119,7 +119,7 @@ namespace dse
 			glm::vec3 WorldPos; // Saved
 			uint32_t _Pad2;
 			ItemFlags Flags; // Saved
-			uint32_t U2;
+			float Radius;
 			FixedString CurrentLevel; // Saved
 			glm::mat3 WorldRot; // Saved
 			float Scale; // Saved

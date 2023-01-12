@@ -146,7 +146,7 @@ struct Character : public IEoCServerObject
 
 	glm::vec3 WorldPos; // Saved
 	CharacterFlags Flags; // Saved
-	uint32_t U2;
+	float Radius;
 	FixedString CurrentLevel; // Saved
 	glm::mat3 WorldRot;
 	float Scale;
@@ -159,9 +159,10 @@ struct Character : public IEoCServerObject
 	uint8_t FlagsEx;
 	uint8_t Team;
 	uint8_t Color;
-	uint64_t U4[3];
-	float U41[3];
-	float U42[3];
+	glm::vec3 LevelTemplatePosition;
+	glm::vec3 AoOVelocityOverride;
+	glm::vec3 SomePositionOverride;
+	glm::vec3 NextCheckpointPosition;
 	eoc::Ai* AI;
 	FixedString AnimationOverride;
 	float WalkSpeedOverride;
@@ -196,7 +197,6 @@ struct Character : public IEoCServerObject
 	void* CurrentTemplate2; // Not a RootTemplate!
 	uint32_t Dialog;
 	bool IsDialogAiControlled;
-	uint8_t U10[3];
 	float LifeTime;
 	float TurnTimer;
 	float TriggerTrapsTimer;
@@ -208,7 +208,7 @@ struct Character : public IEoCServerObject
 	ComponentHandle EnemyCharacterHandle;
 	ComponentHandle SpiritCharacterHandle;
 	ComponentHandle CorpseCharacterHandle;
-	ComponentHandle ObjectHandle6;
+	ComponentHandle DroppingItemHandle_M;
 	ObjectSet<ComponentHandle> EnemyHandles;
 	ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
 	ObjectSet<ComponentHandle> SummonHandles;
@@ -224,7 +224,7 @@ struct Character : public IEoCServerObject
 	/// Number of times ServerControl was acquired on this character
 	uint32_t ServerControlRefCount;
 	float NoiseTimer;
-	float U131;
+	float RealtimeWalkSpeed;
 	STDWString * CustomDisplayName;
 	void * StoryDisplayName;
 	TranslatedString OriginalTransformDisplayName;
