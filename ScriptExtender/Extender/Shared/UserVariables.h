@@ -85,14 +85,19 @@ struct UserVariablePrototype
 class UserVariableManager
 {
 public:
+	struct ComponentVariables
+	{
+		Map<FixedString, UserVariable> Vars;
+	};
+
 	inline UserVariableManager(bool isServer)
 		: vars_(GetNearestLowerPrime(10000)),
 		isServer_(isServer)
 	{}
 
-	UserVariable* Get(ComponentHandle component, FixedString const& key);
-	Map<FixedString, UserVariable>* GetAll(ComponentHandle component);
-	void Set(ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
+	UserVariable* Get(FixedString const& gameObject, FixedString const& key);
+	Map<FixedString, UserVariable>* GetAll(FixedString const& gameObject);
+	ComponentVariables* Set(FixedString const& gameObject, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
 	UserVariablePrototype const* GetPrototype(FixedString const& key) const;
 	void RegisterPrototype(FixedString const& key, UserVariablePrototype const& proto);
 
@@ -108,11 +113,11 @@ private:
 
 	struct SyncRequest
 	{
-		ComponentHandle Component;
+		FixedString GameObject;
 		FixedString Variable;
 	};
 
-	Map<ComponentHandle, Map<FixedString, UserVariable>> vars_;
+	Map<FixedString, ComponentVariables> vars_;
 	Map<FixedString, UserVariablePrototype> prototypes_;
 	ObjectSet<SyncRequest> deferredSyncs_;
 	ObjectSet<SyncRequest> nextTickSyncs_;
@@ -122,9 +127,9 @@ private:
 	lua::CachedUserVariableManager* cache_{ nullptr };
 
 	void NetworkSync(UserVar const& var);
-	std::optional<ComponentHandle> NetIdToComponentHandle(UserVar const& var);
-	void Sync(ComponentHandle component, FixedString const& key, UserVariable const& value);
-	std::optional<std::pair<uint32_t, NetId>> ComponentHandleToNetId(ComponentHandle component);
+	IGameObject* NetIdToGameObject(UserVar const& var);
+	void Sync(FixedString const& gameObject, FixedString const& key, UserVariable const& value);
+	std::optional<std::pair<uint32_t, NetId>> GuidToNetId(FixedString const& gameObject);
 	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
 	bool MakeSyncMessage();
 	void SendSyncs();
@@ -182,6 +187,7 @@ public:
 		return isServer_;
 	}
 
+	FixedString ComponentHandleToGuid(ComponentHandle handle);
 	void Push(lua_State* L, ComponentHandle component, FixedString const& key);
 	void Push(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto);
 	void Set(lua_State* L, ComponentHandle component, FixedString const& key, CachedUserVariable && var);
@@ -197,15 +203,22 @@ private:
 		FixedString Variable;
 		UserVariablePrototype const* Proto;
 	};
+	
+	struct ComponentVariables
+	{
+		FixedString CachedGuid;
+		Map<FixedString, CachedUserVariable> Vars;
+	};
 
 	UserVariableManager& global_;
 	bool isServer_;
-	Map<ComponentHandle, Map<FixedString, CachedUserVariable>> vars_;
+	Map<ComponentHandle, ComponentVariables> vars_;
 	ObjectSet<FlushRequest> flushQueue_;
 
+	CachedUserVariable* GetFromCache(ComponentHandle component, FixedString const& key, FixedString& gameObjectGuid);
 	CachedUserVariable* GetFromCache(ComponentHandle component, FixedString const& key);
-	CachedUserVariable* PutCache(lua_State* L, ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, UserVariable const& value);
-	CachedUserVariable* PutCache(ComponentHandle component, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && value, bool isWrite);
+	CachedUserVariable* PutCache(lua_State* L, ComponentHandle component, FixedString const& key, FixedString const& gameObjectGuid, UserVariablePrototype const& proto, UserVariable const& value);
+	CachedUserVariable* PutCache(ComponentHandle component, FixedString const& key, FixedString const& gameObjectGuid, UserVariablePrototype const& proto, CachedUserVariable && value, bool isWrite);
 };
 
 END_NS()

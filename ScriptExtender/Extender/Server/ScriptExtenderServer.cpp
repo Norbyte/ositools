@@ -163,6 +163,12 @@ void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameSt
 			extensionState_->OnGameSessionLoading();
 		}
 		break;
+
+	case GameState::LoadLevel:
+		if (extensionState_ && extensionState_->GetLua()) {
+			extensionState_->GetLua()->OnLevelLoading();
+		}
+		break;
 	}
 
 	if (gExtender->WasInitialized()) {

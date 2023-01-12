@@ -439,6 +439,30 @@ struct EntityWorldBase : public EntityWorldData
 		}
 	}
 
+	BaseComponent* GetBaseComponent(TEntityComponentIndex componentPoolIdx, FixedString const& nameGuid, bool logError = true)
+	{
+		if (this == nullptr) {
+			OsiError("Tried to find component on null EntityWorld!");
+			return nullptr;
+		}
+
+		if (!nameGuid || nameGuid == GFS.strEmpty) {
+			OsiError("Attempted to look up component with null name!");
+			return nullptr;
+		}
+
+		auto fs = NameGuidToFixedString(nameGuid);
+		auto component = Components[(uint32_t)componentPoolIdx].Pool->FindComponentByGuid(fs);
+		if (component != nullptr) {
+			return component;
+		} else {
+			if (logError) {
+				OsiError("No component found with GUID '" << nameGuid << "'");
+			}
+			return nullptr;
+		}
+	}
+
 	BaseComponent* GetBaseComponent(TEntityComponentIndex componentPoolIdx, NetId netId, bool logError = true)
 	{
 		if (this == nullptr) {
@@ -495,6 +519,12 @@ struct EntityWorldBase : public EntityWorldData
 
 	template <class T>
 	T* GetComponent(char const* nameGuid, bool logError = true)
+	{
+		return GetBaseComponent(T::ComponentPoolIndex, nameGuid, logError)->ToComponent<T>();
+	}
+
+	template <class T>
+	T* GetComponent(FixedString const& nameGuid, bool logError = true)
 	{
 		return GetBaseComponent(T::ComponentPoolIndex, nameGuid, logError)->ToComponent<T>();
 	}

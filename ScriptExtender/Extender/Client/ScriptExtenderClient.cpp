@@ -208,13 +208,6 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 	}
 
 	switch (toState) {
-	case GameState::LoadModule:
-		gExtender->InitRuntimeLogging();
-		if (config_.DeveloperMode) {
-			RegisterFlashTraceCallbacks();
-		}
-		break;
-
 	case GameState::Init:
 		ResetExtensionState();
 		break;
@@ -237,6 +230,13 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		ResetExtensionState();
 		break;
 
+	case GameState::LoadModule:
+		gExtender->InitRuntimeLogging();
+		if (config_.DeveloperMode) {
+			RegisterFlashTraceCallbacks();
+		}
+		break;
+
 	case GameState::LoadGMCampaign:
 		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Loading GM campaign");
 		LoadExtensionState(ExtensionStateContext::Game);
@@ -253,6 +253,12 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 
 		if (config_.DeveloperMode) {
 			RegisterFlashTraceCallbacks();
+		}
+		break;
+
+	case GameState::LoadLevel:
+		if (extensionState_ && extensionState_->GetLua()) {
+			extensionState_->GetLua()->OnLevelLoading();
 		}
 		break;
 

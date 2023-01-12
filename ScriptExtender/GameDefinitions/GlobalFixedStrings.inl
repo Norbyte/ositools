@@ -187,8 +187,8 @@ FS(Blob);
 FS(StatsEntry);
 
 FS(UserVariables);
-FS(Component);
-FS(ComponentHandle);
+FS(GameObjectVariables);
+FS(GameObject);
 FS(Variable);
 
 // LuaEvent properties

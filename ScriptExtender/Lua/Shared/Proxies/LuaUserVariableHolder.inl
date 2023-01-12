@@ -47,7 +47,9 @@ int UserVariableHolderMetatable::NewIndex(lua_State* L, CppValueMetadata& self)
 
 int UserVariableHolderMetatable::Length(lua_State* L, CppValueMetadata& self)
 {
-	auto componentVars = State::FromLua(L)->GetVariableManager().GetGlobal().GetAll(ComponentHandle(self.Value));
+	auto& vars = State::FromLua(L)->GetVariableManager();
+	auto guid = vars.ComponentHandleToGuid(ComponentHandle(self.Value));
+	auto componentVars = vars.GetGlobal().GetAll(guid);
 	push(L, componentVars ? componentVars->size() : 0);
 	return 1;
 }
@@ -55,7 +57,8 @@ int UserVariableHolderMetatable::Length(lua_State* L, CppValueMetadata& self)
 int UserVariableHolderMetatable::Next(lua_State* L, CppValueMetadata& self)
 {
 	auto& vars = State::FromLua(L)->GetVariableManager();
-	auto componentVars = vars.GetGlobal().GetAll(ComponentHandle(self.Value));
+	auto guid = vars.ComponentHandleToGuid(ComponentHandle(self.Value));
+	auto componentVars = vars.GetGlobal().GetAll(guid);
 	if (!componentVars) {
 		return 0;
 	}

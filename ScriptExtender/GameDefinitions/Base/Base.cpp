@@ -363,6 +363,20 @@ FixedString NameGuidToFixedString(StringView nameGuid)
 	return FixedString(guid, 36);
 }
 
+FixedString NameGuidToFixedString(FixedString const& nameGuid)
+{
+	if (!nameGuid || nameGuid.GetMetadata()->Length < 36) {
+		return FixedString{};
+	}
+
+	if (nameGuid.GetMetadata()->Length == 36) {
+		return nameGuid;
+	}
+
+	auto guid = nameGuid.GetString() + nameGuid.GetMetadata()->Length - 36;
+	return FixedString(guid, 36);
+}
+
 FixedString GenerateGuid()
 {
 	GUID guid;

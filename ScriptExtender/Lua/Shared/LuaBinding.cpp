@@ -752,6 +752,11 @@ namespace dse::lua
 		ThrowEvent("ModuleResume", params, false, RestrictAll | ScopeModuleResume);
 	}
 
+	void State::OnLevelLoading()
+	{
+		variableManager_.Invalidate();
+	}
+
 	void State::OnResetCompleted()
 	{
 		EmptyEvent params;

@@ -145,6 +145,7 @@ inline uint64_t Hash(FixedString const& s)
 	return (uint64_t)s.GetString();
 }
 
+FixedString NameGuidToFixedString(FixedString const& nameGuid);
 FixedString NameGuidToFixedString(StringView nameGuid);
 bool IsValidGuidString(StringView s);
 FixedString GenerateGuid();

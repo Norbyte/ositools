@@ -243,6 +243,7 @@ namespace dse::lua
 		void OnModuleLoading();
 		void OnStatsLoaded();
 		void OnModuleResume();
+		void OnLevelLoading();
 		void OnResetCompleted();
 		virtual void OnUpdate(GameTime const& time);
 		void OnStatsStructureLoaded();
