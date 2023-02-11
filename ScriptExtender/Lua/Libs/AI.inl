@@ -15,6 +15,9 @@ UserReturn AiGrid::GetCellInfo(lua_State* L, float x, float z)
 {
 	using namespace dse::lua;
 
+	// Prevent crash when called while level init/unload
+	if (Tiles == nullptr) return 0;
+
 	auto cell = GetCell(glm::vec2(x, z));
 	if (!cell) {
 		OsiError("Could not find AiGrid cell at " << x << ";" << z);
@@ -51,12 +54,16 @@ UserReturn AiGrid::GetCellInfo(lua_State* L, float x, float z)
 		} else {
 			if (groundIdx != AiGridTile::InvalidIndex) {
 				auto surface = level->SurfaceManager->Surfaces[groundIdx];
-				settable(L, "GroundSurface", surface->MyHandle);
+				if (surface != nullptr) {
+					settable(L, "GroundSurface", surface->MyHandle);
+				}
 			}
 
 			if (cloudIdx != AiGridTile::InvalidIndex) {
 				auto surface = level->SurfaceManager->Surfaces[cloudIdx];
-				settable(L, "CloudSurface", surface->MyHandle);
+				if (surface != nullptr) {
+					settable(L, "CloudSurface", surface->MyHandle);
+				}
 			}
 		}
 	}
