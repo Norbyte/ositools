@@ -79,11 +79,11 @@ pm.AddRawProperty("DeltaMods",
 END_CLS()
 
 BEGIN_CLS(esv::ItemGeneration)
-P_RO(Base)
-P_RO(ItemType)
-P_RO(Random)
-P_RO(Level)
-P_RO(Boosts)
+P(Base)
+P(ItemType)
+P(Random)
+P(Level)
+P(Boosts)
 END_CLS()
 
 BEGIN_CLS(esv::Item)
