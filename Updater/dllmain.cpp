@@ -161,6 +161,7 @@ void LoadConfigFile(std::wstring const& configPath, UpdaterConfig& config)
 	config.Debug = false;
 #endif
 	config.ValidateSignature = true;
+	config.DisableUpdates = false;
 
 	std::ifstream f(configPath, std::ios::in);
 	if (!f.good()) {
@@ -188,6 +189,7 @@ void LoadConfigFile(std::wstring const& configPath, UpdaterConfig& config)
 	ConfigGetBool(root, "Debug", config.Debug);
 	ConfigGetBool(root, "ValidateSignature", config.ValidateSignature);
 #endif
+	ConfigGetBool(root, "DisableUpdates", config.DisableUpdates);
 }
 
 std::string trim(std::string const & s)
@@ -744,7 +746,12 @@ public:
 		cache_ = std::make_unique<ResourceCacheRepository>(config_, config_.CachePath);
 
 		ErrorReason updateReason;
-		bool updated = TryToUpdate(updateReason);
+		bool updated;
+		if (!config_.DisableUpdates) {
+			updated = TryToUpdate(updateReason);
+		} else {
+			updated = true;
+		}
 
 		auto resourcePath = cache_->FindResourcePath("ScriptExtender", gameVersion_);
 
@@ -793,7 +800,7 @@ public:
 		if (resourcePath) {
 			auto dllPath = cache_->FindResourceDllPath("ScriptExtender", gameVersion_);
 			DEBUG("Loading extender DLL: %s", ToUTF8(*dllPath).c_str());
-			HMODULE handle = LoadLibraryExW(dllPath->c_str(), NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
+			HMODULE handle = LoadLibraryExW(dllPath->c_str(), NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
 			// Wait a bit for extender startup to complete
 			Sleep(300);
 			completed_ = true;

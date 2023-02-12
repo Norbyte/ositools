@@ -45,6 +45,7 @@ struct UpdaterConfig
 	std::wstring CachePath;
 	bool Debug;
 	bool ValidateSignature;
+	bool DisableUpdates;
 };
 
 #define OsiError(msg) (void)0

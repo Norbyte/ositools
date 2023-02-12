@@ -61,12 +61,12 @@ bool GameHelpers::ShowErrorDialog(char const * msg) const
 	}
 
 	unsigned retries{ 0 };
-	while (!CanShowError() && retries < 600) {
+	while (!CanShowError() && retries < 3000) {
 		Sleep(100);
 		retries++;
 	}
 
-	if (retries >= 600) {
+	if (retries >= 3000) {
 		return false;
 	}
 
