@@ -130,10 +130,12 @@ struct PeHeader
 class BacktraceDumper
 {
 public:
-	// Show at most 20 lines to avoid flooding the crash reporter dialog
-	static constexpr unsigned MaxLines = 20;
+	// Show at most 12 lines to avoid flooding the crash reporter dialog
+	static constexpr unsigned MaxBacktraceLines = 12;
+	static constexpr unsigned MaxLuaBacktraceLines = 12;
 	void* Backtrace[32];
 	WORD BacktraceSize;
+	DWORD CrashThreadId;
 
 	void Initialize()
 	{
@@ -165,6 +167,7 @@ public:
 
 	void __forceinline SnapshotThread()
 	{
+		CrashThreadId = GetCurrentThreadId();
 		BacktraceSize = CaptureStackBackTrace(2, (DWORD)std::size(Backtrace), Backtrace, NULL);
 	}
 
@@ -239,13 +242,78 @@ public:
 		for (auto i = 0; i < BacktraceSize; i++) {
 			auto bt = Backtrace[i];
 			if (TryGetFunctionName(backtrace, (uint8_t*)bt, backtrace.str().empty())) {
-				if (lines++ >= MaxLines) {
+				if (lines++ >= MaxBacktraceLines) {
+					backtrace << "(...)" << std::endl;
 					break;
 				}
 			}
 		}
 
 		return backtrace.str();
+	}
+
+	std::string DumpLuaBacktrace(ExtensionStateBase& state)
+	{
+		auto lua = state.GetLua();
+		if (!lua || !lua->GetState()) {
+			return std::string();
+		}
+
+		auto L = lua->GetState();
+
+		lua_Debug ar;
+		std::stringstream bt;
+
+		unsigned lines{ 0 };
+		for (int i = 0;; i++) {
+			memset(&ar, 0, sizeof(ar));
+			if (lua_getstack(L, i, &ar) == 0) {
+				break;
+			}
+
+			std::string frame;
+			lua_getinfo(L, "fnuSl", &ar);
+
+			if (ar.source) {
+				if (ar.source[0] == '=') {
+					bt << "[C++ code]";
+				} else {
+					bt << ar.source;
+				}
+			} else {
+				bt << "(unknown)";
+			}
+
+			if (ar.currentline > 0) {
+				bt << ":" << std::to_string(ar.currentline);
+			}
+
+			if (ar.name) {
+				bt << " " << ar.name;
+			}
+
+			bt << std::endl;
+
+			if (lines++ >= MaxLuaBacktraceLines) {
+				bt << "(...)" << std::endl;
+				break;
+			}
+		}
+
+		return bt.str();
+	}
+
+	std::string DumpLuaBacktrace()
+	{
+		if (gExtender->GetServer().IsInThread(CrashThreadId) && gExtender->GetServer().HasExtensionState()) {
+			return DumpLuaBacktrace(gExtender->GetServer().GetExtensionState());
+		}
+
+		if (gExtender->GetClient().IsInThread(CrashThreadId) && gExtender->GetClient().HasExtensionState()) {
+			return DumpLuaBacktrace(gExtender->GetClient().GetExtensionState());
+		}
+
+		return std::string();
 	}
 
 private:
@@ -272,6 +340,7 @@ public:
 	static LPTOP_LEVEL_EXCEPTION_FILTER PrevExceptionFilter;
 	static std::terminate_handler PrevTerminateHandler;
 	static BacktraceDumper Dumper;
+	static std::string LuaBacktrace;
 
 	static void Initialize()
 	{
@@ -447,9 +516,30 @@ public:
 		CloseHandle(pi.hThread);
 	}
 
+	static void TryDumpLuaBacktraceInternal()
+	{
+		LuaBacktrace = Dumper.DumpLuaBacktrace();
+
+		if (!LuaBacktrace.empty()) {
+			LuaBacktrace = "\r\n\r\nLua backtrace:\r\n" + LuaBacktrace;
+		}
+	}
+
+	static void TryDumpLuaBacktrace()
+	{
+		__try {
+			TryDumpLuaBacktraceInternal();
+		} __except (EXCEPTION_EXECUTE_HANDLER) {
+			LuaBacktrace = "\r\n(error retrieving Lua stack trace)";
+		}
+	}
+
 	static void CreateBacktraceFile(std::wstring const& dumpPath)
 	{
 		auto bt = Dumper.DumpBacktrace();
+		TryDumpLuaBacktrace();
+		bt += LuaBacktrace;
+
 		std::wstring btPath = dumpPath;
 		btPath += L".bt";
 		std::ofstream f(btPath.c_str(), std::ios::out | std::ios::binary);
@@ -509,6 +599,7 @@ bool CrashReporter::Initialized{ false };
 LPTOP_LEVEL_EXCEPTION_FILTER CrashReporter::PrevExceptionFilter{ nullptr };
 std::terminate_handler CrashReporter::PrevTerminateHandler{ nullptr };
 BacktraceDumper CrashReporter::Dumper;
+std::string CrashReporter::LuaBacktrace;
 
 void InitCrashReporting()
 {

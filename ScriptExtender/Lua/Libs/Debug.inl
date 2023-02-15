@@ -278,6 +278,29 @@ void LuaDebugBreak(lua_State* L)
 #endif
 }
 
+// Development-only function for testing crash reporting
+void Crash(int type)
+{
+#if defined(_DEBUG)
+	switch (type) {
+	case 0:
+	{
+		int d = 0;
+		std::cout << (1 / d);
+		break;
+	}
+
+	case 1:
+		abort();
+		break;
+
+	case 2:
+		*(uint32_t*)0 = 0;
+		break;
+	}
+#endif
+}
+
 void RegisterDebugLib()
 {
 	DECLARE_MODULE(Debug, Both)
@@ -288,6 +311,7 @@ void RegisterDebugLib()
 	MODULE_FUNCTION(GenerateIdeHelpers)
 	MODULE_NAMED_FUNCTION("DebugBreak", LuaDebugBreak)
 	MODULE_FUNCTION(IsDeveloperMode)
+	MODULE_FUNCTION(Crash)
 	END_MODULE()
 }
 

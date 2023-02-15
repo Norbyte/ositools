@@ -11,6 +11,12 @@ class ThreadedExtenderState
 {
 public:
 	bool IsInThread() const;
+	bool IsInThread(DWORD threadId) const;
+	std::unordered_set<DWORD> const& GetThreadIds() const
+	{
+		return threadIds_;
+	}
+
 	void EnqueueTask(std::function<void()> fun);
 	void SubmitTaskAndWait(std::function<void()> fun);
 
