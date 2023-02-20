@@ -173,6 +173,7 @@ UserVariableManager::ComponentVariables* UserVariableManager::Set(FixedString co
 			USER_VAR_DBG("Immediate sync var %s/%s", gameObject.GetStringOrDefault(), key.GetStringOrDefault());
 			if (MakeSyncMessage()) {
 				Sync(gameObject, key, value);
+				SendSyncs();
 			}
 		} else if (proto.Has(UserVariableFlags::SyncOnTick)) {
 			USER_VAR_DBG("Request next tick sync for var %s/%s", gameObject.GetStringOrDefault(), key.GetStringOrDefault());
