@@ -192,11 +192,11 @@ public:
         if (strncmp(name, "sub_", 4) == 0) return;
 
         if (tag == SymTagPublicSymbol) {
-            if (!strncmp(name, "ecl:", 4) == 0
-                && !strncmp(name, "esv:", 4) == 0
-                && !strncmp(name, "eoc:", 4) == 0
-                && !strncmp(name, "net:", 4) == 0
-                && !strncmp(name, "ls::", 4) == 0) return;
+            if (strncmp(name, "ecl:", 4) != 0
+                && strncmp(name, "esv:", 4) != 0
+                && strncmp(name, "eoc:", 4) != 0
+                && strncmp(name, "net:", 4) != 0
+                && strncmp(name, "ls::", 4) != 0) return;
         }
 
         Symbol sym;
