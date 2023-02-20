@@ -352,6 +352,36 @@ void RegisterUserVariable(lua_State* L, FixedString name)
 	vars.RegisterPrototype(name, proto);
 }
 
+void SyncUserVariables()
+{
+	auto& vars = gExtender->GetCurrentExtensionState()->GetUserVariables();
+	vars.Flush(true);
+}
+
+void DirtyUserVariables(std::optional<FixedString> gameObject, std::optional<FixedString> key)
+{
+	auto& vars = gExtender->GetCurrentExtensionState()->GetUserVariables();
+	if (!gameObject) {
+		for (auto& entity : vars.GetAll()) {
+			for (auto& var : entity.Value.Vars) {
+				vars.MarkDirty(entity.Key, var.Key, var.Value);
+			}
+		}
+	} else if (!key) {
+		auto objectVars = vars.GetAll(*gameObject);
+		if (objectVars != nullptr) {
+			for (auto& var : *objectVars) {
+				vars.MarkDirty(*gameObject, var.Key, var.Value);
+			}
+		}
+	} else {
+		auto var = vars.Get(*gameObject, *key);
+		if (var != nullptr) {
+			vars.MarkDirty(*gameObject, *key, *var);
+		}
+	}
+}
+
 void RegisterUtilsLib()
 {
 	DECLARE_MODULE(Utils, Both)
@@ -378,6 +408,8 @@ void RegisterUtilsLib()
 	MODULE_FUNCTION(GetGlobalSwitches)
 	MODULE_FUNCTION(GetGraphicSettings)
 	MODULE_FUNCTION(RegisterUserVariable)
+	MODULE_FUNCTION(SyncUserVariables)
+	MODULE_FUNCTION(DirtyUserVariables)
 	END_MODULE()
 }
 

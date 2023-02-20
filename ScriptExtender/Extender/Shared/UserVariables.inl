@@ -138,6 +138,34 @@ Map<FixedString, UserVariable>* UserVariableManager::GetAll(FixedString const& g
 	}
 }
 
+Map<FixedString, UserVariableManager::ComponentVariables>& UserVariableManager::GetAll()
+{
+	return vars_;
+}
+
+void UserVariableManager::MarkDirty(FixedString const& gameObject, FixedString const& key, UserVariable& value)
+{
+	auto proto = GetPrototype(key);
+	if (proto == nullptr) return;
+
+	value.Dirty = true;
+	if (proto->NeedsSyncFor(isServer_)) {
+		if (proto->Has(UserVariableFlags::SyncOnTick)) {
+			USER_VAR_DBG("MarkDirty next tick sync for var %s/%s", gameObject.GetStringOrDefault(), key.GetStringOrDefault());
+			nextTickSyncs_.push_back(SyncRequest{
+				.GameObject = gameObject,
+				.Variable = key
+			});
+		} else {
+			USER_VAR_DBG("MarkDirty deferred sync for var %s/%s", gameObject.GetStringOrDefault(), key.GetStringOrDefault());
+			deferredSyncs_.push_back(SyncRequest{
+				.GameObject = gameObject,
+				.Variable = key
+			});
+		}
+	}
+}
+
 UserVariableManager::ComponentVariables* UserVariableManager::Set(FixedString const& gameObject, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
 {
 	if (value.Dirty && proto.NeedsSyncFor(isServer_)) {

@@ -97,7 +97,9 @@ public:
 
 	UserVariable* Get(FixedString const& gameObject, FixedString const& key);
 	Map<FixedString, UserVariable>* GetAll(FixedString const& gameObject);
+	Map<FixedString, ComponentVariables>& GetAll();
 	ComponentVariables* Set(FixedString const& gameObject, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
+	void MarkDirty(FixedString const& gameObject, FixedString const& key, UserVariable& value);
 	UserVariablePrototype const* GetPrototype(FixedString const& key) const;
 	void RegisterPrototype(FixedString const& key, UserVariablePrototype const& proto);
 
