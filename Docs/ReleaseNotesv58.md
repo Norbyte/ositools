@@ -163,16 +163,6 @@ Status of these issues in v58:
  - M,P. - no fix is provided at this time because of their relatively minor importance and the fact that these are caused by mods having invalid data in their stats entries
  - O. - Osiris events are not reentrant (i.e. an event cannot be thrown while already dispatching an event); if a double event dispatch happens, there is a chance that the Osiris runtime will crash. Because of the complexity of the underlying code, no workaround will be provided
 
-asd
-
- - Fix `MADNESS` crash caused by items - `esv::StatusConsume::Enter` incorrectly assumes that `MADNESS` can only be applied on characters and will crash when it encounters an item
- - Fix crash caused by item summons - `esv::StatusConsumeBase::Enter` and `esv::StatusConsumeBase::Exit` incorrectly handle non-character summons
- - Fix `ShowNotification()` crash - calling `ShowNotification` on a non-player character could result in a crash
- - Fix crash during stealth checks; `ecl::StatusMachine::ExitStatus` performs a stealth check during deletion of the StatusMachine when the character no longer has any stats
- - Fix crash when trying to apply a nonexistent visual - `CreateEquipmentVisuals()` only checks for the existence of the resource UUID parameter, but doesn't check if it points to a valid resource
- - Fix crash when the caster of a projectile was destroyed - The projectile logic will try to fetch the stats of the caster without checking if the caster object is NULL, causing a crash
- - Fix crash when a status is removed while it is being applied (this was mainly observed in behavior scripts) (Note: while this prevents the vast majority of crashes, there are still cases where a crash may occur)
-
 
 ## Vanilla game fixes
 
