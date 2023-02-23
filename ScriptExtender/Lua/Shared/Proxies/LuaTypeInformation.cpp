@@ -83,14 +83,14 @@ void RegisterObjectProxyTypeInformation()
 #undef P_FALLBACK
 
 
-#define BEGIN_BITMASK_NS(NS, T, type) ([]() { \
+#define BEGIN_BITMASK_NS(NS, T, luaName, type) ([]() { \
 	using TEnum = NS::T; \
-	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#NS "::" #T)); \
+	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#luaName)); \
 	ty.Kind = LuaTypeId::Enumeration;
 
-#define BEGIN_ENUM_NS(NS, T, type) ([]() { \
+#define BEGIN_ENUM_NS(NS, T, luaName, type) ([]() { \
 	using TEnum = NS::T; \
-	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#NS "::" #T)); \
+	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#luaName)); \
 	ty.Kind = LuaTypeId::Enumeration;
 
 #define BEGIN_BITMASK(T, type) ([]() { \

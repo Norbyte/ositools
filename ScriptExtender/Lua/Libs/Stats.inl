@@ -1147,7 +1147,7 @@ int TypedEnumLabelToIndex(lua_State* L, FixedString const& label)
 	return 1;
 }
 
-#define BEGIN_BITMASK_NS(NS, T, type)
+#define BEGIN_BITMASK_NS(NS, T, luaName, type)
 #define BEGIN_BITMASK(T, type)
 #define E(label)
 #define EV(label, value)
@@ -1155,8 +1155,8 @@ int TypedEnumLabelToIndex(lua_State* L, FixedString const& label)
 #define END_ENUM()
 
 // TODO - this solution has subpar performance
-#define BEGIN_ENUM_NS(NS, T, type) \
-if (strcmp(enumName.GetString(), #T) == 0) { \
+#define BEGIN_ENUM_NS(NS, T, luaName, type) \
+if (strcmp(enumName.GetString(), #luaName) == 0) { \
 	return TypedEnumIndexToLabel<NS::T>(L, (NS::T)index); \
 }
 #define BEGIN_ENUM(T, type) \
@@ -1196,8 +1196,8 @@ UserReturn EnumIndexToLabel(lua_State* L, FixedString const& enumName, int index
 #undef BEGIN_ENUM
 	
 // TODO - this solution has subpar performance
-#define BEGIN_ENUM_NS(NS, T, type) \
-if (strcmp(enumName.GetString(), #T) == 0) { \
+#define BEGIN_ENUM_NS(NS, T, luaName, type) \
+if (strcmp(enumName.GetString(), #luaName) == 0) { \
 	return TypedEnumLabelToIndex<NS::T>(L, label); \
 }
 #define BEGIN_ENUM(T, type) \

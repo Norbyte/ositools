@@ -15,13 +15,15 @@ namespace dse
 		Map<FixedString, T> Values;
 		T AllowedFlags{ 0 };
 		FixedString EnumName;
+		FixedString LuaName;
 		int RegistryIndex{ -1 };
 
-		BitmaskInfoStore(unsigned sizeHint, FixedString const& enumName)
+		BitmaskInfoStore(unsigned sizeHint, FixedString const& enumName, FixedString const& luaName)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
 			EnumName = enumName;
+			LuaName = luaName;
 		}
 
 		void __declspec(noinline) Add(T val, char const* label)
@@ -76,9 +78,9 @@ namespace dse
 		using UnderlyingType = EnumUnderlyingType;
 		static BitmaskInfoStore<UnderlyingType>* Store;
 
-		static void Init(unsigned sizeHint, char const* enumName)
+		static void Init(unsigned sizeHint, char const* enumName, char const* luaName)
 		{
-			Store = GameAlloc<BitmaskInfoStore<UnderlyingType>>(sizeHint, FixedString(enumName));
+			Store = GameAlloc<BitmaskInfoStore<UnderlyingType>>(sizeHint, FixedString(enumName), FixedString(luaName));
 		}
 
 		static void Add(T val, char const* label)
@@ -108,13 +110,15 @@ namespace dse
 		Vector<FixedString> Labels;
 		Map<FixedString, T> Values;
 		FixedString EnumName;
+		FixedString LuaName;
 		int RegistryIndex{ -1 };
 
-		EnumInfoStore(unsigned sizeHint, FixedString const& enumName)
+		EnumInfoStore(unsigned sizeHint, FixedString const& enumName, FixedString const& luaName)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
 			EnumName = enumName;
+			LuaName = luaName;
 		}
 
 		void __declspec(noinline) Add(T val, char const* label)
@@ -156,9 +160,9 @@ namespace dse
 		using UnderlyingType = EnumUnderlyingType;
 		static EnumInfoStore<UnderlyingType>* Store;
 
-		static void Init(unsigned sizeHint, char const* enumName)
+		static void Init(unsigned sizeHint, char const* enumName, char const* luaName)
 		{
-			Store = GameAlloc<EnumInfoStore<UnderlyingType>>(sizeHint, FixedString(enumName));
+			Store = GameAlloc<EnumInfoStore<UnderlyingType>>(sizeHint, FixedString(enumName), FixedString(luaName));
 		}
 
 		static void Add(T val, char const* label)
@@ -282,9 +286,9 @@ namespace dse
 
 	void InitializeEnumerations();
 
-#define BEGIN_BITMASK_NS(NS, T, type) namespace NS { \
+#define BEGIN_BITMASK_NS(NS, T, luaName, type) namespace NS { \
 	enum class T : type {
-#define BEGIN_ENUM_NS(NS, T, type) namespace NS { \
+#define BEGIN_ENUM_NS(NS, T, luaName, type) namespace NS { \
 	enum class T : type {
 #define BEGIN_BITMASK(T, type) enum class T : type {
 #define BEGIN_ENUM(T, type) enum class T : type {
@@ -303,14 +307,14 @@ namespace dse
 #undef END_ENUM
 
 
-#define BEGIN_BITMASK_NS(NS, T, type) \
+#define BEGIN_BITMASK_NS(NS, T, luaName, type) \
 	template<> struct IsBitmask<NS::T> { \
 		static const bool value = true; \
 	}; \
 	template <> struct EnumInfo<NS::T> : public BitmaskInfoBase<NS::T> { \
 		static constexpr char const * Name = #T; \
 	};
-#define BEGIN_ENUM_NS(NS, T, type) \
+#define BEGIN_ENUM_NS(NS, T, luaName, type) \
 	template <> struct EnumInfo<NS::T> : public EnumInfoBase<NS::T> { \
 		static constexpr char const* Name = #T; \
 	};

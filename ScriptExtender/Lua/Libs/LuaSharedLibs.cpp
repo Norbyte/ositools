@@ -88,6 +88,7 @@ void RegisterSharedMetatables(lua_State* L)
 	InitObjectProxyPropertyMaps();
 	RegisterEntityProxy(L);
 	StatsExtraDataProxy::RegisterMetatable(L);
+	types::RegisterEnumerations(L);
 }
 
 void RegisterSharedLibraries()

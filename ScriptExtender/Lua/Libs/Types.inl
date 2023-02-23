@@ -99,6 +99,56 @@ ObjectSet<FixedString> GetAllTypes()
 	return types;
 }
 
+void RegisterEnumeration(lua_State* L, EnumInfoStore<EnumUnderlyingType> const& ty)
+{
+	lua_newtable(L);
+
+	for (auto const& elem : ty.Values) {
+		EnumValueMetatable::Make(L, elem.Value, ty.RegistryIndex);
+		lua_setfield(L, -2, elem.Key.GetString());
+
+		push(L, elem.Value);
+		EnumValueMetatable::Make(L, elem.Value, ty.RegistryIndex);
+		lua_settable(L, -3);
+	}
+
+	lua_setfield(L, -2, ty.LuaName.GetString());
+}
+
+void RegisterEnumeration(lua_State* L, BitmaskInfoStore<EnumUnderlyingType> const& ty)
+{
+	lua_newtable(L);
+
+	for (auto const& elem : ty.Values) {
+		BitfieldValueMetatable::Make(L, elem.Value, ty.RegistryIndex);
+		lua_setfield(L, -2, elem.Key.GetString());
+
+		push(L, elem.Value);
+		BitfieldValueMetatable::Make(L, elem.Value, ty.RegistryIndex);
+		lua_settable(L, -3);
+	}
+
+	lua_setfield(L, -2, ty.LuaName.GetString());
+}
+
+void RegisterEnumerations(lua_State* L)
+{
+	StackCheck _(L);
+	lua_getglobal(L, "Ext");
+	lua_newtable(L);
+
+	for (auto const& ty : EnumRegistry::Get().EnumsById) {
+		RegisterEnumeration(L, *ty);
+	}
+	
+	for (auto const& ty : BitmaskRegistry::Get().BitfieldsById) {
+		RegisterEnumeration(L, *ty);
+	}
+
+	lua_setfield(L, -2, "Enums");
+	lua_pop(L, 1);
+}
+
 void RegisterTypesLib()
 {
 	DECLARE_MODULE(Types, Both)
