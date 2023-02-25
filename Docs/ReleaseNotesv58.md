@@ -2,6 +2,164 @@
 
 ## WIP!
 
+## Enumerations
+
+Enum values are undergoing a significant technical change in v58. This will not affect most mods, but there are some minor compatibility breaking changes that could affect certain rare use cases.
+
+Enum values returned from functions and enum properties are now returned as `userdata` (lightcppobject) values instead of `string`.
+
+```lua
+_D(type(_C().CurrentTemplate.BloodSurfaceType)) -- "userdata"
+```
+
+Enum values have `Label`, `Value` and `EnumName` properties that can be queried to fetch the textual name, numeric value and enumeration name respectively.
+```lua
+local bt = _C().CurrentTemplate.BloodSurfaceType
+_D(bt.Label) -- "Blood"
+_D(bt.Value) -- 16
+_D(bt.EnumName) -- "SurfaceType"
+```
+
+Enum values implement `__tostring` for backwards compatibility with old string enums
+
+```lua
+print(_C().CurrentTemplate.BloodSurfaceType) -- "Blood"
+```
+
+Enum values support comparison with other enum values, enum labels (names) and numeric values:
+
+```lua
+local bt = _C().CurrentTemplate.BloodSurfaceType
+_D(bt) -- "Blood"
+_D(bt == "Blood") -- true
+_D(bt == "something else") -- false
+_D(bt == 16) -- true
+_D(bt == 15) -- false
+_D(bt == Ext.Enums.SurfaceType.Blood) -- true
+_D(bt == Ext.Enums.SurfaceType.Web) -- false
+```
+
+Enum properties support assignment of other enum values, enum labels (names) and numeric values:
+
+```lua
+-- assignment by enum label
+_C().CurrentTemplate.BloodSurfaceType = "Blood"
+-- assignment by enum value
+_C().CurrentTemplate.BloodSurfaceType = 16
+-- assignment by enum object
+_C().CurrentTemplate.BloodSurfaceType = Ext.Enums.SurfaceType.Blood
+```
+
+Using enum values as table keys turns them into strings for backwards compatibility reasons:
+
+```lua
+local t = { Web = 123 }
+_D(t[Ext.Enums.SurfaceType.Web]) -- prints 123
+```
+
+JSON serialization turns enum values into their string representation.
+
+```lua
+print(Ext.Json.Stringify(Ext.Enums.SurfaceType.Web))
+-- "Web"
+```
+
+## Bitfields
+
+Bitfields returned from functions and enum properties are now returned as `userdata` (lightcppobject) values instead of `table`.
+
+```lua
+_D(type(_C().Stats.AttributeFlags)) -- "userdata"
+```
+
+Bitfields have `__Labels`, `__Value` and `__EnumName` properties that can be queried to fetch a table containing all textual names, a numeric value representing all values and the enumeration name respectively.
+```lua
+local af = _C().Stats.AttributeFlags
+_D(af) -- ["SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
+_D(af.__Labels) -- ["SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
+_D(af.__Value) -- 137440004096
+_D(af.EnumName) -- "StatAttributeFlags"
+```
+
+They also support querying the state of each bitfield flag (either by label or by numeric value):
+```lua
+local af = _C().Stats.AttributeFlags
+_D(af.DrunkImmunity) -- true
+_D(af.WebImmunity) -- false
+```
+
+Bitfields support table-like iteration (i.e. `pairs`/`ipairs`):
+```lua
+for k,v in pairs(af) do 
+   print(k,v) 
+end
+-- 1       BleedingImmunity
+-- 2       DrunkImmunity
+-- 3       SuffocatingImmunity
+```
+
+Bitfields implement `__tostring` that returns a string containing the enum type and all labels:
+
+```lua
+-- "StatAttributeFlags(SuffocatingImmunity,BleedingImmunity,DrunkImmunity)"
+print(_C().Stats.AttributeFlags)
+```
+
+Bitfields support the `~` (bitwise negate) unary operator and the `|` (bitwise or), `&` (bitwise and) and `~` (bitwise xor) binary operators. All binary operators support bitfields, string bitfield labels, tables of bitfield labels and numeric values as their second operand:
+
+```lua
+local af = _C().Stats.AttributeFlags
+_D(af) -- ["SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
+_D(~af) -- ["Unstorable", "DisarmedImmunity", "PoisonImmunity", "HastedImmunity", ...]
+_D(af & {"DrunkImmunity", "BleedingImmunity"}) -- ["BleedingImmunity", "DrunkImmunity"]
+_D(af & Ext.Enums.StatAttributeFlags.DrunkImmunity) -- ["DrunkImmunity"]
+_D(af | "FreezeImmunity") -- ["FreezeImmunity", "SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
+_D(af ~ 0x802) -- ["SuffocatingImmunity", "DrunkImmunity", "BurnImmunity"]
+```
+
+
+Bitfields support comparison with other bitfields, singular bitfield labels, tables of bitfield labels and numeric values:
+
+```lua
+local af = _C().Stats.AttributeFlags
+_D(af) -- ["SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
+_D(af == {"SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"}) -- true
+_D(af == {"SuffocatingImmunity", "BleedingImmunity"}) -- false
+_D(af == 137440004096) -- true
+_D(af == 1234) -- false
+```
+
+Bitfields support assignment of other enum values, enum labels (names) and numeric values:
+
+```lua
+-- assignment by enum label
+_C().Stats.AttributeFlags = {"SuffocatingImmunity", "BleedingImmunity"}
+-- assignment by enum value
+_C().Stats.AttributeFlags = 137440004096
+-- assignment by enum object
+_C().Stats.AttributeFlags = Ext.Enums.StatAttributeFlags.WebImmunity
+-- assigning result of bitfield operation
+_C().Stats.AttributeFlags = _C().Stats.AttributeFlags | "WebImmunity"
+```
+
+JSON serialization turns bitfields into an array of textual labels.
+
+```lua
+print(Ext.Json.Stringify(_C().Stats.AttributeFlags))
+-- ["SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
+```
+
+It should be noted that bitfields are always passed by value, so appending or removing elements from them like a table is not possible:
+
+```lua
+local af = _C().Stats.AttributeFlags
+-- throws "attempt to index a userdata value (global 'af')"
+af.SuffocatingImmunity = false
+-- throws "bad argument #1 to 'insert' (table expected, got light C++ object)"
+table.insert(af, "WebImmunity")
+```
+
+
 ## Custom variables
 
 v58 adds support for attaching custom properties to characters and items. These properties support automatic network synchronization between server and clients as well as savegame persistence.
