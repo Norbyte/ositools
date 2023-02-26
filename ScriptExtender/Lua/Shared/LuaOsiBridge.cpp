@@ -8,6 +8,40 @@ namespace dse::esv::lua
 {
 	using namespace dse::lua;
 
+	int64_t LuaToInt(lua_State* L, int i, int type)
+	{
+		if (type == LUA_TNUMBER) {
+#if LUA_VERSION_NUM > 501
+			if (lua_isinteger(L, i)) {
+				return (int64_t)lua_tointeger(L, i);
+			} else {
+				return (int64_t)lua_tonumber(L, i);
+			}
+#else
+			return (int64_t)lua_tonumber(L, i);
+#endif
+		} else if (type == LUA_TLIGHTUSERDATA) {
+			auto handle = get<ComponentHandle>(L, i);
+			return (int64_t)handle.Handle;
+		} else if (type == LUA_TLIGHTCPPOBJECT) {
+			auto enumVal = EnumValueMetatable::TryGet(L, i);
+			if (enumVal) {
+				return (int64_t)enumVal->Value;
+			} else {
+				auto bitfieldVal = BitfieldValueMetatable::TryGet(L, i);
+				if (bitfieldVal) {
+					return (int64_t)bitfieldVal->Value;
+				} else {
+					luaL_error(L, "Number expected for argument %d, got C++ value of unsupported type", i);
+				}
+			}
+		} else {
+			luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
+		}
+
+		return 0;
+	}
+
 	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil)
 	{
 		tv.VMT = gExtender->GetServer().Osiris().GetGlobals().TypedValueVMT;
@@ -21,42 +55,11 @@ namespace dse::esv::lua
 
 		switch (osiType) {
 		case ValueType::Integer:
-			if (type == LUA_TNUMBER) {
-#if LUA_VERSION_NUM > 501
-				if (lua_isinteger(L, i)) {
-					tv.Value.Val.Int32 = (int32_t)lua_tointeger(L, i);
-				} else {
-					tv.Value.Val.Int32 = (int32_t)lua_tonumber(L, i);
-				}
-#else
-				tv.Value.Val.Int32 = (int32_t)lua_tonumber(L, i);
-#endif
-			} else if (type == LUA_TBOOLEAN) {
-				// Convert Lua booleans to 0/1 in Osiris
-				tv.Value.Val.Int32 = (int32_t)lua_toboolean(L, i);
-			} else {
-				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
-			}
-
+			tv.Value.Val.Int32 = (int32_t)LuaToInt(L, i, type);
 			break;
 
 		case ValueType::Integer64:
-			if (type == LUA_TNUMBER) {
-#if LUA_VERSION_NUM > 501
-				if (lua_isinteger(L, i)) {
-					tv.Value.Val.Int64 = (int64_t)lua_tointeger(L, i);
-				} else {
-					tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
-				}
-#else
-				tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
-#endif
-			} else if (type == LUA_TLIGHTUSERDATA) {
-				auto handle = get<ComponentHandle>(L, i);
-				tv.Value.Val.Int64 = (int64_t)handle.Handle;
-			} else {
-				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
-			}
+			tv.Value.Val.Int64 = (int64_t)LuaToInt(L, i, type);
 			break;
 
 		case ValueType::Real:
@@ -82,16 +85,28 @@ namespace dse::esv::lua
 		case ValueType::TriggerGuid:
 		case ValueType::SplineGuid:
 		case ValueType::LevelTemplateGuid:
-			if (type != LUA_TSTRING) {
+		{
+			if (type == LUA_TSTRING) {
+				// TODO - not sure if we're the owners of the string or the TypedValue is
+				tv.Value.Val.String = _strdup(lua_tostring(L, i));
+				if (tv.Value.Val.String == nullptr) {
+					luaL_error(L, "Could not cast argument %d to string", i);
+				}
+			} else if (type == LUA_TLIGHTCPPOBJECT) {
+				auto enumVal = EnumValueMetatable::TryGet(L, i);
+				if (enumVal) {
+					auto ty = EnumRegistry::Get().EnumsById[enumVal->PropertyMapTag];
+					auto label = ty->Find(static_cast<EnumUnderlyingType>(enumVal->Value));
+					tv.Value.Val.String = const_cast<char*>(label.GetStringOrDefault());
+				} else {
+					luaL_error(L, "Number expected for argument %d, got C++ value of unsupported type", i);
+				}
+			} else {
 				luaL_error(L, "String expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
-			// TODO - not sure if we're the owners of the string or the TypedValue is
-			tv.Value.Val.String = _strdup(lua_tostring(L, i));
-			if (tv.Value.Val.String == nullptr) {
-				luaL_error(L, "Could not cast argument %d to string", i);
-			}
 			break;
+		}
 
 		default:
 			luaL_error(L, "Unhandled Osi argument type %d", osiType);
