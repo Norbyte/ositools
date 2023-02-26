@@ -78,7 +78,7 @@ local af = _C().Stats.AttributeFlags
 _D(af) -- ["SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
 _D(af.__Labels) -- ["SuffocatingImmunity", "BleedingImmunity", "DrunkImmunity"]
 _D(af.__Value) -- 137440004096
-_D(af.EnumName) -- "StatAttributeFlags"
+_D(af.__EnumName) -- "StatAttributeFlags"
 ```
 
 They also support querying the state of each bitfield flag (either by label or by numeric value):

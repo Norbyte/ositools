@@ -99,7 +99,7 @@ namespace dse::esv::lua
 					auto label = ty->Find(static_cast<EnumUnderlyingType>(enumVal->Value));
 					tv.Value.Val.String = const_cast<char*>(label.GetStringOrDefault());
 				} else {
-					luaL_error(L, "Number expected for argument %d, got C++ value of unsupported type", i);
+					luaL_error(L, "String expected for argument %d, got C++ value of unsupported type", i);
 				}
 			} else {
 				luaL_error(L, "String expected for argument %d, got %s", i, lua_typename(L, type));
