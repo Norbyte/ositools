@@ -260,9 +260,9 @@ struct PropertyData
 {
 	virtual ~PropertyData() {}
 	virtual PropertyData* Clone() { return nullptr; }
-	virtual bool GetDescription(STDWString* Line1) { return false; }
-	virtual bool GetDescription(TranslatedString * Line1, TranslatedString * Line2) { return false; }
-	virtual bool GetDescription(TranslatedString * Line1) { return false; }
+	virtual bool GetDescription(STDWString* Line1, void*, stats::Character* character, bool) { return false; }
+	virtual bool GetDescription2(TranslatedString * Line1, TranslatedString * Line2, void*, stats::Character* character, bool) { return false; }
+	virtual bool GetDescription3(TranslatedString * Line1, void*, stats::Character* character, bool) { return false; }
 	virtual uint64_t Unknown() { return 0; }
 
 	FixedString Name;
@@ -363,17 +363,17 @@ struct PropertyExtender : public PropertyData
 		return cl;
 	}
 
-	bool GetDescription(STDWString* Line1) override;
+	bool GetDescription(STDWString* Line1, void* unknown, stats::Character* character, bool unknown2) override;
 
-	bool GetDescription(TranslatedString* Line1, TranslatedString* Line2) override
+	bool GetDescription2(TranslatedString* Line1, TranslatedString* Line2, void* unknown, stats::Character* character, bool unknown2) override
 	{
-		GetDescription(Line1);
+		GetDescription3(Line1, unknown, character, unknown2);
 		return true;
 	}
 
-	bool GetDescription(TranslatedString* Line1) override
+	bool GetDescription3(TranslatedString* Line1, void* unknown, stats::Character* character, bool unknown2) override
 	{
-		GetDescription(&Line1->Handle.ReferenceString);
+		GetDescription(&Line1->Handle.ReferenceString, unknown, character, unknown2);
 		return true;
 	}
 

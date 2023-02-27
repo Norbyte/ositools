@@ -1702,7 +1702,7 @@ bool Item::ComputeDamage(DamageDescList& damages, bool keepCurrentDamages)
 	return damages.size() != 0;
 }
 
-bool PropertyExtender::GetDescription(STDWString* Line1)
+bool PropertyExtender::GetDescription(STDWString* Line1, void* unknown, stats::Character* character, bool unknown2)
 {
 	ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 	if (lua) {
