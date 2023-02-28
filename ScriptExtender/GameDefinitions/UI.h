@@ -598,7 +598,7 @@ namespace dse
 		Map<ComponentHandle, uint64_t> *LastFrameDirtyFlags;
 		Map<ComponentHandle, uint64_t> *CharacterDirtyFlags;
 		CRITICAL_SECTION DirtyFlagsCriticalSection;
-		PlayerState PlayerStates[4];
+		std::array<PlayerState, 4> PlayerStates;
 		CRITICAL_SECTION PrecachedDataCriticalSection;
 		RefMap<STDString, uint32_t> PrecachedUIData;
 		ComponentHandle LastUIObjectUnderCursor;

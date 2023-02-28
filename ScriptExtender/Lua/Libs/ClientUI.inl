@@ -167,14 +167,14 @@ void SetDirty(ComponentHandle const& handle, uint64_t flags)
 {
 	auto ui = GetStaticSymbols().GetUIObjectManager();
 	if (ui && ui->CharacterDirtyFlags) {
-		EnterCriticalSection(&ui->CriticalSection);
+		EnterCriticalSection(&ui->DirtyFlagsCriticalSection);
 		auto curFlags = ui->CharacterDirtyFlags->find(handle);
 		if (curFlags) {
 			curFlags.Value() |= flags;
 		} else {
 			*ui->CharacterDirtyFlags->insert(handle, flags);
 		}
-		LeaveCriticalSection(&ui->CriticalSection);
+		LeaveCriticalSection(&ui->DirtyFlagsCriticalSection);
 	}
 }
 
@@ -343,6 +343,11 @@ CursorControl* GetCursorControl()
 	return *GetStaticSymbols().ecl__CursorControl;
 }
 
+UIObjectManager* GetUIObjectManager()
+{
+	return GetStaticSymbols().GetUIObjectManager();
+}
+
 void RegisterUILib()
 {
 	DECLARE_MODULE(UI, Client)
@@ -365,6 +370,7 @@ void RegisterUILib()
 	MODULE_FUNCTION(GetViewportSize)
 	MODULE_FUNCTION(GetMouseFlashPos)
 	MODULE_FUNCTION(GetCursorControl)
+	MODULE_FUNCTION(GetUIObjectManager)
 	END_MODULE()
 }
 

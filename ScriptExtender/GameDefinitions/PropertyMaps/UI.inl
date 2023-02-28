@@ -65,6 +65,33 @@ INHERIT(UIObject)
 END_CLS()
 
 
+BEGIN_CLS(UIObjectManager::PlayerState)
+P_RO(DragOffsetX)
+P_RO(DragOffsetY)
+P_RO(ActiveUIObjectHandle)
+P_RO(MovingUIObjectHandle)
+P_RO(IsDragging)
+P_RO(UIUnderMouseCursor)
+END_CLS()
+
+
+BEGIN_CLS(UIObjectManager)
+P_REF(UIObjects)
+P_RO(ShouldPrepareRenderData)
+P_RO(SortNeeded)
+P_RO(RefreshTopNeeded)
+P_RO(IsRenderingObjects)
+P_RO(AllowRawInput)
+P_RO(LastInteractedWithUIObject)
+P_RO(UIDesignedHeight)
+P_RO(UIDesignedWidth)
+P_REF(PlayerStates)
+P_RO(LastUIObjectUnderCursor)
+P_RO(ModalAggregateFlags)
+P_RO(TextInputAggregateFlags)
+END_CLS()
+
+
 BEGIN_CLS(ecl::UICursorInfo)
 INHERIT(ecl::EoCUI)
 P(WorldScreenPositionX)
