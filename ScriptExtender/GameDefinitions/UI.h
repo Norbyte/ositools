@@ -564,13 +564,14 @@ namespace dse
 
 	struct UIObjectManager : public ComponentFactory<UIObject>
 	{
-		struct SomeObject
+		struct PlayerState
 		{
-			uint64_t ObjectIndex_M;
-			ComponentHandle ObjHandle1;
-			ComponentHandle ObjHandle2;
-			__int16 field_18;
-			BYTE field_1A[6];
+			uint32_t DragOffsetX;
+			uint32_t DragOffsetY;
+			ComponentHandle ActiveUIObjectHandle;
+			ComponentHandle MovingUIObjectHandle;
+			bool IsDragging;
+			bool UIUnderMouseCursor;
 		};
 
 		using RegisterUIObjectCreatorProc = void (UIObjectManager * self, unsigned int index, UIObjectFunctor * creator);
@@ -591,24 +592,23 @@ namespace dse
 		bool RefreshTopNeeded;
 		bool IsRenderingObjects;
 		bool AllowRawInput;
-		bool field_115;
+		bool LastInteractedWithUIObject;
 		int UIDesignedHeight;
 		int UIDesignedWidth;
 		Map<ComponentHandle, uint64_t> *LastFrameDirtyFlags;
 		Map<ComponentHandle, uint64_t> *CharacterDirtyFlags;
-		CRITICAL_SECTION CriticalSection;
-		SomeObject SomeObjects[4];
+		CRITICAL_SECTION DirtyFlagsCriticalSection;
+		PlayerState PlayerStates[4];
+		CRITICAL_SECTION PrecachedDataCriticalSection;
 		int64_t field_1D8;
 		int64_t field_1E0;
 		int64_t field_1E8;
 		int64_t field_1F0;
 		int64_t field_1F8;
-		RefMap<uint32_t, uint32_t> field_200;
-		int64_t field_210;
-		int UIObjectAggregateFlags;
-		int field_21C;
-		int64_t field_220;
-		int64_t field_228;
+		RefMap<STDString, uint32_t> PrecachedUIData;
+		ComponentHandle LastUIObjectUnderCursor;
+		UIObjectFlags ModalAggregateFlags;
+		UIObjectFlags TextInputAggregateFlags;
 
 		UIObject* GetByType(int typeId) const;
 	};
