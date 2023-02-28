@@ -600,11 +600,6 @@ namespace dse
 		CRITICAL_SECTION DirtyFlagsCriticalSection;
 		PlayerState PlayerStates[4];
 		CRITICAL_SECTION PrecachedDataCriticalSection;
-		int64_t field_1D8;
-		int64_t field_1E0;
-		int64_t field_1E8;
-		int64_t field_1F0;
-		int64_t field_1F8;
 		RefMap<STDString, uint32_t> PrecachedUIData;
 		ComponentHandle LastUIObjectUnderCursor;
 		UIObjectFlags ModalAggregateFlags;
