@@ -539,9 +539,11 @@ namespace dse::esv
 	void CustomFunctionLibrary::OnCreateUIObject(UIObjectManager* self, ComponentHandle* handle, unsigned int layerIndex,
 		unsigned int creatorId, UIObjectFlags flags, uint64_t resourceFlags, PlayerId playerId, ComponentHandle* result)
 	{
-		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
-		if (lua) {
-			lua->OnCreateUIObject(*result);
+		if (gExtender->GetClient().HasExtensionState()) {
+			ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+			if (lua) {
+				lua->OnCreateUIObject(*result);
+			}
 		}
 	}
 
