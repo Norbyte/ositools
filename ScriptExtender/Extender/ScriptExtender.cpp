@@ -307,6 +307,8 @@ void ScriptExtender::OnModuleLoadStarted(TranslatedStringRepository* self)
 
 void ScriptExtender::OnSkillPrototypeManagerInit(void * self)
 {
+	PostStartup();
+
 	if (!extensionsEnabled_) return;
 
 	std::lock_guard _(globalStateLock_);
