@@ -1857,7 +1857,7 @@
       8b 50 08 // mov     edx, [rax+8]
       48 8d 4c 24 50 // lea     rcx, [rsp+290h+var_240]
       @ref1 e8 ?? ?? ?? ?? // call    eoc__DamageDescriptionToTranslateString
-      48 8b 0d 94 8e c9 00 // mov     rcx, cs:qword_142959848
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:qword_142959848
       48 8d 50 58 // lea     rdx, [rax+58h]
       <Target Type="Indirect" Offset="@ref1" Symbol="eoc__DamageDescriptionToTranslateString" />
     </Mapping>
