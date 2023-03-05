@@ -690,17 +690,21 @@ namespace dse::esv
 
 	void CustomFunctionLibrary::OnAppInputEvent(IApp* self, uint16_t& retval, InputEvent const& inputEvent)
 	{
-		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
-		if (lua) {
-			lua->OnAppInputEvent(inputEvent);
+		if (gExtender->GetClient().HasExtensionState()) {
+			ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+			if (lua) {
+				lua->OnAppInputEvent(inputEvent);
+			}
 		}
 	}
 
 	void CustomFunctionLibrary::OnInjectInput(InputManager* self, InjectInputData const& input)
 	{
-		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
-		if (lua) {
-			lua->OnRawInputEvent(input);
+		if (gExtender->GetClient().HasExtensionState()) {
+			ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+			if (lua) {
+				lua->OnRawInputEvent(input);
+			}
 		}
 	}
 
@@ -738,6 +742,7 @@ namespace dse::esv
 	Visual* CustomFunctionLibrary::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisualsProc* wrapped,
 		ecl::EquipmentVisualsSystem* self, EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params)
 	{
+#if defined(OSI_EOCAPP)
 		// Fix game crash when calling CreateEquipmentVisuals) with an invalid resource UUID
 		if (params.VisualResourceID && params.VisualResourceID != GFS.strEmpty) {
 			auto bank = GetStaticSymbols().GetResourceBank();
@@ -752,6 +757,7 @@ namespace dse::esv
 		if (lua) {
 			lua->OnCreateEquipmentVisuals(entityHandle, params);
 		}
+#endif
 
 		return wrapped(self, entityHandle, params);
 	}
