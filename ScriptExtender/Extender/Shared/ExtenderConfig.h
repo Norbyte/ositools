@@ -12,6 +12,7 @@ struct ExtenderConfig
 	bool EnableLuaDebugger{ false };
 #else
 	bool CreateConsole{ true };
+	bool DefaultToClientConsole{ false };
 	bool EnableDebugger{ true };
 	bool EnableLuaDebugger{ true };
 #endif
