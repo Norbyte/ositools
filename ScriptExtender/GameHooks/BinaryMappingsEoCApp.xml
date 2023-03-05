@@ -770,11 +770,16 @@
     </Mapping>
 
     <Mapping Name="GlobalSwitches">
-      48 83 EC 20  // sub     rsp, 20h
-      @switches 48 8B 05 ?? ?? ?? ??  // mov     rax, cs:gGlobalSwitches
-      @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_UseLevelCache
-      48 8B F9  // mov     rdi, rcx
-      <Condition Type="FixedString" Offset="@str" Value="UseLevelCache" />
+      48 81 c2 80 01 00 00 // add     rdx, 180h
+      48 8b 01 // mov     rax, [rcx]
+      ff 90 c0 00 00 00 // call    qword ptr [rax+0C0h]
+      48 8b f8 // mov     rdi, rax
+      48 85 c0 // test    rax, rax
+      0f 84 84 00 00 00 // jz      loc_1404F592C
+      @switches 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:gGlobalSwitches
+      48 63 53 08 // movsxd  rdx, dword ptr [rbx+8]
+      f3 0f 10 0d ?? ?? ?? ?? // movss   xmm1, cs:dword_14225B898; Y
+      48 81 c2 e9 00 00 00 // add     rdx, 0E9h ; 'é'
       <Target Type="Indirect" Offset="@switches" Symbol="ls__GlobalSwitches" /> <!-- GlobalSwitches -->
     </Mapping>
 
