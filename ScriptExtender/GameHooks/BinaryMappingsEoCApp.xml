@@ -1836,7 +1836,7 @@
     <Mapping Name="eoc::DamageTypeToTranslateString">
       ba 03 00 00 00 // mov     edx, 3
       44 8d 42 1d // lea     r8d, [rdx+1Dh]
-      e8 92 03 f5 ff // call    sub_141C79570
+      e8 ?? ?? ?? ?? // call    sub_141C79570
       41 8b 17 // mov     edx, [r15]
       48 8d 4d 90 // lea     rcx, [rbp+1D0h+var_240]
       @ref1 e8 ?? ?? ?? ?? // call    eoc__DamageTypeToTranslateString
@@ -1864,7 +1864,7 @@
       8b d6 // mov     edx, esi
       48 8d 4c 24 40 // lea     rcx, [rsp+138h+var_F8]
       @ref1 e8 ?? ?? ?? ?? // call    eoc__DamageTypeToTranslateStringExtended
-      48 8b 0d ab 0f c3 00 // mov     rcx, cs:qword_142959848
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:qword_142959848
       48 8d 50 58 // lea     rdx, [rax+58h]
       <Target Type="Indirect" Offset="@ref1" Symbol="eoc__DamageTypeToTranslateStringExtended" />
     </Mapping>
