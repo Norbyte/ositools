@@ -281,17 +281,22 @@ char const * GlobalStringTable::Entry::Get(uint32_t i) const
 
 const char * GlobalStringTable::Find(char const * s, uint64_t length) const
 {
-	auto const & entry = HashTable[Hash(s, length)];
-	auto numItems = entry.Count();
-	for (uint32_t i = 0; i < numItems; i++) {
-		const char * str = entry.Get(i);
-		if (str) {
-			auto metadata = reinterpret_cast<FixedString::Metadata*>(const_cast<char*>(str - 0x10));
-			if (metadata->Length == length && memcmp(s, str, length) == 0) {
-				return str;
+	auto const* entry = &HashTable[Hash(s, length)];
+
+	do {
+		auto n = entry->StringPtrItems;
+		for (uint32_t i = 0; i < n; i++) {
+			const char* str = entry->StringPtrs[i];
+			if (str) {
+				auto metadata = reinterpret_cast<FixedString::Metadata*>(const_cast<char*>(str - 0x10));
+				if (metadata->Length == length && memcmp(s, str, length) == 0) {
+					return str;
+				}
 			}
 		}
-	}
+
+		entry = entry->Next;
+	} while (entry);
 
 	return nullptr;
 }
