@@ -70,7 +70,7 @@ end
 ---@type GameTooltipRequestProcessor
 local RequestProcessor = _Require(nil, "builtin://Libs/Game.Tooltip.RequestProcessor.lua")
 _TT.RequestProcessor = RequestProcessor
-RequestProcessor.Utils.GetClientCharacter = _GetClientCharacter()
+RequestProcessor.Utils.GetClientCharacter = _GetClientCharacter
 
 local game = Game
 _ENV = _TT
