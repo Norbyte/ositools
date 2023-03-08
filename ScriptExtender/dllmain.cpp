@@ -52,6 +52,7 @@ void LoadConfig(std::wstring const & configPath, dse::ExtenderConfig & config)
 	}
 
 	ConfigGet(root, "CreateConsole", config.CreateConsole);
+	ConfigGet(root, "DefaultToClientConsole", config.DefaultToClientConsole);
 	ConfigGet(root, "EnableLogging", config.EnableLogging);
 	ConfigGet(root, "LogCompile", config.LogCompile);
 	ConfigGet(root, "LogFailedCompile", config.LogFailedCompile);

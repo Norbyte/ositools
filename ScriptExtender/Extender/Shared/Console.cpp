@@ -303,6 +303,7 @@ void DebugConsole::Create()
 	FILE* inputStream;
 	freopen_s(&inputStream, "CONIN$", "r", stdin);
 	consoleRunning_ = true;
+	serverContext_ = !gExtender->GetConfig().DefaultToClientConsole;
 
 	DEBUG("******************************************************************************");
 	DEBUG("*                                                                            *");
