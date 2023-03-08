@@ -242,12 +242,27 @@ Ext.Events.SkillGetPropertyDescription:Subscribe(function (e)
 end)
 
 -- Debug helper to get current player character
-_C = function ()
-	local statusConsole = Ext.UI.GetByType(117)
-	if statusConsole == nil then return end
-	local handle = statusConsole:GetPlayerHandle()
-	if handle == nil then return end
-	return Ext.Entity.GetCharacter(handle)
+_C = function (playerIndex)
+	playerIndex = playerIndex or 1
+	local playerManager = Ext.Entity.GetPlayerManager()
+	local player = playerManager.ClientPlayerData[playerIndex]
+	local charNetID = player and player.CharacterNetId
+	
+	return Ext.Entity.GetCharacter(charNetID) 
+end
+
+-- Debug helper to get the current player character's weapon
+_W = function ()
+	local char = _C()
+	local item
+
+	if char then
+		local itemGUID = char:GetItemBySlot("Weapon")
+
+		item = itemGUID and Ext.Entity.GetItem(itemGUID)
+	end
+
+	return item
 end
 
 -- Debug helper to get character being examined
