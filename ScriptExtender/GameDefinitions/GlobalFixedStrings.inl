@@ -48,6 +48,7 @@ FS(Deactivated);
 FS(MadePlayer);
 FS(IsGameMaster);
 FS(IsPossessed);
+FS(Default);
 FS_NAME(NullStringHandle, "ls::TranslatedStringRepository::s_HandleUnknown");
 
 // Game object funcs

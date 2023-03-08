@@ -36,16 +36,16 @@ int StatsEntryProxyRefImpl::Next(lua_State* L, FixedString const& key)
 	if (modifierList) {
 		auto const& attrs = modifierList->Attributes;
 		if (!key) {
-			if (attrs.Primitives.size() > 0) {
-				auto const& prop = attrs.Primitives[0]->Name;
+			if (attrs.Elements.size() > 0) {
+				auto const& prop = attrs.Elements[0]->Name;
 				push(L, prop);
 				Get()->LuaGetAttribute(L, prop, level_);
 				return 2;
 			}
 		} else {
 			auto curKey = attrs.FindIndex(key);
-			if (curKey && attrs.Primitives.size() > (unsigned)*curKey + 1) {
-				auto const& prop = attrs.Primitives[*curKey + 1]->Name;
+			if (curKey && attrs.Elements.size() > (unsigned)*curKey + 1) {
+				auto const& prop = attrs.Elements[*curKey + 1]->Name;
 				push(L, prop);
 				Get()->LuaGetAttribute(L, prop, level_);
 				return 2;
@@ -164,7 +164,7 @@ CustomLevelMap gDummyCustomLevelMap;
 
 void RestoreLevelMaps(bool isClient)
 {
-	auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Primitives;
+	auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Elements;
 	for (auto& levelMap : levelMaps) {
 		if (*(void**)levelMap == *(void**)&gDummyCustomLevelMap) {
 			auto customMap = static_cast<CustomLevelMap*>(levelMap);
@@ -193,10 +193,15 @@ character_creation::CharacterCreationManager* GetCharacterCreation()
 	return *GetStaticSymbols().eoc__CharacterCreationManager;
 }
 
+stats::RPGStats* GetStatsManager()
+{
+	return GetStaticSymbols().GetStats();
+}
+
 ObjectSet<FixedString> FetchSkillSetEntries(RPGStats * stats)
 {
 	ObjectSet<FixedString> names;
-	for (auto skillSet : stats->SkillSetManager->Primitives) {
+	for (auto skillSet : stats->SkillSetManager->Elements) {
 		names.push_back(skillSet->Name);
 	}
 
@@ -206,7 +211,7 @@ ObjectSet<FixedString> FetchSkillSetEntries(RPGStats * stats)
 ObjectSet<FixedString> FetchItemComboEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
-	for (auto itemCombo : stats->ItemCombinationManager->Primitives) {
+	for (auto itemCombo : stats->ItemCombinationManager->Elements) {
 		names.push_back(itemCombo->Name);
 	}
 
@@ -257,8 +262,8 @@ void FetchDeltaModEntries(lua_State* L, RPGStats* stats)
 {
 	int32_t index = 1;
 	lua_newtable(L);
-	for (auto deltaModList : stats->DeltaMods.Primitives) {
-		for (auto deltaMod : deltaModList->Primitives) {
+	for (auto deltaModList : stats->DeltaMods.Elements) {
+		for (auto deltaMod : deltaModList->Elements) {
 			push(L, index++);
 			lua_newtable(L);
 			setfield(L, "Name", deltaMod->Name);
@@ -271,7 +276,7 @@ void FetchDeltaModEntries(lua_State* L, RPGStats* stats)
 ObjectSet<FixedString> FetchEquipmentSetEntries(RPGStats * stats)
 {
 	ObjectSet<FixedString> names;
-	for (auto equipmentSet : stats->EquipmentSetManager->Primitives) {
+	for (auto equipmentSet : stats->EquipmentSetManager->Elements) {
 		names.push_back(equipmentSet->Name);
 	}
 
@@ -281,7 +286,7 @@ ObjectSet<FixedString> FetchEquipmentSetEntries(RPGStats * stats)
 ObjectSet<FixedString> FetchTreasureTableEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
-	for (auto treasureTable : stats->TreasureTables.Primitives) {
+	for (auto treasureTable : stats->TreasureTables.Elements) {
 		names.push_back(treasureTable->Name);
 	}
 
@@ -291,7 +296,7 @@ ObjectSet<FixedString> FetchTreasureTableEntries(RPGStats* stats)
 ObjectSet<FixedString> FetchTreasureCategoryEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
-	for (auto treasureCategory : stats->TreasureCategories.Primitives) {
+	for (auto treasureCategory : stats->TreasureCategories.Elements) {
 		names.push_back(treasureCategory->Category);
 	}
 
@@ -310,7 +315,7 @@ ObjectSet<FixedString> FetchStatEntries(RPGStats * stats, FixedString const& sta
 	}
 
 	ObjectSet<FixedString> names;
-	for (auto object : stats->Objects.Primitives) {
+	for (auto object : stats->Objects.Elements) {
 		if (statType) {
 			auto type = stats->GetTypeInfo(object);
 			if (modifierList != nullptr && type != modifierList) {
@@ -807,7 +812,7 @@ void AddCustomDescription(lua_State * L, const char* statName, const char* attri
 	customProp->TypeId = PropertyType::CustomDescription;
 	customProp->Conditions = nullptr;
 	customProp->TextLine1 = FromUTF8(description);
-	props->Properties.Primitives.push_back(customProp);
+	props->Properties.Add(GFS.strDefault, customProp);
 }
 
 /// <summary>
@@ -865,7 +870,7 @@ void SetLevelScaling(lua_State * L, FixedString const& modifierListName, FixedSt
 		levelMap->ValueListIndex = originalLevelMap->ValueListIndex;
 		levelMap->Name = originalLevelMap->Name;
 		levelMap->OriginalLevelMap = originalLevelMap;
-		stats->LevelMaps.Primitives[modifier->LevelMapIndex] = levelMap;
+		stats->LevelMaps.Elements[modifier->LevelMapIndex] = levelMap;
 	}
 
 	if (lua->IsClient()) {
@@ -1266,7 +1271,7 @@ void AddVoiceMetaData(FixedString const& speakerGuid, FixedString const& transla
 
 bool AddAttribute(FixedString const& modifierList, FixedString const& modifierName, FixedString const& typeName)
 {
-	if (GetStaticSymbols().GetStats()->Objects.Primitives.size() > 0) {
+	if (GetStaticSymbols().GetStats()->Objects.Elements.size() > 0) {
 		OsiError("It is not safe to modify stats types after stats data files were loaded!");
 		OsiError("(Try using the StatsStructureLoaded event)");
 		return false;
@@ -1359,6 +1364,7 @@ void RegisterStatsLib()
 	DECLARE_MODULE(Stats, Both)
 	BEGIN_MODULE()
 	MODULE_FUNCTION(GetCharacterCreation)
+	MODULE_FUNCTION(GetStatsManager)
 	MODULE_FUNCTION(GetStats)
 	MODULE_FUNCTION(GetStatsLoadedBefore)
 	MODULE_FUNCTION(Get)

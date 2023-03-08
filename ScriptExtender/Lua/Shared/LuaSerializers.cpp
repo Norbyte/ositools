@@ -627,9 +627,9 @@ namespace dse::lua
 		s.BeginObject();
 		if (s.IsWriting) {
 			int index{ 1 };
-			for (auto const& val : v.Properties.NameHashMap) {
+			for (auto const& val : v.Properties.NameToIndex) {
 				push(s.L, index++);
-				SerializeObjectProperty(s, v.Properties.Primitives[val.Value]);
+				SerializeObjectProperty(s, v.Properties.Elements[val.Value]);
 				lua_settable(s.L, -3);
 			}
 		} else {

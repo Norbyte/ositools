@@ -103,7 +103,7 @@ Vector<stats::Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedString mod
 
 	Vector<stats::Object*> statsLoadedBefore;
 	auto stats = GetStaticSymbols().GetStats();
-	for (auto const& object : stats->Objects.Primitives) {
+	for (auto const& object : stats->Objects.Elements) {
 		auto statEntryMod = GetStatsEntryMod(object->Name);
 		if (statEntryMod && modsLoadedBefore.find(statEntryMod) != modsLoadedBefore.end()) {
 			statsLoadedBefore.push_back(object);

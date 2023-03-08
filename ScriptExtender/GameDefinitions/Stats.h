@@ -185,15 +185,15 @@ template <class T>
 struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 {
 	void* VMT{ nullptr };
-	ObjectSet<T *> Primitives;
-	Map<FixedString, uint32_t> NameHashMap;
+	ObjectSet<T *> Elements;
+	Map<FixedString, uint32_t> NameToIndex;
 	uint32_t NextHandle{ 0 };
 	uint32_t NumSomeItems{ 0 };
 
 	void Add(FixedString const& name, T* elem)
 	{
-		NameHashMap.insert(name, Primitives.size());
-		Primitives.push_back(elem);
+		NameToIndex.insert(name, Elements.size());
+		Elements.push_back(elem);
 		NextHandle++;
 	}
 
@@ -209,7 +209,7 @@ struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 
 	std::optional<int> FindIndex(FixedString const& str) const
 	{
-		auto it = NameHashMap.find(str);
+		auto it = NameToIndex.find(str);
 		if (it) {
 			return (int)it.Value();
 		} else {
@@ -219,10 +219,10 @@ struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 
 	T * Find(int index) const
 	{
-		if (index < 0 || index >= (int)Primitives.size()) {
+		if (index < 0 || index >= (int)Elements.size()) {
 			return nullptr;
 		} else {
-			return Primitives[index];
+			return Elements[index];
 		}
 	}
 
@@ -238,12 +238,18 @@ struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 
 	T * Find(FixedString const& str) const
 	{
-		auto ptr = NameHashMap.try_get_ptr(str);
+		auto ptr = NameToIndex.try_get_ptr(str);
 		if (ptr != nullptr) {
-			return Primitives[*ptr];
+			return Elements[*ptr];
 		} else {
 			return nullptr;
 		}
+	}
+
+	// Helper function without parameter overloading for Lua
+	T * GetByName(FixedString const& str)
+	{
+		return Find(str);
 	}
 };
 
@@ -456,7 +462,9 @@ struct LevelMap : public Noncopyable<LevelMap>
 	virtual ~LevelMap() {}
 	virtual void SetModifierList(int modifierListIndex, int modifierIndex) = 0;
 	virtual void SetModifierList(FixedString const& modifierListName, FixedString const& modifierName) = 0;
-	virtual int64_t GetScaledValue(int difficultyScale, int level) = 0;
+	virtual int64_t GetScaledValue(int value, int level) = 0;
+	
+	int64_t LuaGetScaledValue(int value, int level);
 
 	int ModifierListIndex{ -1 };
 	int ModifierIndex{ -1 };

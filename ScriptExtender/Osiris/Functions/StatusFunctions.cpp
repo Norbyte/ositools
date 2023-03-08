@@ -565,13 +565,13 @@ namespace dse::esv
 		bool statusFlag0x40, float a12)
 	{
 		if (!properties || (unsigned)properties->AllPropertyContexts == 0
-			|| properties->Properties.Primitives.size() == 0) {
+			|| properties->Properties.Elements.size() == 0) {
 			return;
 		}
 
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (lua) {
-			for (auto prop : properties->Properties.Primitives) {
+			for (auto prop : properties->Properties.Elements) {
 				if (prop->TypeId == stats::PropertyType::Extender) {
 					auto extProp = static_cast<stats::PropertyExtender*>(prop);
 					for (auto const& target : targets) {
@@ -591,13 +591,13 @@ namespace dse::esv
 		stats::SkillPrototype* skillPrototype, stats::HitDamageInfo* damageInfo, float unkn)
 	{
 		if (!properties || !position || (unsigned)properties->AllPropertyContexts == 0 
-			|| properties->Properties.Primitives.size() == 0) {
+			|| properties->Properties.Elements.size() == 0) {
 			return;
 		}
 
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (lua) {
-			for (auto prop : properties->Properties.Primitives) {
+			for (auto prop : properties->Properties.Elements) {
 				if (prop->TypeId == stats::PropertyType::Extender) {
 					auto extProp = static_cast<stats::PropertyExtender*>(prop);
 					lua->ExecutePropertyDataOnPosition(extProp, ComponentHandle{ attackerHandle }, *position, areaRadius, isFromItem,

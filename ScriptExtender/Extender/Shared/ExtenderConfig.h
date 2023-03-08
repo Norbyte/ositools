@@ -8,6 +8,7 @@ struct ExtenderConfig
 {
 #if defined(OSI_EXTENSION_BUILD)
 	bool CreateConsole{ false };
+	bool DefaultToClientConsole{ false };
 	bool EnableDebugger{ false };
 	bool EnableLuaDebugger{ false };
 #else

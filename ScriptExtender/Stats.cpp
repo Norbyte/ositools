@@ -661,7 +661,7 @@ void PropertyData::FromProtobuf(StatProperty const& msg)
 void PropertyList::ToProtobuf(FixedString const& name, StatPropertyList* msg) const
 {
 	msg->set_name(name.GetStringOrDefault());
-	for (auto const& prop : Properties.Primitives) {
+	for (auto const& prop : Properties.Elements) {
 		auto const& dataProp = (PropertyData const*)prop;
 		dataProp->ToProtobuf(msg->add_properties());
 	}
@@ -678,6 +678,11 @@ void PropertyList::FromProtobuf(StatPropertyList const& msg)
 			AllPropertyContexts |= property->Context;
 		}
 	}
+}
+
+int64_t LevelMap::LuaGetScaledValue(int value, int level)
+{
+	return GetScaledValue(value, level);
 }
 
 bool ValueList::IsFlagType(FixedString const& typeName)
@@ -775,13 +780,13 @@ void CRPGStatsVMTMappings::MapVMTs()
 	if (VMTsMapped) return;
 	auto stats = GetStaticSymbols().GetStats();
 
-	if (stats->Objects.Primitives.size() > 0) {
-		ObjectVMT = stats->Objects.Primitives[0]->VMT;
+	if (stats->Objects.Elements.size() > 0) {
+		ObjectVMT = stats->Objects.Elements[0]->VMT;
 	}
 
 	for (auto const& propList : stats->PropertyLists) {
 		SkillPropertiesVMT = *(void**)propList.Value;
-		for (auto prop : propList.Value->Properties.Primitives) {
+		for (auto prop : propList.Value->Properties.Elements) {
 			PropertyTypes[prop->TypeId] = *(void**)prop;
 		}
 	}
@@ -839,13 +844,13 @@ std::optional<Object*> RPGStats::CreateObject(FixedString const& name, int32_t m
 	object = GameAlloc<Object>();
 	object->VMT = gCRPGStatsVMTMappings.ObjectVMT;
 	object->ModifierListIndex = modifierListIndex;
-	object->IndexedProperties.resize(modifier->Attributes.Primitives.size(), 0);
+	object->IndexedProperties.resize(modifier->Attributes.Elements.size(), 0);
 	object->DivStats = DivinityStats;
 	object->Name = name;
 	object->PropertyLists.ResizeHashtable(3);
 	object->Conditions.ResizeHashtable(3);
 
-	object->Handle = Objects.Primitives.size();
+	object->Handle = Objects.Elements.size();
 	Objects.Add(name, object);
 
 	return object;
@@ -964,7 +969,7 @@ PropertyList* RPGStats::ConstructPropertyList(FixedString const& propertyName)
 
 	auto properties = GameAlloc<PropertyList>();
 	properties->Properties.VMT = gCRPGStatsVMTMappings.SkillPropertiesVMT;
-	properties->Properties.NameHashMap.ResizeHashtable(31);
+	properties->Properties.NameToIndex.ResizeHashtable(31);
 	properties->Name = propertyName;
 	return properties;
 }
