@@ -13,11 +13,8 @@ void StatusHelpers::PostStartup()
 	lib.esv__StatusMachine__Update.SetPreHook(
 		std::bind(&StatusHelpers::OnStatusMachineUpdate, this, _1, _2)
 	);
-	lib.esv__StatusMachine__DeleteStatusByHandle.SetPreHook(
-		std::bind(&StatusHelpers::OnStatusMachineDelete, this, _1, _2)
-	);
-	lib.esv__StatusMachine__DestroyStatus.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusMachineDestroy, this, _1, _2, _3)
+	lib.esv__StatusMachine__DeleteStatusByHandle.SetWrapper(
+		std::bind(&StatusHelpers::OnStatusMachineDeleteStatusByHandle, this, _1, _2, _3)
 	);
 	lib.esv__StatusMachine__ExitStatus.SetWrapper(
 		std::bind(&StatusHelpers::OnStatusMachineExit, this, _1, _2, _3)
@@ -43,11 +40,11 @@ bool StatusHelpers::OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped
 		.Status = status,
 		.PendingDelete = false
 	};
-	pendingApply_.insert(std::make_pair(status->StatusHandle, applyData));
+	pendingApply_.insert(std::make_pair(EntityStatusHandle{ status->OwnerHandle, status->StatusHandle }, applyData));
 
 	auto done = wrapped(self, status);
 
-	auto it = pendingApply_.find(status->StatusHandle);
+	auto it = pendingApply_.find(EntityStatusHandle{ status->OwnerHandle, status->StatusHandle });
 	if (it != pendingApply_.end()) {
 		// Re-add status to the StatusMachine if we removed it because a status delete was requested
 		// during the Enter() call
@@ -74,19 +71,16 @@ void StatusHelpers::OnStatusMachineUpdate(StatusMachine* self, GameTime* time)
 	}
 }
 
-void StatusHelpers::OnStatusMachineDelete(StatusMachine* self, ComponentHandle* handle)
+bool StatusHelpers::OnStatusMachineDeleteStatusByHandle(StatusMachine::DeleteStatusByHandleProc* wrapped,
+	StatusMachine* self, ComponentHandle const& handle)
 {
-	auto status = self->GetStatus(*handle);
+	auto status = self->GetStatus(handle);
 	LuaServerPin lua(ExtensionState::Get());
 	if (lua) {
 		lua->OnStatusDelete(status);
 	}
-}
 
-bool StatusHelpers::OnStatusMachineDestroy(StatusMachine::DestroyStatusProc* wrapped,
-	StatusMachine* self, ComponentHandle const& handle)
-{
-	auto it = pendingApply_.find(handle);
+	auto it = pendingApply_.find(EntityStatusHandle{ status->OwnerHandle, handle });
 	if (it != pendingApply_.end()) {
 		auto status = it->second.Status;
 		if (!it->second.PendingDelete) {

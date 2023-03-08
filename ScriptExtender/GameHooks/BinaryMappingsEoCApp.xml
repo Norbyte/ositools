@@ -275,15 +275,6 @@
       <Target Type="Absolute" Offset="@ref" Symbol="esv__StatusMachine__Update" />
     </Mapping>
 
-    <Mapping Name="esv::StatusMachine::DeleteStatusByHandle" Scope="Custom">
-      ff 50 10 // call    qword ptr [rax+10h]
-      48 8b d0 // mov     rdx, rax
-      48 8b cd // mov     rcx, rbp
-      @ref1 e8 ?? ?? ?? ?? // call    esv__StatusMachine__DeleteStatusByHandle
-      8b 85 3c 01 00 00 // mov     eax, [rbp+13Ch]
-      <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusMachine__DeleteStatusByHandle" />
-    </Mapping>
-
     <Mapping Name="esv::StatusMachine::Update inner">
       @ref e8 ?? ?? ?? ?? // call    esv__Status__ShouldDelete
       0f b6 f0 // movzx   esi, al
@@ -298,7 +289,6 @@
       f3 0f 11 43 2c // movss   dword ptr [rbx+2Ch], xmm0
       <Target Type="Indirect" Offset="@ref" Symbol="esv__Status__ShouldDelete" />
       <Target Type="Absolute" Offset="-0x80" NextSymbol="esv::StatusMachine::Update" NextSymbolSeekSize="0x80" />
-      <Target Type="Absolute" Offset="0x40" NextSymbol="esv::StatusMachine::DeleteStatusByHandle" NextSymbolSeekSize="0x80" />
     </Mapping>
 
     <Mapping Name="esv::StatusMachine::EnterStatus">
@@ -317,7 +307,7 @@
       <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusMachine__EnterStatus" />
     </Mapping>
 
-    <Mapping Name="esv::StatusMachine::DestroyStatus">
+    <Mapping Name="esv::StatusMachine::DeleteStatusByHandle">
       48 8b 86 30 01 00 00 // mov     rax, [rsi+130h]
       48 8b 0c f8 // mov     rcx, [rax+rdi*8]
       @str 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:fs_INFUSED
@@ -328,9 +318,9 @@
       ff 50 10 // call    qword ptr [rax+10h]
       48 8b d0 // mov     rdx, rax; uint64_t *
       48 8b ce // mov     rcx, rsi; esv::StatusManager *
-      @ref2 e8 ?? ?? ?? ?? // call    esv__StatusMachine__DestroyStatus
+      @ref2 e8 ?? ?? ?? ?? // call    esv__StatusMachine__DeleteStatusByHandle
       <Condition Type="FixedString" Offset="@str" Value="INFUSED" />
-      <Target Type="Indirect" Offset="@ref2" Symbol="esv__StatusMachine__DestroyStatus" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="esv__StatusMachine__DeleteStatusByHandle" />
     </Mapping>
 
     <Mapping Name="esv::StatusMachine::ExitStatus">

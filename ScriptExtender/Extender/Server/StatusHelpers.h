@@ -6,6 +6,37 @@
 
 BEGIN_NS(esv)
 
+struct EntityStatusHandle
+{
+	inline bool operator == (EntityStatusHandle const& o) const
+	{
+		return Owner == o.Owner && Status == o.Status;
+	}
+
+	ComponentHandle Owner;
+	ComponentHandle Status;
+};
+
+END_NS()
+
+
+namespace std
+{
+	template<> struct hash<dse::esv::EntityStatusHandle>
+	{
+		typedef dse::esv::EntityStatusHandle argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& h) const noexcept
+		{
+			return std::hash<uint64_t>{}(h.Owner.Handle + h.Status.Handle);
+		}
+	};
+}
+
+
+BEGIN_NS(esv)
+
 class StatusHelpers
 {
 public:
@@ -23,13 +54,12 @@ private:
 	};
 
 	// Statuses that are being applied - i.e. we're inside StatusMachine::DoEnter()
-	std::unordered_map<ComponentHandle, StatusApplyData> pendingApply_;
+	std::unordered_map<EntityStatusHandle, StatusApplyData> pendingApply_;
 
 	bool OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped, StatusMachine* self, 
 		Status* status);
 	void OnStatusMachineUpdate(StatusMachine* self, GameTime* time);
-	void OnStatusMachineDelete(StatusMachine* self, ComponentHandle* handle);
-	bool OnStatusMachineDestroy(StatusMachine::DestroyStatusProc* wrapped, StatusMachine* self, 
+	bool OnStatusMachineDeleteStatusByHandle(StatusMachine::DeleteStatusByHandleProc* wrapped, StatusMachine* self,
 		ComponentHandle const& handle);
 	void OnStatusMachineExit(StatusMachine::ExitStatusProc* wrapped, StatusMachine* self, 
 		Status* status);

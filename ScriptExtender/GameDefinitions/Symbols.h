@@ -216,7 +216,6 @@ namespace dse
 		esv::StatusMachine::EnterStatusProc* esv__StatusMachine__EnterStatus{ nullptr };
 		esv::StatusMachine::UpdateProc* esv__StatusMachine__Update{ nullptr };
 		esv::StatusMachine::DeleteStatusByHandleProc* esv__StatusMachine__DeleteStatusByHandle{ nullptr };
-		esv::StatusMachine::DestroyStatusProc* esv__StatusMachine__DestroyStatus{ nullptr };
 		esv::StatusMachine::ExitStatusProc* esv__StatusMachine__ExitStatus{ nullptr };
 
 		ecl::StatusMachine::ExitStatusProc* ecl__StatusMachine__ExitStatus{ nullptr };
