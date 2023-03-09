@@ -927,11 +927,6 @@ struct CDivinityStats : public ProtectedGameObject<CDivinityStats>
 
 
 
-struct ExtraData : public ProtectedGameObject<ExtraData>
-{
-	Map<FixedString, float> Properties;
-};
-
 struct ConditionsManager
 {
 	Map<FixedString, Condition *> Conditions;
@@ -1340,7 +1335,7 @@ struct RPGStats : public ProtectedGameObject<RPGStats>
 	ConditionsManager ConditionsManager;
 	STDWString LoadingModName;
 	uint64_t Unkn1[5];
-	ExtraData * ExtraData;
+	Map<FixedString, float>* ExtraData;
 	RefMap<FixedString, void *> RefMap1;
 	RefMap<FixedString, ItemColorDefinition> Colors;
 	Map<FixedString, FixedString> TreasureCategoryMaps;

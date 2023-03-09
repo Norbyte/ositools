@@ -65,7 +65,7 @@ int StatsExtraDataProxy::Index(lua_State* L)
 	if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
 
 	auto key = luaL_checkstring(L, 2);
-	auto extraData = stats->ExtraData->Properties.find(FixedString(key));
+	auto extraData = stats->ExtraData->find(FixedString(key));
 	if (extraData) {
 		push(L, extraData.Value());
 	} else {
@@ -82,7 +82,7 @@ int StatsExtraDataProxy::NewIndex(lua_State* L)
 
 	auto key = luaL_checkstring(L, 2);
 	auto value = get<float>(L, 3);
-	auto extraData = stats->ExtraData->Properties.find(FixedString(key));
+	auto extraData = stats->ExtraData->find(FixedString(key));
 	if (extraData) {
 		extraData.Value() = value;
 	} else {

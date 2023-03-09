@@ -137,7 +137,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto extraData = stats->ExtraData->Properties.try_get_ptr(FixedString(key));
+			auto extraData = stats->ExtraData->try_get_ptr(FixedString(key));
 			if (extraData != nullptr) {
 				value.Set(*extraData);
 				return true;
@@ -157,7 +157,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto extraData = stats->ExtraData->Properties.Find(key);
+			auto extraData = stats->ExtraData->Find(key);
 			if (extraData != nullptr) {
 				value.Set(*extraData);
 				return true;
