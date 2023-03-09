@@ -2986,6 +2986,23 @@ BEGIN_ENUM(SurfaceTransformActionType, uint32_t)
 END_ENUM()
 
 
+BEGIN_BITMASK(VisionFlags, uint16_t)
+	EV(VisionBlock, 0x1)
+	EV(ProjectileBlock, 0x2)
+	EV(Cover, 0x4)
+	EV(NoShootThrough, 0x8)
+	EV(NoCoverAmount, 0x10)
+	EV(NoCharacterShootThrough, 0x20)
+	EV(CantSeeThroughSurface, 0x40)
+	EV(CantShootThroughSurface, 0x80)
+	EV(Roof, 0x100)
+	EV(Flag200, 0x200)
+	EV(OutsideGrid, 0x400)
+	EV(IsDoor, 0x800)
+	EV(NoWalkThrough, 0x1000)
+END_ENUM()
+
+
 BEGIN_BITMASK(ESurfaceFlag, uint64_t)
 	// AI grid painted flags
 	EV(MovementBlock, 0x1)

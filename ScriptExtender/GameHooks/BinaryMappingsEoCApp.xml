@@ -1145,6 +1145,34 @@
       <Target Type="Absolute" Offset="0" Symbol="eoc__AiGrid__SearchForCell" /> <!-- eoc::AiGrid::SearchForCell -->
     </Mapping>
 
+    <Mapping Name="eoc::VisionGrid::Raycast">
+      4c 8d 45 97 // lea     r8, [rbp+57h+var_C0]
+      be aa 09 00 00 // mov     esi, 9AAh
+      48 89 7c 24 28 // mov     [rsp+0F0h+var_C8], rdi
+      48 8d 55 67 // lea     rdx, [rbp+57h+arg_0]
+      66 89 74 24 20 // mov     word ptr [rsp+0F0h+var_D0], si
+      @ref1 e8 6d 7a 57 01 // call    eoc__VisionGrid__Raycast
+      66 39 38 // cmp     [rax], di
+      75 74 // jnz     short loc_1407980DC
+      48 8b 4b 48 // mov     rcx, [rbx+48h]
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__VisionGrid__Raycast" />
+    </Mapping>
+
+    <Mapping Name="eoc::VisionGrid::Check3DLine">
+      4c 8b c7 // mov     r8, rdi
+      4c 8d 4d 6f // lea     r9, [rbp+57h+arg_8]
+      48 89 44 24 20 // mov     [rsp+110h+var_F0], rax
+      48 8d 55 97 // lea     rdx, [rbp+57h+var_C0]
+      48 8d 4d 77 // lea     rcx, [rbp+57h+arg_10]
+      @ref1 e8 ?? ?? ?? ?? // call    eoc__VisionGrid__Check3DLine
+      66 83 38 00 // cmp     word ptr [rax], 0
+      0f 85 e0 00 00 00 // jnz     loc_141BBDD89
+      fe 4e 46 // dec     byte ptr [rsi+46h]
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_AOO; statusNameFS
+      <Condition Type="FixedString" Offset="@str1" Value="AOO" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__VisionGrid__Check3DLine" />
+    </Mapping>
+
     <Mapping Name="esv::ExecutePropertyDataOnGroundHit">
       49 8D 6B C8  // lea     rbp, [r11-38h]
       48 81 EC 18 01 00 00  // sub     rsp, 118h

@@ -185,4 +185,34 @@ void AiGrid::SetHeight(float x, float z, float height)
 	cell->Height = (int16_t)cellHeight;
 }
 
+VisionFlags VisionGrid::Raycast(glm::vec3 const& fromPos, glm::vec3 const& toPos, VisionFlags checkFlags, RaycastHit* pHit)
+{
+	auto raycast = GetStaticSymbols().eoc__VisionGrid__Raycast;
+	VisionFlags result{ 0 };
+	raycast(this, result, fromPos, toPos, checkFlags, pHit);
+	return result;
+}
+
+VisionFlags VisionGrid::Check3DLine(glm::vec3 const& fromPos, Ai* ai, VisionFlags checkFlags, glm::vec3 const* bboxBias)
+{
+	auto checkLine = GetStaticSymbols().eoc__VisionGrid__Check3DLine;
+	VisionFlags result{ 0 };
+#if defined(OSI_EOCAPP)
+	checkLine(result, fromPos, ai, checkFlags, bboxBias);
+#else
+	checkLine(this, result, fromPos, ai, checkFlags, bboxBias);
+#endif
+	return result;
+}
+
+VisionFlags VisionGrid::LuaRaycastToPosition(glm::vec3 fromPos, glm::vec3 toPos, VisionFlags checkFlags)
+{
+	return Raycast(fromPos, toPos, checkFlags, nullptr);
+}
+
+VisionFlags VisionGrid::LuaRaycastToObject(glm::vec3 fromPos, ProxyParam<Ai> ai, VisionFlags checkFlags, std::optional<glm::vec3> bboxBias)
+{
+	return Check3DLine(fromPos, ai, checkFlags, bboxBias ? &*bboxBias : nullptr);
+}
+
 END_NS()

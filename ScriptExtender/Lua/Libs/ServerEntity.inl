@@ -297,6 +297,17 @@ eoc::AiGrid* GetAiGrid()
 	return level->AiGrid;
 }
 
+eoc::VisionGrid* GetVisionGrid()
+{
+	auto level = GetStaticSymbols().GetCurrentServerLevel();
+	if (!level || !level->VisionGrid) {
+		OsiError("Current level not available yet!");
+		return 0;
+	}
+
+	return level->VisionGrid;
+}
+
 UserReturn GetCurrentLevelData(lua_State* L)
 {
 	auto level = GetStaticSymbols().GetCurrentServerLevel();
@@ -429,6 +440,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetCombat)
 	MODULE_FUNCTION(GetSurface)
 	MODULE_FUNCTION(GetAiGrid)
+	MODULE_FUNCTION(GetVisionGrid)
 	MODULE_FUNCTION(GetCurrentLevelData)
 	MODULE_FUNCTION(GetCurrentLevel)
 	MODULE_FUNCTION(GetAlignmentManager)

@@ -1,5 +1,6 @@
 BEGIN_CLS(eoc::Ai)
 P_REF(AiGrid)
+P_REF(VisionGrid)
 P_REF(GameObject)
 P_RO(AiBoundType)
 P_RO(AIBoundsHeight)

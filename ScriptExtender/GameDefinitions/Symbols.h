@@ -27,6 +27,7 @@
 #include <GameDefinitions/GameObjects/Camera.h>
 #include <GameDefinitions/GameObjects/Render.h>
 #include <GameDefinitions/GameObjects/Material.h>
+#include <GameDefinitions/GameObjects/Vision.h>
 
 namespace dse
 {
@@ -252,6 +253,8 @@ namespace dse
 
 		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
 		eoc::AiGrid::SearchForCellProc* eoc__AiGrid__SearchForCell{ nullptr };
+		eoc::VisionGrid::RaycastProc* eoc__VisionGrid__Raycast{ nullptr };
+		eoc::VisionGrid::Check3DLineProc* eoc__VisionGrid__Check3DLine{ nullptr };
 
 		UIObjectManager::RegisterUIObjectCreatorProc* UIObjectManager__RegisterUIObjectCreator{ nullptr };
 		UIObjectManager::CreateUIObjectProc* UIObjectManager__CreateUIObject{ nullptr };

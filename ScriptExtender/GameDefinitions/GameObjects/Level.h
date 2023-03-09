@@ -138,7 +138,7 @@ struct SightManager : public BaseComponentProcessingSystem<EntityWorld>
 	// TODO - this has a composite (2 handles + a flag) key!
 	Map<ComponentHandle, ComponentHandle> CharactersInSight;
 	ObjectSet<ComponentHandle> GenerateSightEventsFor;
-	void* VisionGrid;
+	eoc::VisionGrid* VisionGrid;
 	eoc::AiGrid* AiGrid;
 };
 
@@ -157,7 +157,7 @@ struct Level : public dse::Level
 #endif
 	EntityManager * EntityManager;
 	eoc::AiGrid * AiGrid;
-	void * VisionGrid;
+	eoc::VisionGrid* VisionGrid;
 	SightManager* SightManager;
 	CharacterManager* CharacterManager;
 	ItemManager* ItemManager;
@@ -195,7 +195,7 @@ struct Level : public dse::Level
 {
 	void* LevelAllocator;
 	eoc::AiGrid* AiGrid;
-	void* VisionGrid;
+	eoc::VisionGrid* VisionGrid;
 	void* MaterialGrid;
 	void* CharacterManager;
 	void* GameMasterManager;

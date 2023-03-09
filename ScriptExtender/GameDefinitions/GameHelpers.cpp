@@ -1055,12 +1055,12 @@ void ShroudManager::RebuildHeightMapTexture()
 		auto currentPixel = (HeightMapTextureCell*)currentRow;
 		for (int32_t x = 0; x < grid->DataGrid.Width; x++) {
 			auto tile = grid->Tiles->Get(glm::i32vec2(x, y));
-			currentPixel->Height = encode_flt16((tile->Height * 0.25f) + grid->DataGrid.OffsetY);
+			currentPixel->Height = (tile->Height * 0.25f) + grid->DataGrid.OffsetY;
 			if (tile->AiFlags & 1) {
-				currentPixel->Walkable = encode_flt16(1.0f);
+				currentPixel->Walkable = 1.0f;
 			}
 			else {
-				currentPixel->Walkable = encode_flt16(1.0f);
+				currentPixel->Walkable = 1.0f;
 			}
 			currentPixel++;
 		}

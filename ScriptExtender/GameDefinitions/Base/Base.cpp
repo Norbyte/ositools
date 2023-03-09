@@ -1,9 +1,25 @@
 #include <stdafx.h>
 #include <GameDefinitions/Symbols.h>
+#include <GameDefinitions/Base/HalfHelpers.h>
 #include <Lua/Shared/LuaHelpers.h>
 #include <combaseapi.h>
 
 BEGIN_SE()
+
+float16::float16(float val)
+	: val_(encode_flt16(val))
+{}
+
+float16& float16::operator = (float val)
+{
+	val_ = encode_flt16(val);
+	return *this;
+}
+
+float16::operator float() const
+{
+	return decode_flt16(val_);
+}
 
 #if defined(TRACK_ALLOCATIONS)
 void MemoryAllocationTracker::Alloc(void* ptr, size_t sz, char const* tag)

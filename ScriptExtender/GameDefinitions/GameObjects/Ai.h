@@ -83,7 +83,7 @@ namespace dse::eoc
         int field_B4;
         bool field_B8;
         bool field_B9;
-        void* VisionGrid;
+        eoc::VisionGrid* VisionGrid;
         int NetID;
         ObjectSet<void*> Checkpoints; // AiPathCheckpoint*
         ObjectSet<void*> Checkpoints2; // AiPathCheckpoint*
@@ -95,7 +95,7 @@ namespace dse::eoc
     struct Ai : public ProtectedGameObject<Ai>
     {
         AiGrid* AiGrid;
-        void* VisionGrid;
+        eoc::VisionGrid* VisionGrid;
         IGameObject* GameObject;
         int AiBoundType;
         float AIBoundsHeight;
@@ -375,8 +375,8 @@ namespace dse::ecl
     {
         struct HeightMapTextureCell
         {
-            uint16_t Height;
-            uint16_t Walkable;
+            float16 Height;
+            float16 Walkable;
         };
 
         void* VMT;
@@ -384,7 +384,7 @@ namespace dse::ecl
         ObjectSet<glm::vec2> OS_Vector2f;
         Level* Level;
         eoc::AiGrid* AiGrid;
-        void* VisionGrid;
+        eoc::VisionGrid* VisionGrid;
         PhysicsScene* PhysicsScene;
         eoc::ShroudData* ShroudData;
         ComponentHandle TextureHandles[4];

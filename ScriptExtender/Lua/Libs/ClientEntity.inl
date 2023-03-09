@@ -191,6 +191,17 @@ eoc::AiGrid* GetAiGrid()
 	return level->AiGrid;
 }
 
+eoc::VisionGrid* GetVisionGrid()
+{
+	auto level = GetStaticSymbols().GetCurrentClientLevel();
+	if (!level || !level->VisionGrid) {
+		OsiError("Current level not available yet!");
+		return 0;
+	}
+
+	return level->VisionGrid;
+}
+
 Level* GetCurrentLevel()
 {
 	return GetStaticSymbols().GetCurrentClientLevel();
@@ -227,6 +238,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetGameObject)
 	MODULE_FUNCTION(GetProjectile)
 	MODULE_FUNCTION(GetAiGrid)
+	MODULE_FUNCTION(GetVisionGrid)
 	MODULE_FUNCTION(GetCurrentLevel)
 	MODULE_FUNCTION(GetPlayerManager)
 	MODULE_FUNCTION(GetTurnManager)

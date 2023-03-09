@@ -12,6 +12,43 @@
 
 BEGIN_SE()
 
+// Helper alias for half
+struct float16
+{
+public:
+	explicit inline float16(uint16_t val)
+		: val_(val)
+	{}
+	
+	inline float16(float16 const& val)
+		: val_(val.val_)
+	{}
+
+	float16(float val);
+
+	inline float16& operator = (float16 const& val)
+	{
+		val_ = val.val_;
+	}
+
+	float16& operator = (float val);
+
+	inline bool operator == (float16 const& val) const
+	{
+		return val_ == val.val_;
+	}
+
+	inline bool operator != (float16 const& val) const
+	{
+		return val_ == val.val_;
+	}
+
+	operator float() const;
+
+private:
+	uint16_t val_;
+};
+
 struct NetId
 {
 	static constexpr uint32_t Unassigned = 0xffffffff;

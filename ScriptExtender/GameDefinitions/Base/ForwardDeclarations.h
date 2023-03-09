@@ -95,6 +95,9 @@ namespace eoc
 	struct CustomStatsComponent;
 	struct Ai;
 	struct AiGrid;
+	struct VisionGrid;
+	struct VisionGridVisual;
+	struct Visibility;
 	struct NetworkFixedStrings;
 	struct Text;
 }

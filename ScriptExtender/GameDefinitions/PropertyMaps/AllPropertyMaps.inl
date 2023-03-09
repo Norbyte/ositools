@@ -198,6 +198,11 @@ pm.AddProperty("Height",
 END_CLS()
 
 
+BEGIN_CLS(eoc::VisionGrid)
+P_FUN(RaycastToPosition, LuaRaycastToPosition)
+P_FUN(RaycastToObject, LuaRaycastToObject)
+END_CLS()
+
 BEGIN_CLS(Transform)
 P(Matrix)
 P(Rotate)
