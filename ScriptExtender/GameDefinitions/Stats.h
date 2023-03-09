@@ -1322,6 +1322,7 @@ struct RPGStats : public ProtectedGameObject<RPGStats>
 	typedef void (LoadProc)(RPGStats* self, ObjectSet<STDString>* paths);
 	typedef PropertyData* (ParsePropertiesProc)(RPGStats* self, STDString* str);
 	typedef void (ParseStructureFolderProc)(RPGStats* self, ObjectSet<STDString>* paths);
+	typedef Item* (GetItemLeveledBaseStatProc)(RPGStats* self, int level, FixedString const& statsId);
 
 	NamedElementManager<ValueList> ModifierValueLists;
 	NamedElementManager<ModifierList> ModifierLists;
@@ -1336,13 +1337,13 @@ struct RPGStats : public ProtectedGameObject<RPGStats>
 	STDWString LoadingModName;
 	uint64_t Unkn1[5];
 	Map<FixedString, float>* ExtraData;
-	RefMap<FixedString, void *> RefMap1;
+	RefMap<FixedString, ObjectSet<Requirement>> Requirements;
 	RefMap<FixedString, ItemColorDefinition> Colors;
 	Map<FixedString, FixedString> TreasureCategoryMaps;
 	Map<FixedString, int> TreasureWeaponCounters;
 	Map<FixedString, int> TreasureArmorCounters;
 	Map<FixedString, int> TreasureSkillbookCounters;
-	RefMap<FixedString, void *> FSMap2;
+	RefMap<FixedString, int32_t> IiemBaseStats;
 	FixedString TreasureItemTypes[7];
 	ObjectSet<FixedString, GameMemoryAllocator, true> FixedStrings;
 	ObjectSet<uint64_t*> Flags;

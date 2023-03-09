@@ -508,6 +508,20 @@
       <Target Type="Indirect" Offset="@func" NextSymbol="RPGStats::ParseStructureFolder" NextSymbolSeekSize="0x100" />
     </Mapping>
 
+    <Mapping Name="RPGStats::GetItemLeveledBaseStat">
+      4c 8b c2 // mov     r8, rdx
+      8b d7 // mov     edx, edi
+      @ref1 e8 ?? ?? ?? ?? // call    RPGStats__GetItemLeveledBaseStat
+      48 85 c0 // test    rax, rax
+      0f 84 8b 00 00 00 // jz      loc_141D29511
+      49 8b 0e // mov     rcx, [r14]
+      @str1 48 3b 0d ?? ?? ?? ?? // cmp     rcx, cs:fs_Damage.Str
+      75 16 // jnz     short loc_141D294A8
+      f3 0f 10 5c 24 60 // movss   xmm3, [rsp+38h+arg_20]
+      <Condition Type="FixedString" Offset="@str1" Value="Damage" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="RPGStats__GetItemLeveledBaseStat" />
+    </Mapping>
+
     <Mapping Name="eoc::StatusPrototypeManager::Init">
       @str 4C 8D 05 ?? ?? ?? ??  // lea     r8, aStatuses   ; "Statuses"
       BA 01 00 00 00  // mov     edx, 1

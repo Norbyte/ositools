@@ -472,6 +472,22 @@
       <Target Type="Indirect" Offset="@func" NextSymbol="RPGStats::ParseStructureFolder" NextSymbolSeekSize="0x100" />
     </Mapping>
 
+    <Mapping Name="RPGStats::GetItemLeveledBaseStat">
+      8b d7 // mov     edx, edi
+      48 8b cd // mov     rcx, rbp
+      @ref1 e8 ?? ?? ?? ?? // call    RPGStats__GetItemLeveledBaseStat
+      48 85 c0 // test    rax, rax
+      74 1e // jz      short loc_18110F460
+      48 8b c8 // mov     rcx, rax
+      e8 ?? ?? ?? ?? // call    CDivinityStats_Item__GetGoldValue
+      eb 16 // jmp     short loc_18110F462
+      44 8b c7 // mov     r8d, edi; Level
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_Value; modifierName
+      48 8b cb // mov     rcx, rbx; this
+      <Condition Type="FixedString" Offset="@str1" Value="Value" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="RPGStats__GetItemLeveledBaseStat" />
+    </Mapping>
+
     <Mapping Name="eoc::StatusPrototypeManager::Init">
       4C 8D 05 ?? ?? ?? ??  // lea     r8, str_Skills  ; "Skills"
       BA 01 00 00 00  // mov     edx, 1

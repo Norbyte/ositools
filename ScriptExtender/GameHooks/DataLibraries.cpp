@@ -141,6 +141,7 @@ namespace dse
 		SYM_OFF(RPGStats__ParseStructureFolder);
 		SYM_OFF(RPGStats__ParseDataFolder);
 		SYM_OFF(RPGStats__ParseProperties);
+		SYM_OFF(RPGStats__GetItemLeveledBaseStat);
 		SYM_OFF(eoc__SkillPrototypeManager);
 		SYM_OFF(eoc__StatusPrototypeManager);
 

@@ -181,6 +181,7 @@ namespace dse
 		stats::RPGStats::ParseStructureFolderProc* RPGStats__ParseStructureFolder{ nullptr };
 		stats::RPGStats::ParseStructureFolderProc* RPGStats__ParseDataFolder{ nullptr };
 		stats::RPGStats::ParsePropertiesProc* RPGStats__ParseProperties{ nullptr };
+		stats::RPGStats::GetItemLeveledBaseStatProc* RPGStats__GetItemLeveledBaseStat{ nullptr };
 		stats::SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		stats::StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
 

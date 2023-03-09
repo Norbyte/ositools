@@ -430,6 +430,18 @@ ObjectSet<FixedString> GetStatsLoadedBefore(FixedString const& modUuid, std::opt
 	return FetchStatEntriesBefore(stats, modUuid, statType);
 }
 
+/// <summary>
+/// Returns a stats item containing computed stats for the specified stats ID and level.
+/// (The item has no modifier or boosts applied)
+/// </summary>
+stats::Item* GetItemBaseStats(FixedString const& statsId, int level)
+{
+	auto stats = GetStaticSymbols().GetStats();
+	auto getter = GetStaticSymbols().RPGStats__GetItemLeveledBaseStat;
+
+	return getter(stats, level, statsId);
+}
+
 ByValReturn<SkillSet> GetSkillSet(char const* skillSetName)
 {
 	auto stats = GetStaticSymbols().GetStats();
@@ -1367,6 +1379,7 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(GetStatsManager)
 	MODULE_FUNCTION(GetStats)
 	MODULE_FUNCTION(GetStatsLoadedBefore)
+	MODULE_FUNCTION(GetItemBaseStats)
 	MODULE_FUNCTION(Get)
 	MODULE_FUNCTION(Create)
 	// TODO - move to stats object method
