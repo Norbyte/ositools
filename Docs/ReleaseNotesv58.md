@@ -284,6 +284,253 @@ t1.Name = "t1"
 _D(_C().UserVars.NRD_Whatever.Name) -- prints "t1"
 ```
 
+## Custom character activities
+
+Support for custom CharacterTasks has been added. A CharacterTask defines and controls interactions that the client character can do within the world, such as moving, picking up items, casting skills, etc. CharacterTasks also manage their associated visuals and cursor icons.
+
+CharacterTasks are not global; a new instance of them is attached to each controllable character that can perform them. Characters do not necessarily need to have all possible character tasks attached to them.
+
+Each task defines a conditional priority for itself; the task with the highest priority is the one the client character sees or uses. For example, hovering over an interactable item causes the item use (higher priority) task to take priority over others like "move to" (default task, lowest priority).
+
+Tasks themselves can be in 3 states:
+- Inactive (default)
+- Previewing: the task's priority won over all others in the game tick and its effects are being "previewed" - in this state the task is allowed to change the cursor, show temporary effects in the world, etc.
+- Active/executing: the task is being carried out. Once finished, the task will be deleted and the preview task selection process starts again.
+
+Custom CharacterTasks can be registered by calling:
+
+```lua
+Ext.Behavior.RegisterCharacterTask("Prefix_MyTask", MyTaskCreator)
+```
+where `MyTaskCreator` is a constructor function that returns an instance of your custom pseudo-class table.
+Since `Prefix_MyTask` is a global name, it is recommended to prefix it with the acronym of the mod (similarly to stats, Osiris databases, etc.)
+
+The tables that act as CharacterTask classes should implement the following interface methods:
+
+### Attached
+```lua
+function MyTask:Attached()
+```
+
+Called when the task is attached to a character, or when the task enters the active state (which technically creates a new instance of it within the engine). This will be called again for a character after a lua reset. Use for initialization.
+
+### Start
+```lua
+function MyTask:Start()
+```
+
+Called when the task is first instanced, or when the interact key is pressed (ex. left-click when using keyboard+mouse).
+
+### Stop
+```lua
+function MyTask:Stop()
+```
+
+Called when the task is being removed by the engine, or when a cancel key is pressed (ex. right-click when using keyboard+mouse).
+
+### CanEnter
+```lua
+---@return boolean
+function MyTask:CanEnter()
+```
+
+Returns whether the client can begin previewing the task.
+
+If a task wins the priority contest and can be entered, `ExitPreview()` will be called for the previous previewed task, and `EnterPreview()` will be called on the newest prioritized task. 
+
+This method is optional to implement; the default implementation is to return `false`.
+
+### GetPriority
+```lua
+---@param previousPriority int32
+---@return int32
+function MyTask:GetPriority(previousPriority)
+```
+
+Returns the priority of previewing the task. This is called every tick for the engine for all tasks; the task with the highest priority that also passes its `CanEnter()` check is the one the client will see being previewed.
+
+This method is optional to implement; the default implementation is to return `0`.
+
+### GetExecutePriority
+```lua
+---@param previousPriority int32
+---@return int32
+function MyTask:GetExecutePriority(previousPriority)
+```
+
+Returns the priority of the task for being executed (becoming active). This is called every tick for the engine for all attached tasks of the active character; the task with the highest priority is the one the client will be able to execute.
+
+Character tasks can be queued. In the case that there are multiple tasks that want to execute, they will do so in the order of `GetExecutePriority()`, executing after the previous task exits via `ShouldExit()`.
+
+This method is optional to implement; the default implementation is to return `0`.
+
+### GetActionCost
+```lua
+---@return int32
+function MyTask:GetActionCost()
+```
+
+Purpose unknown.
+
+This method is optional to implement; the default implementation is to return `0`.
+
+### GetTotalAPActionCost
+```lua
+---@return int32
+function MyTask:GetTotalAPActionCost()
+```
+
+Purpose unknown.
+
+This method is optional to implement; the default implementation is to return `0`.
+
+### GetAPWarning
+```lua
+---@return int64
+function MyTask:GetAPWarning()
+```
+
+Purpose unknown.
+
+This method is optional to implement; the default implementation is to return `0`.
+
+### GetError
+```lua
+---@return int64
+function MyTask:GetError()
+```
+
+Called if `Enter()` fails. Will show a message on the controller UI.
+
+This method is optional to implement; the default implementation is to return `0`.
+
+### SetCursor
+```lua
+function MyTask:SetCursor()
+```
+
+Called every tick while the task is being previewed, if the cursor is not over a UI.
+
+### HandleInputEvent
+```lua
+---@param event InputEvent
+---@param task EclCharacterTask
+function MyTask:HandleInputEvent(event, task)
+```
+
+Handles an input event. Fired regardless of the task's state, but only for certain input events, like interaction buttons (mouse clicks). You should set `RequestRun` on `task` if you wish for the task to become active next tick, or be queued (if there is already an active task).
+
+### EnterPreview
+```lua
+function MyTask:EnterPreview()
+```
+
+Called when `CanEnter()` succeeds on the task, if it was previously inactive.
+
+### UpdatePreview
+```lua
+function MyTask:UpdatePreview()
+```
+
+Called every tick if the task is in the preview state.
+
+### ExitPreview
+```lua
+function MyTask:ExitPreview()
+```
+
+Called when an task exits the preview state due to another one having greater priority. Use to remove any visuals related to the preview.
+
+### GetSightRange
+```lua
+---@return float
+function MyTask:GetSightRange()
+```
+
+Purpose unknown.
+
+This method is optional to implement; the default implementation is to return `0.0`.
+
+### ClearAIColliding
+```lua
+function MyTask:ClearAIColliding()
+```
+
+Purpose unknown.
+
+### ValidateTargetRange
+```lua
+---@return int32
+function MyTask:ValidateTargetRange()
+```
+
+Purpose unknown.
+
+This method is optional to implement; the default implementation is to return `0`.
+
+### Enter
+```lua
+---@return boolean
+function MyTask:Enter()
+```
+
+Called when a task enters the active state. If `false` is returned, `GetError()` will be called and the task will abort.
+
+This method is optional to implement; the default implementation is to return `false`.
+
+### Update
+```lua
+---@return boolean
+function MyTask:Update()
+```
+
+Called every tick while the task is in the active state. If `false` is returned, `Exit()` will be called and the task will become inactive.
+
+This method is optional to implement; the default implementation is to return `true`.
+
+### Exit
+```lua
+function MyTask:Exit()
+```
+
+Called when `Update()` returns `false`, marking the end of the active state.
+
+### CanExit
+```lua
+---@return boolean
+function MyTask:CanExit()
+```
+
+Called every tick while the task is active; purpose unknown, but it's recommended to keep its return value consistent with `Update()`.
+
+This method is optional to implement; the default implementation is to return `true`.
+
+### CanExit2
+```lua
+---@return boolean
+function MyTask:CanExit2()
+```
+
+Purpose unknown.
+
+This method is optional to implement; the default implementation is to return `true`.
+
+### GetDescription
+```lua
+---@return string
+function MyTask:GetDescription()
+```
+
+Purpose unknown.
+
+### GetAPDescription
+```lua
+---@return string
+function MyTask:GetAPDescription()
+```
+
+Purpose unknown.
+
 ## v58 crash status
 
 Some information on game crashes and what's planned ahead of the v58 release.
@@ -346,3 +593,16 @@ This could have caused crashes when damage lists were modified in some circumsta
  - Fix potential crash when statuses are applied during game unload - ThrowEvent() during UnloadSession
  - Fix weapon type check oversight in `Game.Math` hit calculation code - this could have caused incorrect hit chance calculations
  - Fix crash when `AiGrid::GetCellInfo` is called while the map is not fully loaded
+ - Fix crash when reading certain client projectile properties
+ - Fix Ext.Audio calls not working when called on characters/items
+
+## Minor changes
+
+ - Added `Ext.Entity.GetCombatComponent(handle)` to get the combat component of an entity
+ - Add `Ext.Entity.GetProjectile(handle)` to fetch projectiles via their handle
+ - Expand visual deactivate masks (EquipmentSlotMask and VisualSetSlotMask in EquipmentVisualsComponent)
+ - Expanded list of writeable UIObject properties
+ - Add support for rebuilding shroud manager heightmap via the `ShroudManager:RebuildHeightMapTexture()` method; this is used to ensure the client draws decals and surfaces at the correct height after changing AI grid heights
+ - Re-added a restricted version of Lua `load()` and `loadstring()` -- these were previously removed for security reasons
+ - Allow disabling updates via the `DisableUpdates` key in `ScriptExtenderUpdaterConfig.json`
+ - Add Lua backtrace to crash reporter window
