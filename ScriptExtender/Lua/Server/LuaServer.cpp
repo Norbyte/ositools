@@ -558,6 +558,10 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	ItemConstructor::ItemConstructor()
+		: lifetime_(ExtensionState::Get().GetLua()->GetLifetimePool())
+	{}
+
 	int ItemConstructor::Index(lua_State* L)
 	{
 		StackCheck _(L, 1);
@@ -577,7 +581,7 @@ namespace dse::esv::lua
 				return luaL_error(L, "Clone set only has %d elements", definition_.size());
 			}
 
-			MakeObjectRef(L, &definition_[idx - 1]);
+			MakeObjectRef(L, lifetime_.GetLifetime(), &definition_[idx - 1]);
 			return 1;
 		}
 	}

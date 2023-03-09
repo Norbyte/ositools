@@ -48,8 +48,7 @@ class ItemConstructor : public Userdata<ItemConstructor>, public Indexable
 public:
 	static char const* const MetatableName;
 
-	inline ItemConstructor()
-	{}
+	ItemConstructor();
 
 	inline ObjectSet<eoc::ItemDefinition>& Get()
 	{
@@ -60,6 +59,7 @@ public:
 
 private:
 	ObjectSet<eoc::ItemDefinition> definition_;
+	LifetimeOwnerPin lifetime_;
 };
 
 
