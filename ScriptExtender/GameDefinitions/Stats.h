@@ -803,6 +803,11 @@ struct Character : public ObjectInstance
 	using GetDamageBoostProc = int32_t(Character* self);
 	using GetWeaponAbilityProc = AbilityType (Character * self, Item * weapon);
 	using GetItemRequirementAttributeProc = int32_t (Character * self, Item * weapon, uint32_t& requirementId, bool excludeBoosts);
+#if defined(OSI_EOCAPP)
+	using ReevaluateRequirementsProc = bool(Character* self, ItemSlot32 slot, Requirement* pRequirement);
+#else
+	using ReevaluateRequirementsProc = bool(Character* self, ItemSlot32 slot, bool checkRequirements, Requirement* pRequirement);
+#endif
 
 #if defined(OSI_EOCAPP)
 	using GetResistanceProc = int32_t (Character * self, DamageType damageType, bool baseValues);
@@ -1389,6 +1394,11 @@ struct RPGStats : public ProtectedGameObject<RPGStats>
 
 	float GetExtraData(FixedString const& key, float defaultVal = 0.0f) const;
 };
+
+using CheckRequirementProc = bool (Character* self, bool isInCombat, bool isImmobile, bool hasCharges,
+	ObjectSet<FixedString> const* tags, Requirement const& requirement, bool excludeBoosts);
+using RequirementToTranslatedStringProc = TranslatedString* (TranslatedString* text, RequirementType requirementId, bool negate);
+using StringToRequirementProc = RequirementType (char const* requirement);
 
 typedef IScriptCheckObject* (*ScriptCheckBlock__Build)(STDString const& str, ObjectSet<STDString> const& variables, int offset, int length);
 

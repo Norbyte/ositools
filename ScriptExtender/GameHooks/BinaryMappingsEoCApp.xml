@@ -1227,6 +1227,177 @@
       <Target Type="Absolute" Offset="-0x18" Symbol="esv__ExecuteCharacterSetExtraProperties" /> <!-- esv::ExecuteCharacterExtraProperties -->
     </Mapping>
 
+    <Mapping Name="CheckRequirement1">
+      c6 44 24 30 00 // mov     [rsp+0A8h+excludeBoosts], 0; excludeBoosts
+      48 8d 44 24 40 // lea     rax, [rsp+0A8h+var_68]
+      48 89 5c 24 28 // mov     [rsp+0A8h+requirement], rbx; requirement
+      45 33 c9 // xor     r9d, r9d; hasCharges
+      45 33 c0 // xor     r8d, r8d; isImmobile
+      48 89 44 24 20 // mov     [rsp+0A8h+tags], rax; tags
+      33 d2 // xor     edx, edx; isInCombat
+      @ref1 e8 ?? ?? ?? ?? // call    CheckRequirement1
+      84 c0 // test    al, al
+      75 0e // jnz     short loc_1413EA73F
+      41 f6 86 e1 02 00 00 18 // test    byte ptr [r14+2E1h], 18h
+      75 04 // jnz     short loc_1413EA73F
+      0f ba ee 12 // bts     esi, 12h
+      <Target Type="Indirect" Offset="@ref1" Symbol="CheckRequirement1" />
+    </Mapping>
+
+    <Mapping Name="CheckRequirement2">
+      45 33 c9 // xor     r9d, r9d; hasCharges
+      c6 44 24 30 01 // mov     byte ptr [rsp+30h], 1; excludeBoosts
+      49 03 fd // add     rdi, r13
+      48 89 7c 24 28 // mov     [rsp+510h+requirement], rdi; requirement
+      45 33 c0 // xor     r8d, r8d; isImmobile
+      33 d2 // xor     edx, edx; isInCombat
+      4c 89 7c 24 20 // mov     [rsp+510h+tags], r15; tags
+      48 8b cb // mov     rcx, rbx; this
+      @ref1 e8 ?? ?? ?? ?? // call    CheckRequirement2
+      8b 17 // mov     edx, [rdi]
+      44 0f b6 f8 // movzx   r15d, al
+      8d 8a 6b ff ff ff // lea     ecx, [rdx-95h]
+      83 f9 16 // cmp     ecx, 16h
+      0f 87 a2 00 00 00 // ja      loc_141C96EB2
+      b8 01 00 48 00 // mov     eax, 480001h
+      0f a3 c8 // bt      eax, ecx
+      <Target Type="Indirect" Offset="@ref1" Symbol="CheckRequirement2" />
+    </Mapping>
+
+    <Mapping Name="ecl__Item__SetupDescriptionToFlash">
+      44 8b 8f 10 02 00 00 // mov     r9d, [rdi+210h]; displayContext
+      @str1 4c 8d 05 ?? ?? ?? ?? // lea     r8, aTooltipcompare; "tooltipCompare_array"
+      48 8b d0 // mov     rdx, rax; flash
+      49 8b cd // mov     rcx, r13; this
+      8b 87 24 02 00 00 // mov     eax, [rdi+224h]
+      89 44 24 30 // mov     [rsp+1E0h+a8], eax; a8
+      48 8d 87 e0 01 00 00 // lea     rax, [rdi+1E0h]
+      48 89 44 24 28 // mov     [rsp+1E0h+iconDrawStruct], rax; iconDrawStruct
+      4c 89 74 24 20 // mov     [rsp+1E0h+owner], r14; owner
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__Item__SetupDescriptionToFlash
+      <Condition Type="String" Offset="@str1" Value="tooltipCompare_array" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__Item__SetupDescriptionToFlash" />
+    </Mapping>
+
+    <Mapping Name="ecl__Character__CheckSkillRequirements">
+      49 8b d7 // mov     rdx, r15; skillId
+      48 8b ce // mov     rcx, rsi; a1
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__Character__CheckSkillRequirements
+      8b f8 // mov     edi, eax
+      41 23 fc // and     edi, r12d
+      40 f6 c7 10 // test    dil, 10h
+      74 6c // jz      short loc_141617AAB
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, aH80bd04faga566; "h80bd04faga566g4548g8ee1g2dc324aa3719"
+      <Condition Type="String" Offset="@str1" Value="h80bd04faga566g4548g8ee1g2dc324aa3719" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__Character__CheckSkillRequirements" />
+    </Mapping>
+
+    <Mapping Name="esv__Character__CheckSkillRequirements">
+      41 b1 01 // mov     r9b, 1; checkAP
+      c6 44 24 20 00 // mov     [rsp+38h+mustHaveSkill], 0; mustHaveSkill
+      45 33 c0 // xor     r8d, r8d; item
+      48 8d 93 c0 01 00 00 // lea     rdx, [rbx+1C0h]; skillId
+      48 8b c8 // mov     rcx, rax; this
+      @ref1 e8 ?? ?? ?? ?? // call    esv__Character__CheckSkillRequirements
+      85 c0 // test    eax, eax
+      74 0e // jz      short loc_141A6F424
+      a9 63 bd fe ff // test    eax, 0FFFEBD63h
+      74 07 // jz      short loc_141A6F424
+      80 8b 88 00 00 00 20 // or      byte ptr [rbx+88h], 20h
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__Character__CheckSkillRequirements" />
+    </Mapping>
+
+    <Mapping Name="CDivinityStats_Character__ReevaluateRequirements">
+      4c 8d 44 24 20 // lea     r8, [rsp+0A8h+pRequirement]; pRequirement
+      8b d5 // mov     edx, ebp; slot
+      48 8b cf // mov     rcx, rdi; this
+      @ref1 e8 ?? ?? ?? ?? // call    CDivinityStats_Character__ReevaluateRequirements
+      85 c0 // test    eax, eax
+      0f 84 0c 01 00 00 // jz      loc_141C9AA28
+      48 8b 8e 38 02 00 00 // mov     rcx, [rsi+238h]
+      45 8b c6 // mov     r8d, r14d
+      48 8b 86 30 02 00 00 // mov     rax, [rsi+230h]
+      4c 8b c9 // mov     r9, rcx
+      4c 2b c8 // sub     r9, rax
+      49 8b d6 // mov     rdx, r14
+      49 83 c1 07 // add     r9, 7
+      49 c1 e9 03 // shr     r9, 3
+      <Target Type="Indirect" Offset="@ref1" Symbol="CDivinityStats_Character__ReevaluateRequirements" />
+    </Mapping>
+
+    <Mapping Name="ecl__SkillManager__CheckSkillRequirements">
+      48 8b d0 // mov     rdx, rax; proto
+      49 8b cd // mov     rcx, r13; a1
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__SkillManager__CheckSkillRequirements
+      84 c0 // test    al, al
+      0f 85 39 01 00 00 // jnz     loc_141619A44
+      48 8b 05 ?? ?? ?? ?? // mov     rax, cs:ls__gResourceManager
+      @str1 4c 8d 05 ?? ?? ?? ?? // lea     r8, aUiGameActionun; "UI_Game_ActionUnavailable"
+      <Condition Type="String" Offset="@str1" Value="UI_Game_ActionUnavailable" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__SkillManager__CheckSkillRequirements" />
+    </Mapping>
+
+    <Mapping Name="GetSkillRequirements">
+      44 8b c8 // mov     r9d, eax; checkRequirementFlags
+      45 33 c0 // xor     r8d, r8d; item
+      48 8d 44 24 30 // lea     rax, [rsp+0E8h+var_B8]
+      48 8b d3 // mov     rdx, rbx; skillId
+      48 8b cf // mov     rcx, rdi; character
+      48 89 44 24 20 // mov     [rsp+0E8h+requirementsText], rax; requirementsText
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__GetSkillRequirements
+      f3 0f 10 15 ?? ?? ?? ?? // movss   xmm2, cs:dword_14225B700
+      48 8d 54 24 30 // lea     rdx, [rsp+0E8h+var_B8]
+      41 b1 01 // mov     r9b, 1
+      48 8b ce // mov     rcx, rsi
+      <Target Type="Indirect" Offset="@ref1" Symbol="GetSkillRequirements" />
+    </Mapping>
+
+    <Mapping Name="esv__SkillManager__CanMemorize">
+      f6 40 02 40 // test    byte ptr [rax+2], 40h
+      0f 84 d9 00 00 00 // jz      loc_141A31D38
+      48 8b cb // mov     rcx, rbx
+      e8 ?? ?? ?? ?? // call    sub_141A01260
+      48 8b d0 // mov     rdx, rax; skill
+      41 b0 01 // mov     r8b, 1; checkMemoryRequirement
+      49 8b cd // mov     rcx, r13; a1
+      @ref1 e8 ?? ?? ?? ?? // call    esv__SkillManager__CanMemorize
+      84 c0 // test    al, al
+      0f 84 bb 00 00 00 // jz      loc_141A31D38
+      40 80 f5 01 // xor     bpl, 1
+      41 b0 01 // mov     r8b, 1
+      44 0f b6 cd // movzx   r9d, bpl
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__SkillManager__CanMemorize" />
+    </Mapping>
+
+    <Mapping Name="RequirementToTranslatedString">
+      8d 8a 6b ff ff ff // lea     ecx, [rdx-95h]
+      83 f9 16 // cmp     ecx, 16h
+      0f 87 a2 00 00 00 // ja      loc_141C96EB2
+      b8 01 00 48 00 // mov     eax, 480001h
+      0f a3 c8 // bt      eax, ecx
+      0f 83 94 00 00 00 // jnb     loc_141C96EB2
+      44 0f b6 47 10 // movzx   r8d, byte ptr [rdi+10h]
+      48 8d 4d 30 // lea     rcx, [rbp+410h+var_3E0]
+      @ref1 e8 ?? ?? ?? ?? // call    RequirementToTranslatedString
+      41 b1 01 // mov     r9b, 1
+      <Target Type="Indirect" Offset="@ref1" Symbol="RequirementToTranslatedString" />
+    </Mapping>
+
+    <Mapping Name="StringToRequirement">
+      48 83 7d a0 10 // cmp     [rbp+20h+var_80], 10h
+      48 8d 4d 88 // lea     rcx, [rbp+20h+Str1]
+      48 0f 43 4d 88 // cmovnb  rcx, [rbp+20h+Str1]; Str1
+      @ref1 e8 ?? ?? ?? ?? // call    StringToRequirement
+      89 44 24 20 // mov     dword ptr [rsp+120h+var_100], eax
+      44 8b f8 // mov     r15d, eax
+      48 8d 4c 24 68 // lea     rcx, [rsp+68h]
+      3d ac 00 00 00 // cmp     eax, 0ACh ; '¬'
+      74 17 // jz      short loc_141C5BB6D
+      48 83 7d 80 10 // cmp     [rbp+20h+var_A0], 10h
+      48 0f 43 4c 24 68 // cmovnb  rcx, [rsp+68h]; String
+      <Target Type="Indirect" Offset="@ref1" Symbol="StringToRequirement" />
+    </Mapping>
+    
     <Mapping Name="ls::UIHelper::CustomDrawObject">
       5F  // pop     rdi
       @func E9 ?? ?? ?? ??  // jmp     ls__UIHelper__CustomDrawObject

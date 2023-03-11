@@ -274,6 +274,9 @@ namespace dse
 			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Item;
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientItem;
 
+			using SetupDescriptionToFlashProc = void (Item* self, ig::FlashObject* flash, char const* path, 
+				uint32_t displayContext, Character* owner, void* iconDrawStruct, int amount);
+
 			glm::vec3 WorldPos;
 			uint32_t _Pad2;
 			ItemFlags Flags;

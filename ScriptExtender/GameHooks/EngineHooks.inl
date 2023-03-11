@@ -32,6 +32,11 @@ HOOK_DEFN(eoc__DamageTypeToTranslateStringExtended, eoc__DamageTypeToTranslateSt
 HOOK_DEFN(fmt__GetColorCodeDmg, fmt__GetColorCodeDmg, stats::GetColorCodeDmgProc, WrappableFunction)
 HOOK_DEFN(fmt__ColorCodeAndTypeDmg, fmt__ColorCodeAndTypeDmg, stats::ColorCodeAndTypeDmgProc, WrappableFunction)
 
+HOOK_DEFN(CheckRequirement1, CheckRequirement1, stats::CheckRequirementProc, WrappableFunction)
+HOOK_DEFN(CheckRequirement2, CheckRequirement2, stats::CheckRequirementProc, WrappableFunction)
+HOOK_DEFN(RequirementToTranslatedString, RequirementToTranslatedString, stats::RequirementToTranslatedStringProc, WrappableFunction)
+HOOK_DEFN(StringToRequirement, StringToRequirement, stats::StringToRequirementProc, WrappableFunction)
+
 HOOK_DEFN(SkillPrototype__FormatDescriptionParam, SkillPrototype__FormatDescriptionParam, stats::SkillPrototype::FormatDescriptionParamProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetSkillDamage, SkillPrototype__GetSkillDamage, stats::SkillPrototype::GetSkillDamageProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetAttackAPCost, SkillPrototype__GetAttackAPCost, stats::SkillPrototype::GetAttackAPCostProc, WrappableFunction)
@@ -39,6 +44,10 @@ HOOK_DEFN(StatusPrototype__FormatDescriptionParam, StatusPrototype__FormatDescri
 HOOK_DEFN(esv__ExecutePropertyDataOnGroundHit, esv__ExecutePropertyDataOnGroundHit, esv::ExecutePropertyDataOnGroundHitProc, PostHookableFunction)
 HOOK_DEFN(esv__ExecutePropertyDataOnPositionOnly, esv__ExecutePropertyDataOnPositionOnly, esv::ExecutePropertyDataOnPositionOnlyProc, PostHookableFunction)
 HOOK_DEFN(esv__ExecuteCharacterSetExtraProperties, esv__ExecuteCharacterSetExtraProperties, esv::ExecuteCharacterSetExtraPropertiesProc, PostHookableFunction)
+
+HOOK_DEFN(esv__SkillManager__CanMemorize, esv__SkillManager__CanMemorize, esv::SkillManager::CanMemorizeProc, WrappableFunction)
+HOOK_DEFN(ecl__SkillManager__CheckSkillRequirements, ecl__SkillManager__CheckSkillRequirements, ecl::SkillManager::CheckSkillRequirementsProc, WrappableFunction)
+HOOK_DEFN(ecl__Item__SetupDescriptionToFlash, ecl__Item__SetupDescriptionToFlash, ecl::Item::SetupDescriptionToFlashProc, WrappableFunction)
 
 HOOK_DEFN(esv__AiHelpers__PeekAction, esv__AiHelpers__PeekAction, esv::AiHelpers::PeekActionProc, PreHookableFunction)
 HOOK_DEFN(esv__AiHelpers__SortActions, esv__AiHelpers__SortActions, esv::AiHelpers::SortActionsProc, WrappableFunction)
@@ -49,12 +58,18 @@ HOOK_DEFN(UIObjectManager__CreateUIObject, UIObjectManager__CreateUIObject, UIOb
 
 HOOK_DEFN(esv__Character_Hit, esv__Character__Hit, esv::Character::HitProc, WrappableFunction)
 HOOK_DEFN(esv__Character_ApplyDamageHook, esv__Character__ApplyDamage, esv::Character::ApplyDamageProc, WrappableFunction)
+HOOK_DEFN(esv__Character__CheckSkillRequirements, esv__Character__CheckSkillRequirements, esv::Character::CheckSkillRequirementsProc, WrappableFunction)
+
+HOOK_DEFN(ecl__Character__CheckSkillRequirements, ecl__Character__CheckSkillRequirements, ecl::Character::CheckSkillRequirementsProc, WrappableFunction)
+HOOK_DEFN(GetSkillRequirements, GetSkillRequirements, ecl::Character::GetSkillRequirementsProc, WrappableFunction)
+
 HOOK_DEFN(CDivinityStats_Character__HitInternal, CDivinityStats_Character__HitInternal, stats::Character::HitInternalProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__GetAttackAPCost, CDivinityStats_Character__GetAttackAPCost, stats::Character::GetAttackAPCostProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__GetResistance, CDivinityStats_Character__GetResistance, stats::Character::GetResistanceProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__GetDamageBoostByType, CDivinityStats_Character__GetDamageBoostByType, stats::Character::GetDamageBoostByTypeProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Character__ComputeScaledDamage, CDivinityStats_Character__ComputeScaledDamage, stats::Character::ComputeScaledDamageProc, WrappableFunction)
 HOOK_DEFN(CDivinityStats_Item__ComputeDamage, CDivinityStats_Item__ComputeDamage, stats::Item::ComputeDamageProc, WrappableFunction)
+HOOK_DEFN(CDivinityStats_Character__ReevaluateRequirements, CDivinityStats_Character__ReevaluateRequirements, stats::Character::ReevaluateRequirementsProc, WrappableFunction)
 
 HOOK_DEFN(esv__ItemHelpers__GenerateTreasureItem, esv__ItemHelpers__GenerateTreasureItem, esv::ItemHelpers__GenerateTreasureItem, WrappableFunction)
 HOOK_DEFN(esv__CombineManager__ExecuteCombination, esv__CombineManager__ExecuteCombination, esv::CombineManager::ExecuteCombinationProc, WrappableFunction)

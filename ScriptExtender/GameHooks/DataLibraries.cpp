@@ -154,9 +154,19 @@ namespace dse
 		SYM_OFF(fmt__GetColorCodeDmg);
 		SYM_OFF(fmt__ColorCodeAndTypeDmg);
 
+		SYM_OFF(CheckRequirement1);
+		SYM_OFF(CheckRequirement2);
+		SYM_OFF(RequirementToTranslatedString);
+		SYM_OFF(StringToRequirement);
+
 		SYM_OFF(esv__ExecutePropertyDataOnGroundHit);
 		SYM_OFF(esv__ExecutePropertyDataOnPositionOnly);
 		SYM_OFF(esv__ExecuteCharacterSetExtraProperties);
+
+		SYM_OFF(esv__SkillManager__CanMemorize);
+		SYM_OFF(ecl__SkillManager__CheckSkillRequirements);
+
+		SYM_OFF(ecl__Item__SetupDescriptionToFlash);
 
 		SYM_OFF(esv__AiHelpers__PeekAction);
 		SYM_OFF(esv__AiHelpers__SortActions);
@@ -165,6 +175,11 @@ namespace dse
 
 		SYM_OFF(esv__Character__Hit);
 		SYM_OFF(esv__Character__ApplyDamage);
+		SYM_OFF(esv__Character__CheckSkillRequirements);
+
+		SYM_OFF(ecl__Character__CheckSkillRequirements);
+		SYM_OFF(GetSkillRequirements);
+
 		SYM_OFF(CDivinityStats_Character__HitInternal);
 		SYM_OFF(CDivinityStats_Character__GetAttackAPCost);
 		SYM_OFF(CDivinityStats_Character__GetDamageBoost);
@@ -174,6 +189,7 @@ namespace dse
 		SYM_OFF(CDivinityStats_Character__GetDamageBoostByType);
 		SYM_OFF(CDivinityStats_Character__ComputeScaledDamage);
 		SYM_OFF(CDivinityStats_Character__GetWeaponAbilityBoost);
+		SYM_OFF(CDivinityStats_Character__ReevaluateRequirements);
 
 		SYM_OFF(esv__SurfaceActionFactory);
 		SYM_OFF(esv__SurfaceActionFactory__CreateAction);

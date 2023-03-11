@@ -88,6 +88,8 @@ struct Skill : public ProtectedGameObject<Skill>
 
 struct SkillManager : public ProtectedGameObject<SkillManager>
 {
+	using CanMemorizeProc = bool (SkillManager* self, SkillPrototype* skill, bool checkMemoryRequirement);
+
 	SkillState * CurrentSkillState;
 	ComponentHandle OwnerHandle;
 	Map<FixedString, Skill *> Skills;
@@ -140,6 +142,7 @@ struct Character : public IEoCServerObject
 	using HitProc = void (esv::Character* self, stats::Character* attackerStats, stats::Item* itemStats, stats::DamagePairList* damageList,
 		stats::HitType hitType, bool noHitRoll, stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGroundFlag, bool procWindWalker, stats::CriticalRoll criticalRoll);
 	using ApplyDamageProc = void (esv::Character* self, stats::HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
+	using CheckSkillRequirementsProc = uint64_t (Character* self, FixedString const& skillId, Item* item, bool checkAP, bool mustHaveSkill);
 
 	Status* GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;
 	Status* GetStatus(NetId handle) const;
@@ -378,6 +381,8 @@ struct Skill : public ProtectedGameObject<Skill>
 
 struct SkillManager : public ProtectedGameObject<SkillManager>
 {
+	using CheckSkillRequirementsProc = bool (SkillManager* self, SkillPrototype* proto);
+
 	void* FreeSkillState;
 	ComponentHandle OwnerHandle;
 	Map<FixedString, Skill*> Skills;
@@ -407,6 +412,9 @@ struct Character : public IEoCClientReplicatedObject
 {
 	static constexpr auto ComponentPoolIndex = EntityComponentIndex::Character;
 	static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientCharacter;
+
+	using CheckSkillRequirementsProc = uint64_t (Character* self, FixedString const& skillId, Item* item);
+	using GetSkillRequirementsProc = void (Character* character, FixedString const& skillId, Item* item, uint32_t checkRequirementFlags, eoc::Text& requirementsText);
 
 	Status* GetStatus(ComponentHandle statusHandle) const;
 	Status* GetStatus(NetId handle) const;

@@ -74,6 +74,25 @@ public:
 	Visual* OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisualsProc* wrapped, ecl::EquipmentVisualsSystem*,
 		EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params);
 
+	bool OnCheckRequirement(stats::CheckRequirementProc* wrapped, stats::Character* self, bool isInCombat, bool isImmobile, bool hasCharges,
+		ObjectSet<FixedString> const* tags, stats::Requirement const& requirement, bool excludeBoosts);
+	TranslatedString * OnRequirementToTranslatedString(stats::RequirementToTranslatedStringProc* wrapped, TranslatedString* text, RequirementType requirementId, bool negate);
+	RequirementType OnStringToRequirement(stats::StringToRequirementProc* wrapped, char const* requirement);
+#if defined(OSI_EOCAPP)
+	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, stats::Requirement* pRequirement);
+#else
+	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, bool checkRequirements, stats::Requirement* pRequirement);
+#endif
+
+	void OnItemSetupDescriptionToFlash(ecl::Item::SetupDescriptionToFlashProc* wrapped, ecl::Item* self, ig::FlashObject* flash, char const* path,
+		uint32_t displayContext, ecl::Character* owner, void* iconDrawStruct, int amount);
+	uint64_t OnServerCharacterCheckSkillRequirements(esv::Character::CheckSkillRequirementsProc* wrapped, esv::Character* self, FixedString const& skillId, esv::Item* item, bool checkAP, bool mustHaveSkill);
+	uint64_t OnClientCharacterCheckSkillRequirements(ecl::Character::CheckSkillRequirementsProc* wrapped, ecl::Character* self, FixedString const& skillId, ecl::Item* item);
+	void OnGetSkillRequirements(ecl::Character::GetSkillRequirementsProc* wrapped, ecl::Character* character, FixedString const& skillId, ecl::Item* item, uint32_t checkRequirementFlags, eoc::Text& requirementsText);
+
+	bool OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, SkillPrototype* skill, bool checkMemoryRequirement);
+	bool OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRequirementsProc* wrapped, ecl::SkillManager* self, SkillPrototype* proto);
+
 private:
 	bool loaded_{ false };
 };

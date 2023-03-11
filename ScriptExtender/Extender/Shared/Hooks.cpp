@@ -112,6 +112,46 @@ void Hooks::Startup()
 		std::bind(&Hooks::OnGetAttackAPCost, this, _1, _2)
 	);
 
+	lib.CheckRequirement1.SetWrapper(
+		std::bind(&Hooks::OnCheckRequirement, this, _1, _2, _3, _4, _5, _6, _7, _8)
+	);
+	lib.CheckRequirement2.SetWrapper(
+		std::bind(&Hooks::OnCheckRequirement, this, _1, _2, _3, _4, _5, _6, _7, _8)
+	);
+	lib.RequirementToTranslatedString.SetWrapper(
+		std::bind(&Hooks::OnRequirementToTranslatedString, this, _1, _2, _3, _4)
+	);
+	lib.StringToRequirement.SetWrapper(
+		std::bind(&Hooks::OnStringToRequirement, this, _1, _2)
+	);
+#if defined(OSI_EOCAPP)
+	lib.CDivinityStats_Character__ReevaluateRequirements.SetWrapper(
+		std::bind(&Hooks::OnReevaluateRequirements, this, _1, _2, _3, _4)
+	);
+#else
+	lib.CDivinityStats_Character__ReevaluateRequirements.SetWrapper(
+		std::bind(&Hooks::OnReevaluateRequirements, this, _1, _2, _3, _4, _5)
+	);
+#endif
+	lib.ecl__Item__SetupDescriptionToFlash.SetWrapper(
+		std::bind(&Hooks::OnItemSetupDescriptionToFlash, this, _1, _2, _3, _4, _5, _6, _7, _8)
+	);
+	lib.esv__Character__CheckSkillRequirements.SetWrapper(
+		std::bind(&Hooks::OnServerCharacterCheckSkillRequirements, this, _1, _2, _3, _4, _5, _6)
+	);
+	lib.ecl__Character__CheckSkillRequirements.SetWrapper(
+		std::bind(&Hooks::OnClientCharacterCheckSkillRequirements, this, _1, _2, _3, _4)
+	);
+	lib.GetSkillRequirements.SetWrapper(
+		std::bind(&Hooks::OnGetSkillRequirements, this, _1, _2, _3, _4, _5, _6)
+	);
+	lib.esv__SkillManager__CanMemorize.SetWrapper(
+		std::bind(&Hooks::OnSkillManagerCanMemorize, this, _1, _2, _3, _4)
+	);
+	lib.ecl__SkillManager__CheckSkillRequirements.SetWrapper(
+		std::bind(&Hooks::OnSkillManagerCheckSkillRequirements, this, _1, _2, _3)
+	);
+
 	auto cdt = &gExtender->GetCustomDamageTypes();
 	lib.eoc__GetDamageType.SetWrapper(
 		std::bind(&CustomDamageTypeHelpers::GetDamageType, cdt, _1, _2)
@@ -673,6 +713,75 @@ Visual* Hooks::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisua
 
 	return wrapped(self, entityHandle, params);
 }
+
+
+bool Hooks::OnCheckRequirement(stats::CheckRequirementProc* wrapped, stats::Character* self, bool isInCombat, bool isImmobile, bool hasCharges,
+	ObjectSet<FixedString> const* tags, stats::Requirement const& requirement, bool excludeBoosts)
+{
+	return wrapped(self, isInCombat, isImmobile, hasCharges, tags, requirement, excludeBoosts);
+}
+
+TranslatedString* Hooks::OnRequirementToTranslatedString(stats::RequirementToTranslatedStringProc* wrapped, TranslatedString* text, 
+	RequirementType requirementId, bool negate)
+{
+	return wrapped(text, requirementId, negate);
+}
+
+RequirementType Hooks::OnStringToRequirement(stats::StringToRequirementProc* wrapped, char const* requirement)
+{
+	return wrapped(requirement);
+}
+
+#if defined(OSI_EOCAPP)
+bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, 
+	stats::Requirement* pRequirement)
+{
+	return wrapped(self, slot, pRequirement);
+}
+#else
+bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, 
+	bool checkRequirements, stats::Requirement* pRequirement)
+{
+	return wrapped(self, slot, checkRequirements, pRequirement);
+}
+#endif
+
+void Hooks::OnItemSetupDescriptionToFlash(ecl::Item::SetupDescriptionToFlashProc* wrapped, ecl::Item* self, ig::FlashObject* flash, 
+	char const* path, uint32_t displayContext, ecl::Character* owner, void* iconDrawStruct, int amount)
+{
+	return wrapped(self, flash, path, displayContext, owner, iconDrawStruct, amount);
+}
+
+uint64_t Hooks::OnServerCharacterCheckSkillRequirements(esv::Character::CheckSkillRequirementsProc* wrapped, esv::Character* self, 
+	FixedString const& skillId, esv::Item* item, bool checkAP, bool mustHaveSkill)
+{
+	return wrapped(self, skillId, item, checkAP, mustHaveSkill);
+}
+
+uint64_t Hooks::OnClientCharacterCheckSkillRequirements(ecl::Character::CheckSkillRequirementsProc* wrapped, ecl::Character* self, 
+	FixedString const& skillId, ecl::Item* item)
+{
+	return wrapped(self, skillId, item);
+}
+
+void Hooks::OnGetSkillRequirements(ecl::Character::GetSkillRequirementsProc* wrapped, ecl::Character* character, 
+	FixedString const& skillId, ecl::Item* item, uint32_t checkRequirementFlags, eoc::Text& requirementsText)
+{
+	return wrapped(character, skillId, item, checkRequirementFlags, requirementsText);
+}
+
+bool Hooks::OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, SkillPrototype* skill, 
+	bool checkMemoryRequirement)
+{
+	return wrapped(self, skill, checkMemoryRequirement);
+}
+
+bool Hooks::OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRequirementsProc* wrapped, ecl::SkillManager* self, 
+	SkillPrototype* proto)
+{
+	return wrapped(self, proto);
+}
+
 
 bool Hooks::OnPeerModuleLoaded(esv::LoadProtocol::HandleModuleLoadedProc* next, esv::LoadProtocol* self,
 	esv::LoadProtocol::PeerModSettings& peerModSettings, ModuleSettings& hostModSettings)

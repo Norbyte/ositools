@@ -195,14 +195,29 @@ namespace dse
 		stats::GetColorCodeDmgProc* fmt__GetColorCodeDmg{ nullptr };
 		stats::ColorCodeAndTypeDmgProc* fmt__ColorCodeAndTypeDmg{ nullptr };
 
+		stats::CheckRequirementProc* CheckRequirement1{ nullptr };
+		stats::CheckRequirementProc* CheckRequirement2{ nullptr };
+		stats::RequirementToTranslatedStringProc* RequirementToTranslatedString{ nullptr };
+		stats::StringToRequirementProc* StringToRequirement{ nullptr };
+
 		esv::ExecutePropertyDataOnGroundHitProc* esv__ExecutePropertyDataOnGroundHit{ nullptr };
 		esv::ExecutePropertyDataOnPositionOnlyProc* esv__ExecutePropertyDataOnPositionOnly{ nullptr };
 		esv::ExecuteCharacterSetExtraPropertiesProc* esv__ExecuteCharacterSetExtraProperties{ nullptr };
+
+		esv::SkillManager::CanMemorizeProc* esv__SkillManager__CanMemorize{ nullptr };
+		ecl::SkillManager::CheckSkillRequirementsProc* ecl__SkillManager__CheckSkillRequirements{ nullptr };
+
+		ecl::Item::SetupDescriptionToFlashProc* ecl__Item__SetupDescriptionToFlash{ nullptr };
 
 		stats::Item::ComputeDamageProc* CDivinityStats_Item__ComputeDamage{ nullptr };
 
 		esv::Character::HitProc* esv__Character__Hit{ nullptr };
 		esv::Character::ApplyDamageProc* esv__Character__ApplyDamage{ nullptr };
+		esv::Character::CheckSkillRequirementsProc* esv__Character__CheckSkillRequirements{ nullptr };
+
+		ecl::Character::CheckSkillRequirementsProc* ecl__Character__CheckSkillRequirements{ nullptr };
+		ecl::Character::GetSkillRequirementsProc* GetSkillRequirements{ nullptr };
+
 		stats::Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
 		stats::Character::GetAttackAPCostProc* CDivinityStats_Character__GetAttackAPCost{ nullptr };
 		stats::Character::GetDamageBoostProc* CDivinityStats_Character__GetDamageBoost{ nullptr };
@@ -212,6 +227,7 @@ namespace dse
 		stats::Character::GetDamageBoostByTypeProc* CDivinityStats_Character__GetDamageBoostByType{ nullptr };
 		stats::Character::ComputeScaledDamageProc* CDivinityStats_Character__ComputeScaledDamage{ nullptr };
 		stats::Character::GetWeaponAbilityBoostProc* CDivinityStats_Character__GetWeaponAbilityBoost{ nullptr };
+		stats::Character::ReevaluateRequirementsProc* CDivinityStats_Character__ReevaluateRequirements{ nullptr };
 
 		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
 		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };
