@@ -5,7 +5,7 @@
 #include <Extender/Shared/ExtenderConfig.h>
 #include <Extender/Shared/ModuleHasher.h>
 #include <Extender/Shared/CustomDamageTypes.h>
-#include <Osiris/OsirisExtender.h>
+#include <Extender/Shared/Hooks.h>
 
 #include <Extender/Client/ExtensionStateClient.h>
 #include <Extender/Server/ExtensionStateServer.h>
@@ -19,11 +19,8 @@
 #include <Lua/Debugger/LuaDebugMessages.h>
 #endif
 #include <Lua/Shared/LuaBundle.h>
-#include <GameHooks/OsirisWrappers.h>
-#include <Osiris/Shared/CustomFunctions.h>
 #include <GameHooks/DataLibraries.h>
 #include <GameHooks/EngineHooks.h>
-#include <Osiris/Functions/FunctionLibrary.h>
 #include "NetProtocol.h"
 #include <GameDefinitions/Symbols.h>
 #include <GameDefinitions/GlobalFixedStrings.h>
@@ -107,6 +104,11 @@ public:
 
 	inline EngineHooks& GetEngineHooks()
 	{
+		return engineHooks_;
+	}
+
+	inline Hooks& GetHooks()
+	{
 		return hooks_;
 	}
 
@@ -136,7 +138,8 @@ private:
 	esv::ScriptExtender server_;
 	ecl::ScriptExtender client_;
 	LibraryManager Libraries;
-	EngineHooks hooks_;
+	EngineHooks engineHooks_;
+	Hooks hooks_;
 	std::recursive_mutex globalStateLock_;
 	std::shared_mutex pathOverrideMutex_;
 	std::unordered_map<STDString, STDString> pathOverrides_;

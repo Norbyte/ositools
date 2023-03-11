@@ -123,7 +123,7 @@ void ScriptExtender::Shutdown()
 	DEBUG("ScriptExtender::Shutdown: Exiting");
 	server_.Shutdown();
 	client_.Shutdown();
-	hooks_.UnhookAll();
+	engineHooks_.UnhookAll();
 
 	/*ResetExtensionStateServer();
 	ResetExtensionStateClient();
@@ -399,7 +399,11 @@ void ScriptExtender::PostStartup()
 	if (Libraries.PostStartupFindLibraries()) {
 		gExtender->GetServer().Osiris().GetWrappers().InitializeDeferredExtensions();
 		// FunctionLibrary.PostStartup();
-		hooks_.HookAll();
+		engineHooks_.HookAll();
+		if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
+			hooks_.Startup();
+		}
+
 		server_.PostStartup();
 		client_.PostStartup();
 		hitProxy_.PostStartup();
@@ -411,10 +415,10 @@ void ScriptExtender::PostStartup()
 		}
 
 		using namespace std::placeholders;
-		hooks_.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
+		engineHooks_.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
 
-		hooks_.RPGStats__Load.AddPreHook(std::bind(&ScriptExtender::OnStatsLoadStarted, this, _1));
-		hooks_.RPGStats__Load.AddPostHook(std::bind(&ScriptExtender::OnStatsLoadFinished, this, _1));
+		engineHooks_.RPGStats__Load.AddPreHook(std::bind(&ScriptExtender::OnStatsLoadStarted, this, _1));
+		engineHooks_.RPGStats__Load.AddPostHook(std::bind(&ScriptExtender::OnStatsLoadFinished, this, _1));
 	}
 
 	GameVersionInfo gameVersion;

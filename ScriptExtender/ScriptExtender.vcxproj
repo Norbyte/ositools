@@ -33,6 +33,7 @@
     <ClInclude Include="Extender\Server\StatusHelpers.h" />
     <ClInclude Include="Extender\Shared\Console.h" />
     <ClInclude Include="Extender\Shared\CustomDamageTypes.h" />
+    <ClInclude Include="Extender\Shared\Hooks.h" />
     <ClInclude Include="Extender\Shared\ExtenderConfig.h" />
     <ClInclude Include="Extender\Shared\ExtensionHelpers.h" />
     <ClInclude Include="Extender\Shared\ExtensionState.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="Extender\Shared\Console.cpp" />
     <ClCompile Include="Extender\Shared\CrashReporter.cpp" />
     <ClCompile Include="Extender\Shared\ExtensionState.cpp" />
+    <ClCompile Include="Extender\Shared\Hooks.cpp" />
     <ClCompile Include="Extender\Shared\ScriptExtensions.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">NotUsing</PrecompiledHeader>

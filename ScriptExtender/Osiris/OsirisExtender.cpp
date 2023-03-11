@@ -30,7 +30,6 @@ void OsirisExtender::Initialize()
 {
 	if (initialized_) return;
 
-	functionLibrary_.Startup();
 	wrappers_.Initialize();
 
 	using namespace std::placeholders;

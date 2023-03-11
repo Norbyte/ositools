@@ -834,7 +834,7 @@ struct Character : public ObjectInstance
 	int32_t MaxResistance;
 	int32_t HasTwoHandedWeapon;
 	IGameObject * GameObject;
-	int32_t Unkn2;
+	int32_t CheckRequirements;
 	int32_t IsIncapacitatedRefCount;
 	Vector<CharacterDynamicStat*> DynamicStats;
 	CharacterDynamicStat * StatsFromStatsEntry;

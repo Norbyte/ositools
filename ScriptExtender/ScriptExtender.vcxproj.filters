@@ -474,6 +474,9 @@
     <ClInclude Include="GameDefinitions\GameObjects\Vision.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Shared\Hooks.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -663,6 +666,9 @@
     </ClCompile>
     <ClCompile Include="Extender\Client\ExtensionStateClient.cpp">
       <Filter>Extender\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Shared\Hooks.cpp">
+      <Filter>Extender\Shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
