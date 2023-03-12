@@ -955,12 +955,16 @@ int ProtectedMethodCallerBase::CallUserFunctionWithTraceback(lua_State* L, lua_C
 }
 
 
-bool ProtectedFunctionCallerBase::ProtectedCall(lua_State* L, lua_CFunction fun)
+bool ProtectedFunctionCallerBase::ProtectedCall(lua_State* L, lua_CFunction fun, char const* funcDescription)
 {
 	StackCheck _(L);
 	auto ret = CallUserFunctionWithTraceback(L, fun);
 	if (ret != LUA_OK) {
-		ERR("Error while dispatching user function call: %s", lua_tostring(L, -1));
+		if (funcDescription) {
+			ERR("Error while dispatching user function call for %s: %s", funcDescription, lua_tostring(L, -1));
+		} else {
+			ERR("Error while dispatching user function call: %s", lua_tostring(L, -1));
+		}
 		lua_pop(L, 1);
 		return false; 
 	} else {

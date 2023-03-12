@@ -20,7 +20,7 @@ std::optional<dse::lua::RegistryEntry> CharacterTaskRegistry::ConstructTask(Fixe
 	ProtectedFunctionCaller<std::tuple<Character*>, dse::lua::RegistryEntry> caller;
 	caller.Function = ctor.Value();
 	caller.Args = std::tuple(character);
-	if (caller.Call(L)) {
+	if (caller.Call(L, "constructing CharacterTask")) {
 		return std::move(caller.Retval.Value);
 	} else {
 		return {};

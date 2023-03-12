@@ -314,7 +314,7 @@ struct ProtectedFunctionCallerBase
 	ProtectedFunctionCallerBase() {}
 	ProtectedFunctionCallerBase(Ref const& fun) : Function(fun) {}
 
-	bool ProtectedCall(lua_State* L, lua_CFunction fun);
+	bool ProtectedCall(lua_State* L, lua_CFunction fun, char const* funcDescription = nullptr);
 	int CallUserFunctionWithTraceback(lua_State* L, lua_CFunction fun);
 };
 
@@ -336,9 +336,9 @@ struct ProtectedFunctionCaller : public ProtectedFunctionCallerBase
 		Args(std::forward<TArgs>(args))
 	{}
 
-	bool Call(lua_State* L)
+	bool Call(lua_State* L, char const* funcDescription = nullptr)
 	{
-		return ProtectedCall(L, &ProtectedCtx);
+		return ProtectedCall(L, &ProtectedCtx, funcDescription);
 	}
 
 	static int ProtectedCtx(lua_State* L)
