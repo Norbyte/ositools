@@ -768,7 +768,7 @@ struct StatusConsumeBase : public Status
 struct StatusDying : public Status
 {
 	NetId InflicterNetId;
-	DeathType DeathType;
+	stats::DeathType DeathType;
 	int AttackDirection;
 	glm::vec3 ImpactDirection;
 	bool IsAlreadyDead;
@@ -900,7 +900,7 @@ struct StatusHit : public Status
 {
 	float TimeRemaining;
 	bool DeleteRequested;
-	HitDamageInfo DamageInfo;
+	stats::HitDamageInfo DamageInfo;
 	ComponentHandle HitByHandle;
 	int HitByType;
 	ComponentHandle WeaponHandle;

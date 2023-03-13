@@ -3,6 +3,8 @@
 
 BEGIN_SE()
 
+using namespace dse::stats;
+
 CustomDamageTypeCallbacks* CustomDamageTypeDescriptor::GetCallbacks()
 {
 	LuaVirtualPin lua(gExtender->GetCurrentExtensionState());

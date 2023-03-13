@@ -30,7 +30,7 @@ public:
 	void OnActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer, bool succeeded);
 	void OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);
 	void OnActionMachineResetState(esv::ActionMachine* self, bool force);
-	void OnParseStructureFolder(RPGStats* self, ObjectSet<STDString>* paths);
+	void OnParseStructureFolder(stats::RPGStats* self, ObjectSet<STDString>* paths);
 	stats::PropertyData* OnParseSkillProperties(stats::RPGStats::ParsePropertiesProc* next, stats::RPGStats* self, STDString* str);
 	void OnSkillFormatDescriptionParam(stats::SkillPrototype::FormatDescriptionParamProc* next, stats::SkillPrototype* skillPrototype,
 		stats::Character* tgtCharStats, eoc::Text* eocText, int paramIndex, bool isFromItem,
@@ -76,10 +76,10 @@ public:
 
 	bool OnCheckRequirement(stats::CheckRequirementProc* wrapped, stats::Character* self, bool isInCombat, bool isImmobile, bool hasCharges,
 		ObjectSet<FixedString> const* tags, stats::Requirement const& requirement, bool excludeBoosts);
-	TranslatedString * OnRequirementToTranslatedString(stats::RequirementToTranslatedStringProc* wrapped, TranslatedString* text, RequirementType requirementId, bool negate);
-	RequirementType OnStringToRequirement(stats::StringToRequirementProc* wrapped, char const* requirement);
+	TranslatedString * OnRequirementToTranslatedString(stats::RequirementToTranslatedStringProc* wrapped, TranslatedString* text, stats::RequirementType requirementId, bool negate);
+	stats::RequirementType OnStringToRequirement(stats::StringToRequirementProc* wrapped, char const* requirement);
 #if defined(OSI_EOCAPP)
-	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, stats::Requirement* pRequirement);
+	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, stats::ItemSlot32 slot, stats::Requirement* pRequirement);
 #else
 	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, bool checkRequirements, stats::Requirement* pRequirement);
 #endif
@@ -90,8 +90,8 @@ public:
 	uint64_t OnClientCharacterCheckSkillRequirements(ecl::Character::CheckSkillRequirementsProc* wrapped, ecl::Character* self, FixedString const& skillId, ecl::Item* item);
 	void OnGetSkillRequirements(ecl::Character::GetSkillRequirementsProc* wrapped, ecl::Character* character, FixedString const& skillId, ecl::Item* item, uint32_t checkRequirementFlags, eoc::Text& requirementsText);
 
-	bool OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, SkillPrototype* skill, bool checkMemoryRequirement);
-	bool OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRequirementsProc* wrapped, ecl::SkillManager* self, SkillPrototype* proto);
+	bool OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, stats::SkillPrototype* skill, bool checkMemoryRequirement);
+	bool OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRequirementsProc* wrapped, ecl::SkillManager* self, stats::SkillPrototype* proto);
 
 private:
 	bool loaded_{ false };

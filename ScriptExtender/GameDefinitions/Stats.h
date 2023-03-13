@@ -1538,29 +1538,27 @@ END_NS()
 
 BEGIN_SE()
 
-using namespace dse::stats;
-
-MARK_ALLOCATABLE(PropertyList);
-MARK_ALLOCATABLE(SkillSet);
-MARK_ALLOCATABLE(EquipmentGroup);
-MARK_ALLOCATABLE(EquipmentSet);
-MARK_ALLOCATABLE(DeltaModifier);
-MARK_ALLOCATABLE(TreasureSubTableDescription);
-MARK_ALLOCATABLE(TreasureSubTableDescription::Category);
-MARK_ALLOCATABLE(TreasureTable);
-MARK_ALLOCATABLE(TreasureCategory);
-MARK_ALLOCATABLE(TreasureCategory::Item);
-MARK_ALLOCATABLE(NameGroupName);
-MARK_ALLOCATABLE(NameGroup);
-MARK_ALLOCATABLE(CNameGroupLink);
-MARK_ALLOCATABLE(CRootGroup);
-MARK_ALLOCATABLE(CLevelGroup);
-MARK_ALLOCATABLE(CItemGroup);
-MARK_ALLOCATABLE(ItemCombinationProperty);
-MARK_ALLOCATABLE(ItemCombinationPreviewData);
-MARK_ALLOCATABLE(ItemCombinationIngredient);
-MARK_ALLOCATABLE(ItemCombinationResult);
-MARK_ALLOCATABLE(ItemCombinationResult::CombinationResult);
-MARK_ALLOCATABLE(ItemCombination);
+MARK_ALLOCATABLE(stats::PropertyList);
+MARK_ALLOCATABLE(stats::SkillSet);
+MARK_ALLOCATABLE(stats::EquipmentGroup);
+MARK_ALLOCATABLE(stats::EquipmentSet);
+MARK_ALLOCATABLE(stats::DeltaModifier);
+MARK_ALLOCATABLE(stats::TreasureSubTableDescription);
+MARK_ALLOCATABLE(stats::TreasureSubTableDescription::Category);
+MARK_ALLOCATABLE(stats::TreasureTable);
+MARK_ALLOCATABLE(stats::TreasureCategory);
+MARK_ALLOCATABLE(stats::TreasureCategory::Item);
+MARK_ALLOCATABLE(stats::NameGroupName);
+MARK_ALLOCATABLE(stats::NameGroup);
+MARK_ALLOCATABLE(stats::CNameGroupLink);
+MARK_ALLOCATABLE(stats::CRootGroup);
+MARK_ALLOCATABLE(stats::CLevelGroup);
+MARK_ALLOCATABLE(stats::CItemGroup);
+MARK_ALLOCATABLE(stats::ItemCombinationProperty);
+MARK_ALLOCATABLE(stats::ItemCombinationPreviewData);
+MARK_ALLOCATABLE(stats::ItemCombinationIngredient);
+MARK_ALLOCATABLE(stats::ItemCombinationResult);
+MARK_ALLOCATABLE(stats::ItemCombinationResult::CombinationResult);
+MARK_ALLOCATABLE(stats::ItemCombination);
 
 END_SE()

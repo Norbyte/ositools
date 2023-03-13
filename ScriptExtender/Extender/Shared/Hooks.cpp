@@ -301,7 +301,7 @@ void Hooks::OnActionMachineResetState(esv::ActionMachine* self, bool force)
 	}
 }
 
-void Hooks::OnParseStructureFolder(RPGStats* self, ObjectSet<STDString>* paths)
+void Hooks::OnParseStructureFolder(stats::RPGStats* self, ObjectSet<STDString>* paths)
 {
 	gExtender->GetCustomDamageTypes().Clear();
 
@@ -722,24 +722,24 @@ bool Hooks::OnCheckRequirement(stats::CheckRequirementProc* wrapped, stats::Char
 }
 
 TranslatedString* Hooks::OnRequirementToTranslatedString(stats::RequirementToTranslatedStringProc* wrapped, TranslatedString* text, 
-	RequirementType requirementId, bool negate)
+	stats::RequirementType requirementId, bool negate)
 {
 	return wrapped(text, requirementId, negate);
 }
 
-RequirementType Hooks::OnStringToRequirement(stats::StringToRequirementProc* wrapped, char const* requirement)
+stats::RequirementType Hooks::OnStringToRequirement(stats::StringToRequirementProc* wrapped, char const* requirement)
 {
 	return wrapped(requirement);
 }
 
 #if defined(OSI_EOCAPP)
-bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, 
+bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, stats::ItemSlot32 slot,
 	stats::Requirement* pRequirement)
 {
 	return wrapped(self, slot, pRequirement);
 }
 #else
-bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, 
+bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, stats::ItemSlot32 slot,
 	bool checkRequirements, stats::Requirement* pRequirement)
 {
 	return wrapped(self, slot, checkRequirements, pRequirement);
@@ -770,14 +770,14 @@ void Hooks::OnGetSkillRequirements(ecl::Character::GetSkillRequirementsProc* wra
 	return wrapped(character, skillId, item, checkRequirementFlags, requirementsText);
 }
 
-bool Hooks::OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, SkillPrototype* skill, 
+bool Hooks::OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, stats::SkillPrototype* skill, 
 	bool checkMemoryRequirement)
 {
 	return wrapped(self, skill, checkMemoryRequirement);
 }
 
 bool Hooks::OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRequirementsProc* wrapped, ecl::SkillManager* self, 
-	SkillPrototype* proto)
+	stats::SkillPrototype* proto)
 {
 	return wrapped(self, proto);
 }

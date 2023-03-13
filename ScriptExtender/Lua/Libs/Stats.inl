@@ -92,7 +92,7 @@ int StatsExtraDataProxy::NewIndex(lua_State* L)
 	return 0;
 }
 
-struct CustomLevelMap : public LevelMap
+struct CustomLevelMap : public stats::LevelMap
 {
 	RegistryEntry ClientFunction;
 	RegistryEntry ServerFunction;

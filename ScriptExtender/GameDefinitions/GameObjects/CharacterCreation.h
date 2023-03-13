@@ -22,7 +22,7 @@ struct AttributeChange
 
 struct AbilityChange
 {
-	AbilityType Ability;
+	stats::AbilityType Ability;
 	int AmountIncreased;
 };
 

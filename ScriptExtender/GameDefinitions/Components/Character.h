@@ -88,7 +88,7 @@ struct Skill : public ProtectedGameObject<Skill>
 
 struct SkillManager : public ProtectedGameObject<SkillManager>
 {
-	using CanMemorizeProc = bool (SkillManager* self, SkillPrototype* skill, bool checkMemoryRequirement);
+	using CanMemorizeProc = bool (SkillManager* self, stats::SkillPrototype* skill, bool checkMemoryRequirement);
 
 	SkillState * CurrentSkillState;
 	ComponentHandle OwnerHandle;
@@ -381,7 +381,7 @@ struct Skill : public ProtectedGameObject<Skill>
 
 struct SkillManager : public ProtectedGameObject<SkillManager>
 {
-	using CheckSkillRequirementsProc = bool (SkillManager* self, SkillPrototype* proto);
+	using CheckSkillRequirementsProc = bool (SkillManager* self, stats::SkillPrototype* proto);
 
 	void* FreeSkillState;
 	ComponentHandle OwnerHandle;
@@ -569,12 +569,12 @@ struct EquipmentVisualSystemSetParam
 	// 8b slot, 24b flags
 	VisualSystemSetFlags SlotAndFlags;
 
-	inline ItemSlot32 GetSlot()
+	inline stats::ItemSlot32 GetSlot()
 	{
-		return (ItemSlot32)((uint32_t)SlotAndFlags & 0xff);
+		return (stats::ItemSlot32)((uint32_t)SlotAndFlags & 0xff);
 	}
 
-	void SetSlot(ItemSlot32 slot)
+	void SetSlot(stats::ItemSlot32 slot)
 	{
 		SlotAndFlags = (VisualSystemSetFlags)(((uint32_t)SlotAndFlags & 0xffffff00) | (uint32_t)slot);
 	}

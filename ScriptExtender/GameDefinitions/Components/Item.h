@@ -207,7 +207,7 @@ namespace dse
 				ComponentHandle OwnerCharacterHandle;
 				uint32_t Flags;
 				NetId InventoryNetId;
-				ItemSlot Slot;
+				stats::ItemSlot Slot;
 				uint64_t field_18;
 				uint64_t field_20;
 				uint64_t field_28;

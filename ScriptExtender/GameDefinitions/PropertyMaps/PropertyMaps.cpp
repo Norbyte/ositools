@@ -97,7 +97,7 @@ namespace dse
 	void AddTalentArray(LegacyPropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
 	{
 		for (auto const& val : EnumInfo<stats::TalentType>::Store->Values) {
-			auto id = (TalentType)val.Value;
+			auto id = (stats::TalentType)val.Value;
 			auto talentName = prefix + val.Key.GetString();
 			FixedString talentFS(talentName.c_str());
 			AddProperty<bool>(propertyMap, talentFS.GetString(), 0);

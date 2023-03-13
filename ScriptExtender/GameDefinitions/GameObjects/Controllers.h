@@ -141,7 +141,7 @@ struct OsirisMoveInRangeTask : public MoveTask
 	bool AttackMove;
 	ObjectSet<AIHintAreaTrigger*> HintTriggers;
 	GameObjectTemplate* ProjectileTemplate;
-	SkillPrototype* Skill;
+	stats::SkillPrototype* Skill;
 };
 
 
