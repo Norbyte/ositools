@@ -477,6 +477,9 @@
     <ClInclude Include="Extender\Shared\Hooks.h">
       <Filter>Extender\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Shared\CustomRequirements.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -994,6 +997,9 @@
     </None>
     <None Include="Lua\Shared\Proxies\LuaUserVariableHolder.inl">
       <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="Extender\Shared\CustomRequirements.inl">
+      <Filter>Extender\Shared</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

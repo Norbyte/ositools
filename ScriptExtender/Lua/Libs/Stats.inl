@@ -1352,6 +1352,22 @@ CustomDamageTypeDescriptor* AddDamageType(FixedString const& typeName, std::opti
 	return cdt;
 }
 
+CustomRequirementDescriptor* AddRequirement(FixedString const& requirementName, std::optional<bool> overwrite)
+{
+	CustomRequirementDescriptor* descriptor;
+	if (overwrite && *overwrite) {
+		descriptor = gExtender->GetCustomRequirementRegistry().AssignRequirement(requirementName);
+	} else {
+		descriptor = gExtender->GetCustomRequirementRegistry().RegisterNewRequirement(requirementName);
+	}
+
+	if (descriptor) {
+		gExtender->GetCurrentExtensionState()->GetLua()->GetCustomRequirementCallbacks().GetOrRegister(descriptor->RequirementId);
+	}
+
+	return descriptor;
+}
+
 
 int32_t GetResistance(ProxyParam<Character> self, DamageType damageType, std::optional<bool> baseValues)
 {
@@ -1396,6 +1412,7 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(AddAttribute)
 	MODULE_FUNCTION(AddEnumerationValue)
 	MODULE_FUNCTION(AddDamageType)
+	MODULE_FUNCTION(AddRequirement)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, DeltaMod, Both)

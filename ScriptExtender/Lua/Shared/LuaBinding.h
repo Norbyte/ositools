@@ -19,6 +19,7 @@
 #include <GameDefinitions/Components/Item.h>
 #include <GameDefinitions/GameObjects/Status.h>
 #include <Extender/Shared/CustomDamageTypes.h>
+#include <Extender/Shared/CustomRequirements.h>
 #include <Extender/Shared/UserVariables.h>
 
 #include <mutex>
@@ -226,6 +227,11 @@ namespace dse::lua
 			return customDamageTypes_;
 		}
 
+		inline CustomRequirementCallbackManager& GetCustomRequirementCallbacks()
+		{
+			return customRequirementCallbacks_;
+		}
+
 		inline CachedUserVariableManager& GetVariableManager()
 		{
 			return variableManager_;
@@ -283,6 +289,7 @@ namespace dse::lua
 		CppMetatableManager metatableManager_;
 
 		CustomDamageTypeCallbackManager customDamageTypes_;
+		CustomRequirementCallbackManager customRequirementCallbacks_;
 		CachedUserVariableManager variableManager_;
 
 		void OpenLibs();

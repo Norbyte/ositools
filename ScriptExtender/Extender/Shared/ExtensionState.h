@@ -115,6 +115,11 @@ namespace dse
 			return userVariables_;
 		}
 
+		inline CustomRequirementContext& GetCustomRequirementContext()
+		{
+			return customRequirementContext_;
+		}
+
 	protected:
 		friend class LuaVirtualPin;
 		static std::unordered_set<std::string_view> sAllFeatureFlags;
@@ -137,6 +142,7 @@ namespace dse
 		std::unordered_map<STDString, STDString> loadedFileFullPaths_;
 
 		UserVariableManager userVariables_;
+		CustomRequirementContext customRequirementContext_;
 
 		void LuaResetInternal();
 		virtual void DoLuaReset() = 0;

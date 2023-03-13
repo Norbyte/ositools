@@ -910,8 +910,8 @@ struct CDivinityStatsList : public ProtectedGameObject<CDivinityStatsList<T>>
 
 	T * Get(int32_t index) const
 	{
-		if (index >= 0 && index < Handles.Size()) {
-			return Handles.Start[index];
+		if (index >= 0 && index < Handles.Handles.size()) {
+			return Handles.Handles[index];
 		} else {
 			return nullptr;
 		}

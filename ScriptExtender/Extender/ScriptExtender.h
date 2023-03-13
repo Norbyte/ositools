@@ -5,6 +5,7 @@
 #include <Extender/Shared/ExtenderConfig.h>
 #include <Extender/Shared/ModuleHasher.h>
 #include <Extender/Shared/CustomDamageTypes.h>
+#include <Extender/Shared/CustomRequirements.h>
 #include <Extender/Shared/Hooks.h>
 
 #include <Extender/Client/ExtensionStateClient.h>
@@ -127,6 +128,11 @@ public:
 		return customDamageTypes_;
 	}
 
+	inline CustomRequirementRegistry& GetCustomRequirementRegistry()
+	{
+		return customRequirementRegistry_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 	std::optional<STDString> GetPathOverride(STDString const& path);
@@ -149,6 +155,7 @@ private:
 	lua::LuaBundle luaBuiltinBundle_;
 	lua::CppPropertyMapManager propertyMapManager_;
 	CustomDamageTypeHelpers customDamageTypes_;
+	CustomRequirementRegistry customRequirementRegistry_;
 
 	ExtenderConfig config_;
 	bool extensionsEnabled_{ false };

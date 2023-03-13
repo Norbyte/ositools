@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <Extender/Shared/Hooks.h>
 #include <Extender/ScriptExtender.h>
+#include <ScriptHelpers.h>
 
 BEGIN_NS(esv)
 
@@ -718,68 +719,174 @@ Visual* Hooks::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisua
 bool Hooks::OnCheckRequirement(stats::CheckRequirementProc* wrapped, stats::Character* self, bool isInCombat, bool isImmobile, bool hasCharges,
 	ObjectSet<FixedString> const* tags, stats::Requirement const& requirement, bool excludeBoosts)
 {
-	return wrapped(self, isInCombat, isImmobile, hasCharges, tags, requirement, excludeBoosts);
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.CharacterStats = self;
+	ctx.IsInCombat = isInCombat;
+	ctx.IsImmobile = isImmobile;
+	ctx.HasCharges = hasCharges;
+	ctx.Tags = const_cast<ObjectSet<FixedString>*>(tags);
+	ctx.Requirement = const_cast<stats::Requirement*>(&requirement);
+	ctx.ExcludeBoosts = excludeBoosts;
+	
+	std::optional<bool> result;
+
+	LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+	if (lua) {
+		result = lua->GetCustomRequirementCallbacks().Evaluate(self, requirement);
+	}
+
+	if (!result) {
+		result = wrapped(self, isInCombat, isImmobile, hasCharges, tags, requirement, excludeBoosts);
+	}
+
+	ctx.CharacterStats = nullptr;
+	ctx.Tags = nullptr;
+	ctx.Requirement = nullptr;
+
+	return *result;
 }
 
 TranslatedString* Hooks::OnRequirementToTranslatedString(stats::RequirementToTranslatedStringProc* wrapped, TranslatedString* text, 
 	stats::RequirementType requirementId, bool negate)
 {
+	auto desc = gExtender->GetCustomRequirementRegistry().Get((uint32_t)requirementId);
+	if (desc && (!desc->Description.empty() || desc->DescriptionHandle)) {
+		new (text) TranslatedString();
+		script::GetTranslatedString(desc->DescriptionHandle.GetStringOrDefault(), desc->Description.c_str(), *text);
+		return text;
+	}
+
 	return wrapped(text, requirementId, negate);
 }
 
 stats::RequirementType Hooks::OnStringToRequirement(stats::StringToRequirementProc* wrapped, char const* requirement)
 {
+	auto desc = gExtender->GetCustomRequirementRegistry().Get(FixedString(requirement));
+	if (desc) {
+		return (stats::RequirementType)desc->RequirementId;
+	}
+
 	return wrapped(requirement);
 }
 
 #if defined(OSI_EOCAPP)
 bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, stats::ItemSlot32 slot,
 	stats::Requirement* pRequirement)
-{
-	return wrapped(self, slot, pRequirement);
-}
 #else
 bool Hooks::OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, stats::ItemSlot32 slot,
 	bool checkRequirements, stats::Requirement* pRequirement)
-{
-	return wrapped(self, slot, checkRequirements, pRequirement);
-}
 #endif
+{
+	stats::Item* item{ nullptr };
+	for (auto itemRef : self->EquippedItems) {
+		if ((stats::ItemSlot32)itemRef->ItemSlot == slot) {
+			item = self->DivStats->ItemList->Get(itemRef->ItemStatsHandle);
+			break;
+		}
+	}
+
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.ItemStats = item;
+
+#if defined(OSI_EOCAPP)
+	auto result = wrapped(self, slot, pRequirement);
+#else
+	auto result = wrapped(self, slot, checkRequirements, pRequirement);
+#endif
+
+	ctx.ItemStats = nullptr;
+
+	return result;
+}
 
 void Hooks::OnItemSetupDescriptionToFlash(ecl::Item::SetupDescriptionToFlashProc* wrapped, ecl::Item* self, ig::FlashObject* flash, 
 	char const* path, uint32_t displayContext, ecl::Character* owner, void* iconDrawStruct, int amount)
 {
-	return wrapped(self, flash, path, displayContext, owner, iconDrawStruct, amount);
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.ClientItem = self;
+
+	wrapped(self, flash, path, displayContext, owner, iconDrawStruct, amount);
+
+	ctx.ClientItem = nullptr;
 }
 
 uint64_t Hooks::OnServerCharacterCheckSkillRequirements(esv::Character::CheckSkillRequirementsProc* wrapped, esv::Character* self, 
 	FixedString const& skillId, esv::Item* item, bool checkAP, bool mustHaveSkill)
 {
-	return wrapped(self, skillId, item, checkAP, mustHaveSkill);
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.ServerCharacter = self;
+	ctx.ServerItem = item;
+	ctx.SkillId = skillId;
+
+	auto result = wrapped(self, skillId, item, checkAP, mustHaveSkill);
+
+	ctx.ServerCharacter = nullptr;
+	ctx.ServerItem = nullptr;
+	ctx.SkillId = FixedString{};
+
+	return result;
 }
 
 uint64_t Hooks::OnClientCharacterCheckSkillRequirements(ecl::Character::CheckSkillRequirementsProc* wrapped, ecl::Character* self, 
 	FixedString const& skillId, ecl::Item* item)
 {
-	return wrapped(self, skillId, item);
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.ClientCharacter = self;
+	ctx.ClientItem = item;
+	ctx.SkillId = skillId;
+
+	auto result = wrapped(self, skillId, item);
+
+	ctx.ClientCharacter = nullptr;
+	ctx.ClientItem = nullptr;
+	ctx.SkillId = FixedString{};
+
+	return result;
 }
 
 void Hooks::OnGetSkillRequirements(ecl::Character::GetSkillRequirementsProc* wrapped, ecl::Character* character, 
 	FixedString const& skillId, ecl::Item* item, uint32_t checkRequirementFlags, eoc::Text& requirementsText)
 {
-	return wrapped(character, skillId, item, checkRequirementFlags, requirementsText);
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.ClientCharacter = character;
+	ctx.ClientItem = item;
+	ctx.SkillId = skillId;
+
+	wrapped(character, skillId, item, checkRequirementFlags, requirementsText);
+
+	ctx.ClientCharacter = nullptr;
+	ctx.ClientItem = nullptr;
+	ctx.SkillId = FixedString{};
 }
 
 bool Hooks::OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, stats::SkillPrototype* skill, 
 	bool checkMemoryRequirement)
 {
-	return wrapped(self, skill, checkMemoryRequirement);
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.ServerCharacter = esv::GetEntityWorld()->GetComponent<esv::Character>(self->OwnerHandle, false);
+	ctx.SkillId = skill->SkillId;
+
+	auto result = wrapped(self, skill, checkMemoryRequirement);
+
+	ctx.ServerCharacter = nullptr;
+	ctx.SkillId = FixedString{};
+
+	return result;
 }
 
 bool Hooks::OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRequirementsProc* wrapped, ecl::SkillManager* self, 
 	stats::SkillPrototype* proto)
 {
-	return wrapped(self, proto);
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.ClientCharacter = ecl::GetEntityWorld()->GetComponent<ecl::Character>(self->OwnerHandle, false);
+	ctx.SkillId = proto->SkillId;
+
+	auto result = wrapped(self, proto);
+
+	ctx.ClientCharacter = nullptr;
+	ctx.SkillId = FixedString{};
+
+	return result;
 }
 
 
