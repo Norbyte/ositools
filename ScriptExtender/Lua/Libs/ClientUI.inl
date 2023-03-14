@@ -150,29 +150,19 @@ void Destroy(char const* name)
 }
 
 /// <summary>
-/// **Experimental!** Forces an UI refresh for the specified character.
-/// Supported flag values:
-/// - 0x1 - AP
-/// - 0x10 - Abilities
-/// - 0x60 - Status icons
-/// - 0x40000 - Health
-/// - 0x80000 - Skill set
-/// - 0x1000000 - Inventory
-/// - 0x10000000 - Character transform
-/// - 0x80000000 - Relations
-/// </summary>
+/// Forces an UI refresh for the specified character.
 /// <param name="handle">UI object handle</param>
 /// <param name="flags">Dirty flags</param>
-void SetDirty(ComponentHandle const& handle, uint64_t flags)
+void SetDirty(ComponentHandle const& handle, UIDirtyFlag flags)
 {
 	auto ui = GetStaticSymbols().GetUIObjectManager();
 	if (ui && ui->CharacterDirtyFlags) {
 		EnterCriticalSection(&ui->DirtyFlagsCriticalSection);
 		auto curFlags = ui->CharacterDirtyFlags->find(handle);
 		if (curFlags) {
-			curFlags.Value() |= flags;
+			curFlags.Value() |= (uint64_t)flags;
 		} else {
-			*ui->CharacterDirtyFlags->insert(handle, flags);
+			*ui->CharacterDirtyFlags->insert(handle, (uint64_t)flags);
 		}
 		LeaveCriticalSection(&ui->DirtyFlagsCriticalSection);
 	}
