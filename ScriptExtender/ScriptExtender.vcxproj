@@ -57,6 +57,7 @@
     <ClInclude Include="GameDefinitions\Base\ForwardDeclarations.h" />
     <ClInclude Include="GameDefinitions\Base\HalfHelpers.h" />
     <ClInclude Include="GameDefinitions\Base\ObjectVisitor.h" />
+    <ClInclude Include="GameDefinitions\CommonTypes.h" />
     <ClInclude Include="GameDefinitions\Components\Character.h" />
     <ClInclude Include="GameDefinitions\Components\Inventory.h" />
     <ClInclude Include="GameDefinitions\Components\Item.h" />
@@ -82,6 +83,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\Physics.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Player.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Render.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Skill.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Vision.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Visuals.h" />
     <ClInclude Include="GameDefinitions\GameObjects\RootTemplates.h" />
@@ -307,6 +309,7 @@
     <None Include="GameDefinitions\PropertyMaps\Render.inl" />
     <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl" />
     <None Include="GameDefinitions\PropertyMaps\Scenery.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Skill.inl" />
     <None Include="GameDefinitions\PropertyMaps\States.inl" />
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
     <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />

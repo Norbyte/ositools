@@ -377,7 +377,7 @@ struct CharacterTask
 	virtual bool CanExit() = 0;
 	virtual bool CanExit2() = 0;
 	virtual void GetDescription(eoc::Text& desc) = 0;
-	virtual bool SyncSurfaceCells(ObjectSet<esv::SurfaceCell>*) = 0;
+	virtual bool SyncSurfaceCells(ObjectSet<SurfaceCell>*) = 0;
 	virtual ComponentHandle* CreatePreviewEffect(ComponentHandle& pEffect) = 0;
 	virtual void GetAPDescription(eoc::Text& desc) = 0;
 
@@ -425,6 +425,22 @@ struct InputController : public BaseController
 	CharacterTask* PreviewTask;
 	ObjectSet<CharacterTask*> ChosenTasks;
 	uint8_t TaskFlags;
+};
+
+
+struct StatusController : public BaseController
+{
+	ecl::StatusControllerFlags Flags;
+	uint32_t SummoningTransactionId;
+	uint32_t PolymorphingTransactionId;
+	uint32_t KnockedDownTransactionId;
+	uint32_t TeleportFallTransactionId;
+	bool SetKnockedDown;
+};
+
+struct DialogController : public BaseController
+{
+	bool IsSteering;
 };
 
 

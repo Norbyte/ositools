@@ -112,7 +112,7 @@ namespace dse
 		    uint8_t Random{ 0 };
             stats::DamagePairList * DamageList;
 		    int32_t CasterLevel{ -1 };
-            HitObject* HitObject;
+            ProjectileResult* HitObject;
 		    bool IsTrap{ false };
 		    bool UnknownFlag1{ false };
 		    FixedString CleanseStatuses;

@@ -242,7 +242,7 @@ int32_t Hooks::OnGetAttackAPCost(stats::Character::GetAttackAPCostProc * wrapped
 	return wrapped(self);
 }
 
-void Hooks::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer)
+void Hooks::OnBeforeActionMachineSetState(ActionMachineBase<esv::ActionState>* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer)
 {
 	if (actionLayer >= 3 || self->IsEntering[actionLayer]) return;
 
@@ -260,8 +260,8 @@ void Hooks::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t act
 	auto type = curState->GetType();
 	auto typeName = curState->GetTypeName();
 	// Avoid event spam from idle/anim states
-	if (type == esv::ActionStateType::Idle
-		|| type == esv::ActionStateType::Animation
+	if (type == ActionStateType::Idle
+		|| type == ActionStateType::Animation
 		|| typeName == nullptr) {
 		return;
 	}
@@ -272,7 +272,7 @@ void Hooks::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t act
 	delete eventArgs;
 }
 
-void Hooks::OnActionMachineResetState(esv::ActionMachine* self, bool force)
+void Hooks::OnActionMachineResetState(ActionMachineBase<esv::ActionState>* self, bool force)
 {
 	for (auto layer = 0; layer < 3; layer++) {
 		if (self->IsEntering[layer]) continue;
@@ -289,8 +289,8 @@ void Hooks::OnActionMachineResetState(esv::ActionMachine* self, bool force)
 		auto type = curState->GetType();
 		auto typeName = curState->GetTypeName();
 		// Avoid event spam from idle/anim states
-		if (type == esv::ActionStateType::Idle
-			|| type == esv::ActionStateType::Animation
+		if (type == ActionStateType::Idle
+			|| type == ActionStateType::Animation
 			|| typeName == nullptr) {
 			return;
 		}
@@ -367,7 +367,7 @@ void Hooks::OnProjectileExplode(esv::Projectile* projectile)
 	projectile->OnHitAction = hitProxy;
 }
 
-void Hooks::OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded)
+void Hooks::OnActionMachineSetState(ActionMachineBase<esv::ActionState>* self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded)
 {
 	if (!succeeded || actionState == nullptr || !setLayer) return;
 
@@ -380,8 +380,8 @@ void Hooks::OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLa
 	auto type = actionState->GetType();
 	auto typeName = actionState->GetTypeName();
 	// Avoid event spam from idle/anim states
-	if (type == esv::ActionStateType::Idle
-		|| type == esv::ActionStateType::Animation
+	if (type == ActionStateType::Idle
+		|| type == ActionStateType::Animation
 		|| typeName == nullptr) {
 		return;
 	}

@@ -4,154 +4,263 @@
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/Helpers.h>
 
-namespace dse
+BEGIN_SE()
+
+template <class TActionState>
+struct ActionMachineBase : public ProtectedGameObject<ActionMachineBase<TActionState>>
 {
-
-	namespace esv
+	using UpdateSyncStateProc = void(ActionMachineBase* self, uint8_t actionLayer, TActionState* actionState, bool force, bool setLayer);
+	using SetStateProc = bool(ActionMachineBase* self, uint64_t actionLayer, TActionState* actionState, int* somePtr, bool force, bool setLayer);
+	using ResetStateProc = bool(ActionMachineBase* self, bool force);
+	
+	struct Layer : public ProtectedGameObject<Layer>
 	{
-		struct ActionState : public ProtectedGameObject<ActionState>
-		{
-			virtual ~ActionState() = 0;
-			virtual ActionStateType GetType() = 0;
-			virtual void Enter() = 0;
-			virtual void Continue() = 0;
-			virtual void Update() = 0;
-			virtual void Tick() = 0;
-			virtual bool CanExit() = 0;
-			virtual void Exit() = 0;
-			virtual bool IsFinished() = 0;
-			virtual void UNK_48() = 0;
-			virtual void UNK_50() = 0;
-			virtual void UNK_58() = 0;
-			virtual void GetSyncData() = 0;
-			virtual void SyncData() = 0;
-			virtual void GetSyncDataUpdate() = 0;
-			// void * VMT;
+		TActionState* State;
+		uint64_t Unknown;
+		uint8_t Flags1;
+		uint8_t Flags2;
+		uint8_t Flags3;
+	};
 
-			struct ActionMachine * Machine;
-			uint8_t Unknown1;
-			uint32_t TransactionId;
+	ComponentHandle CharacterHandle;
+	std::array<Layer, 3> Layers;
+	bool IsEntering[4];
+	uint16_t Unknown;
+	TActionState* CachedActions[24];
+};
 
-			LegacyPropertyMapBase * GetPropertyMap();
-			char const * GetTypeName();
-			ActionStateType LuaGetTypeId();
-		};
+END_SE()
 
-		struct NumberDivider
-		{
-			float DamagePerHit;
-			int field_4;
-		};
+BEGIN_NS(esv)
 
-		struct NumberDividers
-		{
-			NumberDivider ArmorAbsorptionDivider;
-			ObjectSet<void*> DamageDividers; // DamageDivider::Damage ?
-		};
+struct ActionState : public ProtectedGameObject<ActionState>
+{
+	virtual ~ActionState() = 0;
+	virtual ActionStateType GetType() = 0;
+	virtual bool Enter() = 0;
+	virtual bool Continue() = 0;
+	virtual void Update() = 0;
+	virtual void Tick() = 0;
+	virtual bool CanExit() = 0;
+	virtual void Exit() = 0;
+	virtual bool IsFinished() = 0;
+	virtual void UNK_48() = 0;
+	virtual void UNK_50() = 0;
+	virtual void UNK_58() = 0;
+	virtual void UNK_60() = 0;
+	virtual bool GetSyncData(ScratchBuffer&) = 0;
+	virtual bool SyncData(ScratchBuffer&) = 0;
 
-		struct ASAttack : public ActionState
-		{
-			ComponentHandle TargetHandle;
-			glm::vec3 TargetPosition;
-			ObjectSet<ComponentHandle> ObjectHandleSet;
-			bool IsFinished;
-			bool AlwaysHit;
-			__int64 AttackAnimation;
-			float TimeRemaining;
-			bool AnimationFinished;
-			int TotalHits;
-			int TotalHitOffHand;
-			int TotalShoots;
-			int TotalShootsOffHand;
-			int HitCount;
-			int HitCountOffHand;
-			int ShootCount;
-			int ShootCountOffHand;
-			ComponentHandle MainWeaponHandle;
-			ComponentHandle OffWeaponHandle;
-			RefMap<ComponentHandle, stats::HitDamageInfo> MainWeaponDamageList;
-			RefMap<ComponentHandle, stats::HitDamageInfo> OffHandDamageList;
-			RefMap<ComponentHandle, NumberDividers> MainWeaponNumberDividers;
-			RefMap<ComponentHandle, NumberDividers> OffHandNumberDividers;
-			ObjectSet<void*> DamageDividerDamage; // DamageDivider::Damage ?
-			ObjectSet<void*> DamageDividerDamage2; // DamageDivider::Damage ?
-			__int64 field_118;
-			__int64 field_120;
-			int MainHandHitType;
-			int OffHandHitType;
-			HitObject HitObject1;
-			HitObject HitObject2;
-			bool ProjectileUsesHitObject;
-			glm::vec3 ProjectileStartPosition;
-			glm::vec3 ProjectileTargetPosition;
-			bool DamageDurability;
-			ObjectSet<ComponentHandle> DelayDeathCharacterHandles;
-		};
+	struct ActionMachine * Machine;
+	uint8_t Unknown1;
+	uint32_t TransactionId;
 
-		struct SkillState : public ProtectedGameObject<SkillState>
-		{
-			void* VMT;
-			int StateIndex;
-			int State;
-			FixedString SkillId;
-			ComponentHandle CharacterHandle;
-			ComponentHandle SourceItemHandle;
-			bool CanEnter;
-			bool IsFinished;
-			bool SkillStateOver6_2;
-			bool IgnoreChecks;
-			bool IsStealthed;
-			int field_30;
-			float PrepareTimerRemaining;
-			float Unkn_OnSkillCombatCommentEventCondition;
-			float SomeCombatCommentEventTimeoutValue;
-			bool field_40;
-			bool ShouldExit;
-			bool SkillStateOver6;
-			FixedString CleanseStatuses;
-			float StatusClearChance;
-			bool CharacterHasSkill;
-		};
+	LegacyPropertyMapBase * GetPropertyMap();
+	char const * GetTypeName();
+	ActionStateType LuaGetTypeId();
+};
 
-		struct ASPrepareSkill : public ActionState
-		{
-			FixedString SkillId;
-			FixedString PrepareAnimationInit;
-			FixedString PrepareAnimationLoop;
-			bool IsFinished;
-			bool IsEntered;
-			bool Unknown;
-		};
+struct ArmorDivider
+{
+	float DamagePerHit;
+	int field_4;
+};
 
-		struct ASUseSkill : public ActionState
-		{
-			SkillState* OriginalSkill;
-			bool OwnsSkillStateOriginal;
-			SkillState* Skill;
-			bool OwnsSkillState;
-		};
+struct NumberDivider
+{
+	stats::DamageType Type;
+	float Amount;
+	float Accumulator;
+};
 
-		struct ActionMachineLayer : public ProtectedGameObject<ActionMachineLayer>
-		{
-			ActionState * State;
-			uint64_t Unknown;
-			uint8_t Flags1;
-			uint8_t Flags2;
-			uint8_t Flags3;
-		};
+struct NumberDividers
+{
+	ArmorDivider ArmorAbsorptionDivider;
+	ObjectSet<NumberDivider> DamageDividers;
+};
 
-		struct ActionMachine : public ProtectedGameObject<ActionMachine>
-		{
-			using UpdateSyncStateProc = void(ActionMachine * self, uint8_t actionLayer, ActionState * actionState, bool force, bool setLayer);
-			using SetStateProc = bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer);
-			using ResetStateProc = bool (esv::ActionMachine* self, bool force);
+struct ASAttack : public ActionState
+{
+	ComponentHandle TargetHandle;
+	glm::vec3 TargetPosition;
+	ObjectSet<ComponentHandle> CleaveTargets;
+	bool IsFinished;
+	bool AlwaysHit;
+	__int64 AttackAnimation;
+	float TimeRemaining;
+	bool AnimationFinished;
+	int TotalHits;
+	int TotalHitOffHand;
+	int TotalShoots;
+	int TotalShootsOffHand;
+	int HitCount;
+	int HitCountOffHand;
+	int ShootCount;
+	int ShootCountOffHand;
+	ComponentHandle MainWeaponHandle;
+	ComponentHandle OffWeaponHandle;
+	RefMap<ComponentHandle, stats::HitDamageInfo> MainWeaponDamageList;
+	RefMap<ComponentHandle, stats::HitDamageInfo> OffHandDamageList;
+	RefMap<ComponentHandle, NumberDividers> MainWeaponNumberDividers;
+	RefMap<ComponentHandle, NumberDividers> OffHandNumberDividers;
+	ObjectSet<NumberDivider> RangedMainHandDamage;
+	ObjectSet<NumberDivider> RangedOffHandDamage;
+	__int64 field_118;
+	__int64 field_120;
+	stats::CriticalRoll MainHandHitType;
+	stats::CriticalRoll OffHandHitType;
+	ProjectileResult RangedMainHandHitObject;
+	ProjectileResult RangedOffHandHitObject;
+	bool ProjectileUsesHitObject;
+	glm::vec3 ProjectileStartPosition;
+	glm::vec3 ProjectileTargetPosition;
+	bool DamageDurability;
+	ObjectSet<ComponentHandle> DelayDeathCharacterHandles;
+};
 
-			ComponentHandle CharacterHandle;
-			std::array<ActionMachineLayer, 3> Layers;
-			bool IsEntering[4];
-			uint16_t Unknown;
-			ActionState * CachedActions[24];
-		};
-	}
 
-}
+struct ASDie : public ActionState
+{
+	bool DieLogicPending;
+	bool ExecutedDieLogic;
+	bool DieActionsPending;
+	bool PlayingDeathAnimation;
+	ComponentHandle CauseeHandle;
+};
+
+
+struct ASHit : public ActionState
+{
+	bool AnimationFlag1;
+	bool AnimationFlag2;
+	bool AnimationFlag3;
+	bool StillAnimation;
+	bool ShouldResetState;
+	ComponentHandle HitStatusHandle;
+};
+
+
+struct ASIdle : public ActionState
+{};
+
+
+struct ASAnimation : public ActionState
+{
+	FixedString Animation;
+	float AnimationTimeAfterTick;
+	float AnimationTime;
+	float AnimationDuration;
+	bool NullAnimation;
+	bool IsCompleted;
+	bool NoBlend;
+	bool field_2F;
+	bool ExitOnFinish;
+};
+
+
+struct ActionStateRequest : public ActionState
+{
+	uint8_t State;
+	float RequestTimeRemaining;
+	uint8_t field_20;
+	uint32_t RequestId;
+};
+
+
+struct ASPickUp : public ActionStateRequest
+{
+	ComponentHandle ItemHandle;
+	int16_t TargetItemSlot;
+	int32_t Flags;
+	NetId NetID;
+	int32_t SplitAmount;
+	bool field_40;
+	bool MovedItem;
+	glm::vec3 StartPosition;
+	glm::vec3 TargetPosition;
+	bool IsFinished;
+	float TimeRemaining;
+};
+
+
+struct ASDrop : public ActionState
+{
+	ComponentHandle ItemHandle;
+	glm::vec3 TargetPosition;
+	glm::mat3 TargetRotation;
+	int32_t Amount;
+	float TimeRemaining;
+	bool IsFinished;
+	bool field_59;
+	bool field_5A;
+};
+
+
+struct ASMoveItem : public ActionStateRequest
+{
+	ObjectSet<ComponentHandle> Items;
+	ObjectSet<glm::vec3> Positions;
+	ObjectSet<glm::mat3> Rotations;
+	ObjectSet<float> OS_float;
+	int32_t Amount;
+	bool IsFinished;
+	bool ItemMoveFinished;
+};
+
+
+struct ASPrepareSkill : public ActionState
+{
+	FixedString SkillId;
+	FixedString PrepareAnimationInit;
+	FixedString PrepareAnimationLoop;
+	bool IsFinished;
+	bool IsEntered;
+	bool Unknown;
+};
+
+struct ASUseSkill : public ActionState
+{
+	SkillState* OriginalSkill;
+	bool OwnsSkillStateOriginal;
+	SkillState* Skill;
+	bool OwnsSkillState;
+};
+
+struct ActionMachine : public ActionMachineBase<esv::ActionState>
+{};
+
+END_NS()
+
+
+BEGIN_NS(ecl)
+
+struct ActionState : public ProtectedGameObject<ActionState>
+{
+	virtual ~ActionState() = 0;
+	virtual bool Enter() = 0;
+	virtual bool Continue() = 0;
+	virtual void Update(GameTime const&) = 0;
+	virtual void Tick(uint32_t* teamId) = 0;
+	virtual bool CanExit() = 0;
+	virtual void Exit() = 0;
+	virtual void Fail() = 0;
+	virtual bool IsFinished() = 0;
+	virtual void UNK_58() = 0;
+	virtual void UNK_60() = 0;
+	virtual void UNK_68() = 0;
+	virtual bool GetSyncData(ScratchBuffer&) = 0;
+	virtual bool SyncData(ScratchBuffer&) = 0;
+	virtual ActionStateType GetType() = 0;
+
+	struct ActionMachine* Machine;
+	uint8_t Unknown1;
+	uint32_t TransactionId;
+
+	char const* GetTypeName();
+	ActionStateType LuaGetTypeId();
+};
+
+struct ActionMachine : public ActionMachineBase<ecl::ActionState>
+{};
+
+END_NS()

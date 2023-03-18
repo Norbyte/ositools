@@ -52,6 +52,7 @@ struct Scene;
 struct MoveableObject;
 struct Visual;
 struct RenderableObject;
+struct Effect;
 
 struct Material;
 struct AppliedMaterial;
@@ -77,6 +78,7 @@ namespace stats
 	struct Object;
 	struct Character;
 	struct Item;
+	struct Conditions;
 }
 
 namespace net
@@ -100,6 +102,7 @@ namespace eoc
 	struct Visibility;
 	struct NetworkFixedStrings;
 	struct Text;
+	struct PathMover;
 }
 
 namespace esv
@@ -147,6 +150,7 @@ namespace esv
 
 	struct EntityWorld;
 
+	struct SkillState;
 	struct PendingHit;
 	class ExtensionState;
 
@@ -182,6 +186,11 @@ namespace ecl
 	struct GameCamera;
 
 	struct InputController;
+
+	struct PathPreviewer;
+	struct SkillState;
+	struct MultiEffectHandler;
+	struct BeamEffectHandler;
 
 	struct EoCUI;
 	class ExtensionState;

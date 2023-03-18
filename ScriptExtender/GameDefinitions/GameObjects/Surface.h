@@ -3,6 +3,7 @@
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/EntitySystem.h>
+#include <GameDefinitions/CommonTypes.h>
 
 BEGIN_NS(eoc)
 
@@ -26,11 +27,6 @@ END_NS()
 
 
 BEGIN_NS(esv)
-
-struct SurfaceCell
-{
-    glm::i16vec2 Position;
-};
 
 struct SubSurface : public ProtectedGameObject<SubSurface>
 {

@@ -480,6 +480,12 @@
     <ClInclude Include="Extender\Shared\CustomRequirements.h">
       <Filter>Extender\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Skill.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\CommonTypes.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -1000,6 +1006,9 @@
     </None>
     <None Include="Extender\Shared\CustomRequirements.inl">
       <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Skill.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

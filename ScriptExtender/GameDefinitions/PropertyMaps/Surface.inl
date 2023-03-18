@@ -26,7 +26,7 @@ pm.AddProperty("RootTemplate",
 #endif
 END_CLS()
 
-BEGIN_CLS(esv::SurfaceCell)
+BEGIN_CLS(SurfaceCell)
 P(Position)
 END_CLS()
 

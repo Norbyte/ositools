@@ -406,7 +406,7 @@ struct UserspaceCharacterTask : public CharacterTask
 		cls_->GetDescription(desc);
 	}
 
-	bool SyncSurfaceCells(ObjectSet<esv::SurfaceCell>*) override
+	bool SyncSurfaceCells(ObjectSet<SurfaceCell>*) override
 	{
 		return false;
 	}

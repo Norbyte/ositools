@@ -408,8 +408,8 @@ void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::Eq
 void LuaPolymorphic<esv::MovementState>::MakeRef(lua_State* L, esv::MovementState* o, LifetimeHandle const & lifetime)
 {
 	switch (o->GetTypeId()) {
-	case esv::MovementStateType::Movement: return MakeDirectObjectRef(L, lifetime, static_cast<esv::MSMovement*>(o));
-	case esv::MovementStateType::MoveTo: return MakeDirectObjectRef(L, lifetime, static_cast<esv::MSMoveTo*>(o));
+	case MovementStateType::Movement: return MakeDirectObjectRef(L, lifetime, static_cast<esv::MSMovement*>(o));
+	case MovementStateType::MoveTo: return MakeDirectObjectRef(L, lifetime, static_cast<esv::MSMoveTo*>(o));
 	default: return MakeDirectObjectRef(L, lifetime, o);
 	}
 }
@@ -417,9 +417,9 @@ void LuaPolymorphic<esv::MovementState>::MakeRef(lua_State* L, esv::MovementStat
 void LuaPolymorphic<esv::ActionState>::MakeRef(lua_State* L, esv::ActionState* o, LifetimeHandle const & lifetime)
 {
 	switch (o->GetType()) {
-	case esv::ActionStateType::Attack: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASAttack*>(o));
-	case esv::ActionStateType::PrepareSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASPrepareSkill*>(o));
-	case esv::ActionStateType::UseSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASUseSkill*>(o));
+	case ActionStateType::Attack: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASAttack*>(o));
+	case ActionStateType::PrepareSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASPrepareSkill*>(o));
+	case ActionStateType::UseSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASUseSkill*>(o));
 	// TODO - map others
 	default: return MakeDirectObjectRef(L, lifetime, o);
 	}

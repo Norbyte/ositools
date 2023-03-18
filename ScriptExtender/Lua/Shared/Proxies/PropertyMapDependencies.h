@@ -21,6 +21,7 @@
 #include <GameDefinitions/GameObjects/Controllers.h>
 #include <GameDefinitions/GameObjects/Player.h>
 #include <GameDefinitions/GameObjects/Camera.h>
+#include <GameDefinitions/GameObjects/Skill.h>
 #include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <Hit.h>

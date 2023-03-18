@@ -95,3 +95,100 @@ struct MovementMachine : public ProtectedGameObject<MovementMachine>
 };
 
 END_NS()
+
+
+BEGIN_NS(ecl)
+
+struct MovementMachine;
+
+struct MovementState : public ProtectedGameObject<MovementState>
+{
+	virtual ~MovementState() = 0;
+	virtual bool Enter() = 0;
+	virtual bool Continue() = 0;
+	virtual void Update(GameTime const& t) = 0;
+	virtual uint32_t Unknown1() = 0;
+	virtual void Exit() = 0;
+	virtual bool IsFinished() = 0;
+	virtual MovementStateType GetTypeId() = 0;
+
+	MovementStateType LuaGetTypeId();
+
+	MovementMachine* MovementMachine;
+	uint32_t TransactionId;
+};
+
+struct MSMoveTo : public MovementState
+{
+	struct PlayerWeightFunc
+	{
+		void* VMT;
+		uint32_t SizeInAiGridCells;
+		bool IgnoreMovementBlock;
+		bool IsController_M;
+		bool InCombat;
+		ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
+	};
+
+
+	glm::vec3 Target;
+	glm::vec3 AiGridValidatedTarget;
+	glm::vec3 SourcePath;
+	glm::vec3 AiGridValidatedSourcePath;
+	glm::vec3 AiGridValidatedTarget2;
+	ComponentHandle AiHandle;
+	uint32_t TargetCheckType;
+	float CloseEnoughDistMax;
+	float CloseEnoughDistMin;
+	float CharacterRadius;
+	uint16_t Horizon;
+	uint64_t AiGridFlags;
+	bool IsRunning;
+	bool field_81;
+	bool UseSurfacePathInfluences;
+	bool UseCharacterRadius;
+	bool CanOpenDoors;
+	glm::vec3 AiGridValidatedTarget_Copy;
+	float TimeUntilNextPathfinding2;
+	float TimeRemaining_M;
+	float TimeUntilNextTargetPoint;
+	int CustomAiPathId;
+	glm::vec2 SourcePathXZ;
+	int field_AC;
+	bool IsFinished;
+	bool PathfindingComplete_M;
+	bool field_B2;
+	bool FoundNextTargetPoint;
+	bool field_B4;
+	bool DisabledStraightPathfinding_M;
+	PlayerWeightFunc WeightFunc;
+	glm::vec3 ParamTarget2;
+	ComponentHandle ParamAiHandle;
+	uint32_t ParamTargetCheckType;
+	float ParamCloseEnoughDistMax;
+	float ParamCloseEnoughDistMin;
+	uint16_t ParamHorizon;
+	bool ParamIsRunning;
+	bool Paramfield_81;
+	bool ParamUseSurfacePathInfluences;
+	bool ParamUseCharacterRadius;
+	bool ParamCanOpenDoors;
+	bool field_113;
+	bool WithinFreeMovementDistance;
+	bool IsAttack_M;
+	float ConsumedMoveDistance;
+	float TimeUntilNextPathfinding;
+	ObjectSet<ComponentHandle> IgnoreCollisionAiHandles;
+};
+
+
+struct MovementMachine : public ProtectedGameObject<MovementMachine>
+{
+	void* CachedMSMovement;
+	MSMoveTo* CachedMSMoveTo;
+	bool Active;
+	std::array<esv::MovementState*, 2> Layers;
+	ComponentHandle CharacterHandle;
+};
+
+END_NS()

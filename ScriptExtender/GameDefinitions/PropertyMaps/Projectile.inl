@@ -1,4 +1,4 @@
-BEGIN_CLS(esv::HitObject)
+BEGIN_CLS(ProjectileResult)
 P(HitInterpolation)
 P(Target)
 P(Position)

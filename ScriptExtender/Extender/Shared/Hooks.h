@@ -27,9 +27,9 @@ public:
 
 	static esv::Projectile* OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, esv::ShootProjectileHelper* helper);
 	void OnProjectileExplode(esv::Projectile* projectile);
-	void OnActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer, bool succeeded);
-	void OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);
-	void OnActionMachineResetState(esv::ActionMachine* self, bool force);
+	void OnActionMachineSetState(ActionMachineBase<esv::ActionState>* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer, bool succeeded);
+	void OnBeforeActionMachineSetState(ActionMachineBase<esv::ActionState>* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);
+	void OnActionMachineResetState(ActionMachineBase<esv::ActionState>* self, bool force);
 	void OnParseStructureFolder(stats::RPGStats* self, ObjectSet<STDString>* paths);
 	stats::PropertyData* OnParseSkillProperties(stats::RPGStats::ParsePropertiesProc* next, stats::RPGStats* self, STDString* str);
 	void OnSkillFormatDescriptionParam(stats::SkillPrototype::FormatDescriptionParamProc* next, stats::SkillPrototype* skillPrototype,

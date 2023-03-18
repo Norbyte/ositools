@@ -133,6 +133,21 @@ struct PlayerData : public ProtectedGameObject<PlayerData>
 };
 
 
+struct CharacterBody
+{
+	void* VMT;
+	Character* Character;
+	FixedString CurrentAnimation;
+	FixedString AnimationFinshedEvent_M;
+	float field_20;
+	FixedString NextAnimation;
+	float TimeOffset;
+	bool ForceStartAnimation;
+	ActionState* ActionState;
+	Timeline* Timeline;
+	void* UpperAnimationResource;
+};
+
 
 struct Character : public IEoCServerObject
 {
@@ -259,7 +274,7 @@ struct Character : public IEoCServerObject
 	FixedString ProjectileTemplate;
 	uint32_t TimeElapsed;
 	ObjectSet<FixedString> PreferredAiTarget;
-	void* CharacterBody;
+	CharacterBody* CharacterBody;
 	RefMap<ComponentHandle, ObjectSet<stats::PropertyStatus*>> StatusesFromItems;
 	ObjectSet<FixedString> TagsFromItems;
 	VisualSetIndices VisualSetIndices;
@@ -383,7 +398,7 @@ struct SkillManager : public ProtectedGameObject<SkillManager>
 {
 	using CheckSkillRequirementsProc = bool (SkillManager* self, stats::SkillPrototype* proto);
 
-	void* FreeSkillState;
+	SkillState* CurrentSkill;
 	ComponentHandle OwnerHandle;
 	Map<FixedString, Skill*> Skills;
 };

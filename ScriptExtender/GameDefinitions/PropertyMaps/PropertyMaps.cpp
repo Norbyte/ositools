@@ -3,6 +3,7 @@
 #include <GameDefinitions/Components/Projectile.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 #include <GameDefinitions/GameObjects/Surface.h>
+#include <GameDefinitions/GameObjects/Skill.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
 
@@ -1098,8 +1099,6 @@ namespace dse
 			PROP_RO(ShootCountOffHand);
 			PROP_RO(MainWeaponHandle);
 			PROP_RO(OffWeaponHandle);
-			PROP_RO(MainHandHitType);
-			PROP_RO(OffHandHitType);
 			PROP_RO(ProjectileUsesHitObject);
 			PROP_RO(ProjectileStartPosition);
 			PROP_RO(ProjectileTargetPosition);

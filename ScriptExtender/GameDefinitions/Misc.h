@@ -3,6 +3,7 @@
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/EntitySystem.h>
+#include <GameDefinitions/CommonTypes.h>
 #include <GameDefinitions/GameObjects/Module.h>
 #include <glm/gtc/quaternion.hpp>
 
@@ -331,6 +332,24 @@ namespace dse
 	};
 
 
+	struct Timeline
+	{
+		double Clock;
+		float LocalClock;
+		float NextSampleTime;
+		float Duration;
+		int NumSamples;
+		int Loop;
+		float Speed;
+		int NumSamplesEvents;
+		ObjectSet<void*>* Events;
+		void* Listener;
+		bool OwnsEventList;
+		bool Running;
+	};
+
+
+
 	struct TranslatedArgumentString
 	{
 		void* VMT{ nullptr };
@@ -418,35 +437,6 @@ namespace dse
 		{
 			void * VMT;
 			RefMap<FixedString, RefMap<FixedString, VoiceTextMetaData>> * SpeakerMetaDataHashMap;
-		};
-		
-
-		struct TextBuffer
-		{
-			wchar_t * Buf;
-			uint64_t Capacity;
-			uint64_t Length;
-			uint64_t Unknown;
-
-			void Replace(WStringView replacement);
-		};
-
-		struct Text
-		{
-			struct Param
-			{
-				int32_t PlaceholderOffset;
-				int32_t Unknown[2];
-				int32_t PlaceholderSize;
-			};
-
-			void * VMT;
-			TextBuffer * Buf;
-			int32_t Precision;
-			int32_t _Pad;
-			Param Params[8];
-
-			void ReplaceParam(int index, WStringView replacement);
 		};
 	}
 
