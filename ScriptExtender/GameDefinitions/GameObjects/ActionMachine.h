@@ -263,4 +263,90 @@ struct ActionState : public ProtectedGameObject<ActionState>
 struct ActionMachine : public ActionMachineBase<ecl::ActionState>
 {};
 
+
+struct ASAttack : public ActionState
+{
+	ComponentHandle Target;
+	glm::vec3 Position;
+	glm::vec3 field_2C;
+	bool Finished;
+	FixedString UpperAnimation;
+	ObjectSet<WeaponAnimData> WeaponAnimData;
+	uint64_t NextWeaponAnimationIndex;
+	float TimeElapsed;
+	bool field_74;
+	bool IsPositionalTarget;
+	glm::vec3 HitPositionMainHand;
+	glm::vec3 HitPositionOffHand;
+	ProjectileResult ProjectileResultMainHand;
+	ProjectileResult ProjectileResultOffHand;
+	stats::CriticalRoll CriticalHitMainHand;
+	stats::CriticalRoll CriticalHitOffHand;
+};
+
+
+struct ASDie : public ActionState
+{
+	float AnimationDuration;
+	stats::DeathType DeathType;
+	int AttackDirection;
+	FixedString ExplodeResourceID;
+	glm::vec3 ImpactDirection;
+	bool SkipAnimation;
+	bool field_3D;
+	MultiEffectHandler EffectHandler;
+};
+
+
+struct ASHit : public ActionState
+{
+	bool IdleAnimation;
+	bool BackstabOrFlankingAnimation;
+	bool field_1A;
+	bool HitIdle;
+	bool Still;
+	ComponentHandle HitStatus;
+};
+
+
+struct ASIdle : public ActionState
+{};
+
+
+struct ASAnimation : public ActionState
+{
+	FixedString Animation;
+	float TimeElapsed;
+	float AnimationDuration;
+	bool ExitOnFinish;
+	bool HasAnimation;
+	bool IsFinished;
+	bool NoBlend;
+	bool WaitForLoad;
+};
+
+
+struct ASPrepareSkill : public ActionState
+{
+	FixedString SkillId;
+	FixedString PrepareAnimationInit;
+	FixedString PrepareAnimationLoop;
+	FixedString PrepareEffect;
+	MultiEffectHandler EffectHandler;
+	ObjectSet<WeaponAnimData> WeaponAnimData;
+	uint64_t WeaponAnimationIndex;
+	float TimeElapsed;
+	bool NeedsEffectInitialization;
+	bool IsFinished;
+};
+
+
+struct ASUseSkill : public ActionState
+{
+	SkillState* CurrentSkill;
+	bool OwnsCurrentSkill;
+	SkillState* LastSkill;
+	bool OwnsLastSkill;
+};
+
 END_NS()

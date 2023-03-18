@@ -435,7 +435,7 @@ struct Character : public IEoCClientReplicatedObject
 	Status* GetStatus(NetId handle) const;
 
 	glm::vec3 WorldPos;
-	ecl::CharacterFlags Flags;
+	CharacterFlags Flags;
 	float AIBoundSize;
 	FixedString CurrentLevel;
 	glm::mat3 WorldRot;
@@ -457,14 +457,14 @@ struct Character : public IEoCClientReplicatedObject
 	CharacterTemplate* OriginalTemplate;
 	stats::Character* Stats;
 	ComponentHandle InventoryHandle;
-	void* MovementMachine;
-	void* ActionStateMachine;
+	MovementMachine* MovementMachine;
+	ActionMachine* ActionMachine;
 	void* SteeringMachine;
 	void* BehaviorMachine;
 	InputController* InputController;
 	void* NetworkController;
-	void* StatusController;
-	void* DialogController;
+	StatusController* StatusController;
+	DialogController* DialogController;
 	void* CharacterSupervisor;
 	StatusMachine* StatusMachine;
 	SkillManager* SkillManager;
@@ -483,7 +483,7 @@ struct Character : public IEoCClientReplicatedObject
 	float FootStepEffectTimer;
 	float RemainingMoveDistance;
 	int FootStepMaterialType;
-	ecl::PlayerData* PlayerData;
+	PlayerData* PlayerData;
 	eoc::PlayerUpgrade PlayerUpgrade;
 	ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
 	ObjectSet<FixedString> Tags;

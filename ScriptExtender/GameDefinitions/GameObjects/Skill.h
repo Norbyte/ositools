@@ -60,9 +60,9 @@ struct PreviewEffectMap
 
 struct WeaponAnimData
 {
-	float TimeOffset;
-	float field_4;
-	float field_8;
+	float FirstTextEventTime;
+	float TextEventTime;
+	float TimeDelta;
 };
 
 

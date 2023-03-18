@@ -246,6 +246,36 @@ struct VisualSetResource : public NonDeferredLoadableResource
 	FixedString LastUsedPreviewVisual;
 };
 
+struct TextKeyEvent
+{
+	void* VMT;
+	FixedString ID;
+	float Time;
+	float Length;
+	char Track;
+	void* Properties;
+};
+
+struct TimelineEvent
+{
+	float Time;
+	FixedString ID;
+};
+
+struct AnimationResource : public DeferredLoadableResource
+{
+	FixedString TemplateID;
+	ObjectSet<TextKeyEvent*> TextKeys;
+	int TextKeyRefcounts[2];
+	ObjectSet<TimelineEvent> TimelineEvents;
+	float Duration;
+	float InitialOffset;
+	bool IsLooping;
+	bool IsImmediate;
+	bool IsPoseBank;
+	FixedString PreviewVisualResource;
+};
+
 
 struct Visual : public MoveableObject
 {
