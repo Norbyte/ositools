@@ -5,6 +5,7 @@
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/Movement.h>
+#include <GameDefinitions/GameObjects/Skill.h>
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
 #include <GameDefinitions/Base/HalfHelpers.h>
@@ -635,6 +636,24 @@ namespace dse
 			}
 		}
 
+		ActionStateType ActionState::LuaGetTypeId()
+		{
+			return GetType();
+		}
+
+		MovementStateType MovementState::LuaGetTypeId()
+		{
+			return GetTypeId();
+		}
+	}
+
+	namespace ecl
+	{
+		SkillType SkillState::LuaGetType()
+		{
+			return GetType();
+		}
+		
 		ActionStateType ActionState::LuaGetTypeId()
 		{
 			return GetType();

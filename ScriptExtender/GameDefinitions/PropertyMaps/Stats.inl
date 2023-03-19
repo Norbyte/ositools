@@ -11,6 +11,11 @@ P(Tag)
 P(Not)
 END_CLS()
 
+BEGIN_CLS(stats::Condition)
+// TODO - unmapped for now
+P_GETTER(Text, LuaDump)
+END_CLS()
+
 BEGIN_CLS(stats::Reflection)
 P(DamageType)
 P(MeleeOnly)

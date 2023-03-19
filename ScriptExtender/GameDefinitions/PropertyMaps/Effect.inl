@@ -33,6 +33,25 @@ P_RO(VisualId)
 END_CLS()
 
 
+BEGIN_CLS(WeaponAnimData)
+P(FirstTextEventTime)
+P(TextEventTime)
+P(TimeDelta)
+END_CLS()
+
+
+BEGIN_CLS(ecl::BeamEffectHandler)
+P(SourcePosition)
+P(SourceHandle)
+P(TargetHandle)
+P(SourceHandle2)
+P_REF(TextKeyEffectDescs)
+P_REF(TextKeyEffects)
+P_REF(Effects)
+P(ListeningOnTextKeys)
+END_CLS()
+
+
 BEGIN_CLS(ecl::lua::visual::ClientMultiVisual)
 INHERIT(ecl::MultiEffectHandler)
 P_REF(AttachedVisuals)
@@ -41,6 +60,20 @@ P_FUN(Delete, Delete)
 P_FUN(ParseFromStats, ParseFromStats)
 P_FUN(AddVisual, AddVisual)
 END_CLS()
+
+
+BEGIN_CLS(ecl::Effect)
+INHERIT(Visual)
+P_RO(EffectFlags)
+P(SoundObjectHandle)
+P_REF(CachedWorldTransform)
+P(EffectName)
+P_REF(ParentEffect)
+P(CachedParentFadeOpacity)
+P(FreezeFadeOpacity)
+P_RO(RefCount)
+END_CLS()
+
 
 BEGIN_CLS(esv::Effect)
 INHERIT(BaseComponent)

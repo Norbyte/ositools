@@ -350,6 +350,36 @@ namespace dse::eoc
         }
     };
 
+
+	struct PathMover
+	{
+		glm::quat PathRotateOrig;
+		glm::quat PathRotateTarget;
+		glm::vec3 StartingPosition;
+		glm::vec3 DestinationPos;
+		float PathInterpolateValue;
+		float PathSpeedSet;
+		float PathSpeed;
+		float PathAcceleration;
+		uint8_t PathType;
+		int PathRotationType;
+		float PathRadius;
+		float PathShift;
+		float PathMinArcDist;
+		float PathMaxArcDist;
+		uint64_t PathRepeat;
+		uint8_t PathRandom;
+	};
+
+
+    struct PathPreviewer
+    {
+        void* VMT;
+        PathMover* Mover;
+        ObjectSet<glm::vec3> Points;
+        __int64 field_30;
+        char field_38;
+    };
 }
 
 namespace dse::esv
@@ -403,4 +433,13 @@ namespace dse::ecl
 
         void RebuildHeightMapTexture();
     };
+
+    struct PathPreviewer : public eoc::PathPreviewer
+    {
+        __int64 field_40;
+        int field_48;
+        FixedString PreviewPathMaterial;
+        float PreviewPathRadius;
+    };
+
 }

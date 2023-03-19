@@ -173,12 +173,13 @@ struct ModifierInfo
 	int Index;
 };
 
-struct Condition : public Noncopyable<Modifier>
+struct Condition : public Noncopyable<Condition>
 {
 	IScriptCheckObject* ScriptCheckBlock;
 	FixedString Name;
 
 	STDString Dump() const;
+	STDString LuaDump();
 };
 
 template <class T>

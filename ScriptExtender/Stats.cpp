@@ -90,6 +90,13 @@ STDString Condition::Dump() const
 	return ScriptCheckBlock->Dump();
 }
 
+STDString Condition::LuaDump()
+{
+	if (!ScriptCheckBlock) return "";
+
+	return ScriptCheckBlock->Dump();
+}
+
 void HitDamageInfo::ClearDamage()
 {
 	TotalDamageDone = 0;

@@ -403,7 +403,7 @@ struct BaseController : public ProtectedGameObject<BaseController>
 {
 	void* VMT;
 	int TypeId;
-	ComponentHandle CharacterHandle;
+	ComponentHandle Character;
 };
 
 

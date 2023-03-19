@@ -58,14 +58,6 @@ struct PreviewEffectMap
 };
 
 
-struct WeaponAnimData
-{
-	float FirstTextEventTime;
-	float TextEventTime;
-	float TimeDelta;
-};
-
-
 struct SkillState : public ProtectedGameObject<SkillState>
 {
 	virtual bool GetCharacterPosition(glm::vec3&) = 0;
@@ -121,8 +113,10 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	virtual void RemoveTarget(IEoCClientObject* target) = 0;
 	virtual void AddTarget2(IEoCClientObject* target) = 0;
 	virtual void RemoveTarget2(IEoCClientObject* target) = 0;
-	virtual void HighlightPickTarget(stats::Conditions* conditions, bool highlightCharacters, bool highlightItems) = 0;
+	virtual void HighlightPickTarget(stats::Condition* conditions, bool highlightCharacters, bool highlightItems) = 0;
 	virtual void PlayCastEffect(glm::vec3 const& position) = 0;
+
+	SkillType LuaGetType();
 
 	ObjectSet<ComponentHandle> HighlightedCharacters;
 	ObjectSet<ComponentHandle> HighlightedItems;
@@ -180,8 +174,8 @@ struct SkillStateTarget : public SkillState
 	float NextTextKeyEnd;
 	float CastAnimationDuration;
 	ObjectSet<float> TextKeyOffsets;
-	stats::Conditions* TargetConditions;
-	stats::Conditions* AoEConditions;
+	stats::Condition* TargetConditions;
+	stats::Condition* AoEConditions;
 	ObjectSet<SurfaceTransformActionType> SurfaceTransformActions;
 	int AmountOfTargets;
 	int Autocast;
@@ -196,14 +190,14 @@ struct SkillStateTarget : public SkillState
 
 struct SkillStateTeleportation : public SkillState
 {
-	ComponentHandle EffectHandle;
-	ComponentHandle EffectHandle2;
-	ComponentHandle EffectHandle3;
+	ComponentHandle SourceTargetingEffect;
+	ComponentHandle TargetTargetingEffect;
+	ComponentHandle PathTargetingShapeEffect;
 	MultiEffectHandler* EffectHandler2;
 	glm::vec3 DisappearPosition;
-	ComponentHandle TargetHandle;
+	ComponentHandle Target;
 	glm::vec3 Position;
-	ComponentHandle HighlightHandle;
+	ComponentHandle Highlight;
 	int TargetingState;
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
@@ -218,7 +212,7 @@ struct SkillStateTeleportation : public SkillState
 	bool CanTargetItems;
 	bool CanTargetTerrain;
 	bool TickUI;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	PathPreviewer* PathPreviewer;
 };
 
@@ -240,10 +234,10 @@ struct SkillStateProjectileStrike : public SkillState
 	bool CanTargetItems;
 	bool CanTargetTerrain;
 	glm::vec3 TargetPosition;
-	ComponentHandle TargetHandle;
+	ComponentHandle Target;
 	bool IsFinished;
-	ComponentHandle EffectHandle;
-	ComponentHandle EffectHandle2;
+	ComponentHandle TargetingPreviewEffect;
+	ComponentHandle InfluenceRadiusEffect;
 	float HighlightRadius;
 	float AngleTan;
 	float Height;
@@ -256,8 +250,10 @@ struct SkillStateProjectileStrike : public SkillState
 	float ZWithHeight;
 	glm::vec3 Position2;
 	ObjectSet<glm::vec3> OS_Vec3;
-	__int64 field_1C0;
-	__int64 field_1C8;
+	uint32_t field_1C0;
+	uint32_t ProjectileCount;
+	float PathSpeed;
+	float Acceleration;
 	uint8_t field_1D0;
 	ObjectSet<ComponentHandle> Targets;
 	int TargetRadiusSquare;
@@ -267,7 +263,7 @@ struct SkillStateProjectileStrike : public SkillState
 	float AreaRadius;
 	float Angle;
 	float field_210;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	int StrikeCount;
 	ObjectSet<float> TextKeys;
 	bool field_248;
@@ -282,7 +278,7 @@ struct SkillStateSummon : public SkillState
 	{
 		glm::vec3 Position;
 		int field_C;
-		Effect* Effect_M;
+		Effect* Effect;
 	};
 
 	FixedString TargetEffect;
@@ -296,7 +292,7 @@ struct SkillStateSummon : public SkillState
 	float CastTextKeyTime;
 	float CastEffectTextEventTime;
 	float AnimationDuration;
-	stats::Conditions* AoEConditions;
+	stats::Condition* AoEConditions;
 	float AreaRadius;
 	int field_13C;
 	ComponentHandle EffectHandle;
@@ -314,7 +310,7 @@ struct SkillStateRain : public SkillState
 	float AnimationDuration;
 	float CastTextKeyTime;
 	float CastEffectTextKeyTime;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	Effect* TargetingEffect;
 	float TargetRadius;
 	float AreaRadius;
@@ -332,7 +328,7 @@ struct SkillStateZone : public SkillState
 	PrimitiveSmallSet<SurfaceCell> SurfaceCells;
 	bool CanTargetCharacters;
 	bool CanTargetItems;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	float PushDistance;
 	Map<ComponentHandle, PathPreviewer*> PathPreviewers;
 };
@@ -340,14 +336,14 @@ struct SkillStateZone : public SkillState
 
 struct SkillStateHeal : public SkillState
 {
-	ComponentHandle HighlightHandle;
+	ComponentHandle Highlight;
 	bool IsFinished_M;
 	uint8_t field_F1;
 	float AnimationDuration;
 	float CastTextKeyTime;
 	float CastEffectTextKeyTime;
 	float TargetRadius;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 };
 
 
@@ -401,7 +397,7 @@ struct SkillStateProjectile : public SkillState
 	float AreaRadius;
 	int32_t Angle;
 	float TimeUntilNextProjectile;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	uint8_t field_130;
 	eoc::Text AimStatusText;
 	ObjectSet<TargetData> Targets;
@@ -430,7 +426,7 @@ struct SkillStateWall : public SkillState
 struct SkillStateJump : public SkillState
 {
 	bool IsFinished;
-	ComponentHandle TargetingShapeFX;
+	ComponentHandle TargetingShapeEffect;
 	glm::vec3 Position;
 	float TimeUntilAnimationEnd;
 	float TimeUntilTeleportFirstTextKey;
@@ -438,9 +434,9 @@ struct SkillStateJump : public SkillState
 	PrimitiveSmallSet<float> TeleportTextKeys;
 	__int64 field_128;
 	FixedString field_130;
-	stats::Conditions* TargetConditions;
-	ComponentHandle InfluenceRadiusFXTarget;
-	ComponentHandle InfluenceRadiusFXSource;
+	stats::Condition* TargetConditions;
+	ComponentHandle InfluenceRadiusEffectTarget;
+	ComponentHandle InfluenceRadiusEffectSource;
 	float TargetRadius;
 	float HitRadius;
 	uint32_t TargetingState;
@@ -456,11 +452,11 @@ struct SkillStateQuake : public SkillState
 	float AreaRadius;
 	float CastTextKeyTimeRemaining;
 	float CastEffectTextKeyTimeRemaining;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 };
 
 
-struct SkillStateMultistrike : public SkillState
+struct SkillStateMultiStrike : public SkillState
 {
 	ComponentHandle HoverCharacter;
 	uint32_t TargetValidationResult;
@@ -470,7 +466,7 @@ struct SkillStateMultistrike : public SkillState
 	float CastEffectTextKeyTimeRemaining;
 	glm::vec3 EndPosition;
 	glm::vec3 StartPosition;
-	__int64 TargetConditions;
+	stats::Condition* TargetConditions;
 	char field_128;
 	char field_129;
 	ObjectSet<STDString> Effects;
@@ -490,12 +486,12 @@ struct SkillStateStorm : public SkillState
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	float CastEffectTextKeyTimeRemaining;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	Effect* Effect1;
 	float AreaRadius;
 	float TargetRadius;
-	Effect* InfluenceRadiusFX;
-	uint32_t State;
+	Effect* InfluenceRadiusEffect;
+	uint32_t TargetingState;
 };
 
 
@@ -506,7 +502,7 @@ struct SkillStateTornado : public SkillState
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	float CastEffectTextKeyTimeRemaining;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	Effect* Effect;
 	float TargetRadius;
 };
@@ -522,14 +518,14 @@ struct SkillStateShout : public SkillState
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	float CastEffectTextKeyTimeRemaining;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	float AreaRadius;
 	PrimitiveSmallSet<float> TextKeyOffsets;
 	__int64 field_130;
 	float PushDistance;
 	Map<ComponentHandle, PathPreviewer*> PathPreviewers;
 	ObjectSet<ComponentHandle> Targets;
-	__int64 SkillProperties;
+	stats::PropertyList* SkillProperties;
 };
 
 
@@ -559,7 +555,7 @@ struct SkillStateRush : public SkillState
 	float SomeDistanceStep;
 	bool MaterialParametersChanged;
 	bool ActiveOnServer;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	ObjectSet<ComponentHandle> OS_OH;
 };
 
@@ -572,7 +568,7 @@ struct SkillStateDome : public SkillState
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	float CastEffectTextKeyTimeRemaining;
-	stats::Conditions* TargetConditions;
+	stats::Condition* TargetConditions;
 	Effect* TargetEffect;
 	float TargetRadius;
 	float AreaRadius;

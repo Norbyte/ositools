@@ -274,7 +274,7 @@ END_CLS()
 
 BEGIN_CLS(ecl::BaseController)
 P_RO(TypeId)
-P_RO(CharacterHandle)
+P_RO(Character)
 END_CLS()
 
 
@@ -329,4 +329,22 @@ P(MouseCursor)
 P(RequestedFlags)
 P(field_34)
 P_RO(TextDisplayUIHandle)
+END_CLS()
+
+
+BEGIN_CLS(ecl::StatusController)
+INHERIT(ecl::BaseController)
+P(Flags)
+P_BITMASK(Flags)
+P_RO(SummoningTransactionId)
+P_RO(PolymorphingTransactionId)
+P_RO(KnockedDownTransactionId)
+P_RO(TeleportFallTransactionId)
+P_RO(SetKnockedDown)
+END_CLS()
+
+
+BEGIN_CLS(ecl::DialogController)
+INHERIT(ecl::BaseController)
+P(IsSteering)
 END_CLS()

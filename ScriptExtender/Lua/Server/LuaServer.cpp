@@ -4,6 +4,7 @@
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/GameObjects/Movement.h>
 #include <GameDefinitions/GameObjects/Controllers.h>
+#include <GameDefinitions/GameObjects/Skill.h>
 #include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <GameDefinitions/CustomStats.h>
@@ -414,6 +415,15 @@ void LuaPolymorphic<esv::MovementState>::MakeRef(lua_State* L, esv::MovementStat
 	}
 }
 
+void LuaPolymorphic<ecl::MovementState>::MakeRef(lua_State* L, ecl::MovementState* o, LifetimeHandle const & lifetime)
+{
+	switch (o->GetTypeId()) {
+	// FIXME - case MovementStateType::Movement: return MakeDirectObjectRef(L, lifetime, static_cast<esv::MSMovement*>(o));
+	case MovementStateType::MoveTo: return MakeDirectObjectRef(L, lifetime, static_cast<ecl::MSMoveTo*>(o));
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
 void LuaPolymorphic<esv::ActionState>::MakeRef(lua_State* L, esv::ActionState* o, LifetimeHandle const & lifetime)
 {
 	switch (o->GetType()) {
@@ -421,6 +431,14 @@ void LuaPolymorphic<esv::ActionState>::MakeRef(lua_State* L, esv::ActionState* o
 	case ActionStateType::PrepareSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASPrepareSkill*>(o));
 	case ActionStateType::UseSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASUseSkill*>(o));
 	// TODO - map others
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+void LuaPolymorphic<ecl::ActionState>::MakeRef(lua_State* L, ecl::ActionState* o, LifetimeHandle const & lifetime)
+{
+	switch (o->GetType()) {
+	// TODO - map types
 	default: return MakeDirectObjectRef(L, lifetime, o);
 	}
 }
@@ -467,6 +485,35 @@ void LuaPolymorphic<esv::GameAction>::MakeRef(lua_State* L, esv::GameAction* o, 
 	MAKE_REF(PathAction)
 	MAKE_REF(GameObjectMoveAction)
 	MAKE_REF(StatusDomeAction)
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+#undef MAKE_REF
+
+#define MAKE_REF(ty) case SkillType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<ecl::SkillState##ty*>(o));
+
+void LuaPolymorphic<ecl::SkillState>::MakeRef(lua_State* L, ecl::SkillState* o, LifetimeHandle const & lifetime)
+{
+	switch (o->GetType()) {
+	case SkillType::SkillHeal: return MakeDirectObjectRef(L, lifetime, static_cast<ecl::SkillStateHeal*>(o));
+	MAKE_REF(Zone)
+	MAKE_REF(Jump)
+	MAKE_REF(MultiStrike)
+	MAKE_REF(Path)
+	MAKE_REF(Projectile)
+	MAKE_REF(ProjectileStrike)
+	MAKE_REF(Quake)
+	MAKE_REF(Rain)
+	MAKE_REF(Rush)
+	MAKE_REF(Shout)
+	MAKE_REF(Storm)
+	MAKE_REF(Summon)
+	MAKE_REF(Target)
+	MAKE_REF(Teleportation)
+	MAKE_REF(Tornado)
+	MAKE_REF(Wall)
+	MAKE_REF(Dome)
 	default: return MakeDirectObjectRef(L, lifetime, o);
 	}
 }

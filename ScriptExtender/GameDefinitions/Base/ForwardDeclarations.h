@@ -78,7 +78,7 @@ namespace stats
 	struct Object;
 	struct Character;
 	struct Item;
-	struct Conditions;
+	struct Condition;
 }
 
 namespace net
@@ -191,6 +191,14 @@ namespace ecl
 	struct SkillState;
 	struct MultiEffectHandler;
 	struct BeamEffectHandler;
+
+	struct MovementMachine;
+	struct MovementState;
+	struct ActionMachine;
+	struct ActionState;
+	struct BaseController;
+	struct StatusController;
+	struct DialogController;
 
 	struct EoCUI;
 	class ExtensionState;

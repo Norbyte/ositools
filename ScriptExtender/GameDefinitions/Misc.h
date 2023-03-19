@@ -394,27 +394,6 @@ namespace dse
 
 	namespace eoc
 	{
-		struct PathMover
-		{
-			glm::quat PathRotateOrig;
-			glm::quat PathRotateTarget;
-			glm::vec3 StartingPosition;
-			glm::vec3 DestinationPos;
-			float PathInterpolateValue;
-			float PathSpeedSet;
-			float PathSpeed;
-			float PathAcceleration;
-			uint8_t PathType;
-			int PathRotationType;
-			float PathRadius;
-			float PathShift;
-			float PathMinArcDist;
-			float PathMaxArcDist;
-			uint64_t PathRepeat;
-			uint8_t PathRandom;
-		};
-
-
 		struct NetworkFixedStrings : public ProtectedGameObject<NetworkFixedStrings>
 		{
 			uint16_t Initialized;

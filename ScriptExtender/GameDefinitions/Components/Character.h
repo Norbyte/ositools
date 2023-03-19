@@ -5,7 +5,6 @@
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Stats.h>
 #include <GameDefinitions/GameObjects/Status.h>
-#include <GameDefinitions/GameObjects/ActionMachine.h>
 #include <GameDefinitions/Sound.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 #include <GameDefinitions/GameObjects/Ai.h>
@@ -419,7 +418,7 @@ struct CharacterBody : public ProtectedGameObject<CharacterBody>
 	bool WaitForLoad;
 	float AnimationDuration;
 	float SpeedScaledAnimationDuration;
-	void* ActionState;
+	ActionState* ActionState;
 };
 
 

@@ -16,6 +16,13 @@ struct ProjectileResult
 	glm::vec3 Position;
 };
 
+struct WeaponAnimData
+{
+	float FirstTextEventTime;
+	float TextEventTime;
+	float TimeDelta;
+};
+
 END_NS()
 
 BEGIN_NS(eoc)

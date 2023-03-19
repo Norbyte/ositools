@@ -3,6 +3,7 @@
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/Helpers.h>
+#include <GameDefinitions/GameObjects/Effect.h>
 
 BEGIN_SE()
 
