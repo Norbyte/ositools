@@ -645,6 +645,11 @@ namespace dse
 		{
 			return GetTypeId();
 		}
+
+		SkillType SkillState::LuaGetType()
+		{
+			return GetType();
+		}
 	}
 
 	namespace ecl

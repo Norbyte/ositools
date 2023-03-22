@@ -94,6 +94,24 @@ pm.AddProperty("EffectFlags",
 END_CLS()
 
 
+BEGIN_CLS(ArmorDivider)
+P(DamagePerHit)
+END_CLS()
+
+
+BEGIN_CLS(NumberDivider)
+P(Type)
+P(Amount)
+P(Accumulator)
+END_CLS()
+
+
+BEGIN_CLS(NumberDividers)
+P_REF(ArmorAbsorptionDivider)
+P_REF(DamageDividers)
+END_CLS()
+
+
 BEGIN_CLS(Bound)
 P(Center)
 P(Radius)

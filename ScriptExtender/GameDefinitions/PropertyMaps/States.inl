@@ -128,24 +128,6 @@ P_RO(TransactionId)
 END_CLS()
 
 
-BEGIN_CLS(esv::ArmorDivider)
-P(DamagePerHit)
-END_CLS()
-
-
-BEGIN_CLS(esv::NumberDivider)
-P(Type)
-P(Amount)
-P(Accumulator)
-END_CLS()
-
-
-BEGIN_CLS(esv::NumberDividers)
-P_REF(ArmorAbsorptionDivider)
-P_REF(DamageDividers)
-END_CLS()
-
-
 BEGIN_CLS(esv::ASAttack)
 INHERIT(esv::ActionState)
 P(TargetHandle)

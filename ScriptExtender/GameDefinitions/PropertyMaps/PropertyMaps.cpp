@@ -1119,12 +1119,8 @@ namespace dse
 			PROP_RO(SkillId);
 			PROP_RO(CharacterHandle);
 			PROP_RO(SourceItemHandle);
-			PROP_RO(CanEnter);
-			PROP_RO(IsFinished);
 			PROP_RO(IgnoreChecks);
 			PROP_RO(IsStealthed);
-			PROP_RO(PrepareTimerRemaining);
-			PROP_RO(ShouldExit);
 			PROP_RO(CleanseStatuses);
 			PROP_RO(StatusClearChance);
 			PROP_RO(CharacterHasSkill);

@@ -1638,6 +1638,17 @@ BEGIN_ENUM_NS(eoc, SkillBarItemType, SkillBarItemType, uint32_t)
 END_ENUM_NS()
 
 
+BEGIN_ENUM_NS(eoc, SkillStateType, SkillStateType, uint32_t)
+	EV(Unknown, 0)
+	EV(Init, 1)
+	EV(Charging, 2)
+	EV(PickTargets, 3)
+	EV(Preparing, 4)
+	EV(Casting, 5)
+	EV(CastFinished, 6)
+	EV(Finished, 7)
+END_ENUM_NS()
+
 BEGIN_BITMASK_NS(ecl, StatusFlags, ClientStatusFlags, uint8_t)
 	EV(RequestDelete, 0x01)
 	EV(Started, 0x02)

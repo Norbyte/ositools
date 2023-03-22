@@ -23,6 +23,25 @@ struct WeaponAnimData
 	float TimeDelta;
 };
 
+struct ArmorDivider
+{
+	float DamagePerHit;
+	int field_4;
+};
+
+struct NumberDivider
+{
+	stats::DamageType Type;
+	float Amount;
+	float Accumulator;
+};
+
+struct NumberDividers
+{
+	ArmorDivider ArmorAbsorptionDivider;
+	ObjectSet<NumberDivider> DamageDividers;
+};
+
 END_NS()
 
 BEGIN_NS(eoc)

@@ -23,28 +23,285 @@ BEGIN_NS(esv)
 
 struct SkillState : public ProtectedGameObject<SkillState>
 {
-	void* VMT;
-	int StateIndex;
-	int State;
+	virtual ~SkillState() = 0;
+	virtual SkillType GetType() = 0;
+	virtual bool CheckTrigger(Trigger*) = 0;
+	virtual bool Init() = 0;
+	virtual bool Enter() = 0;
+	virtual bool Update(GameTime const&) = 0;
+	virtual void Tick(int const& teamId) = 0;
+	virtual bool CanExit() = 0;
+	virtual bool Exit() = 0;
+	virtual bool IsFinished() = 0;
+	virtual bool EnterBehaviour() = 0;
+	virtual bool ContinueBehaviour() = 0;
+	virtual bool UpdateBehaviour(GameTime const&) = 0;
+	virtual void TickBehaviour(uint32_t* teamId, float timeDelta) = 0;
+	virtual bool CanExitBehaviour() = 0;
+	virtual bool ExitBehaviour() = 0;
+	virtual bool IsFinishedBehaviour() = 0;
+	virtual bool EnterAction() = 0;
+	virtual bool ContinueAction() = 0;
+	virtual bool UpdateAction(GameTime const& time) = 0;
+	virtual void TickAction() = 0;
+	virtual bool CanExitAction() = 0;
+	virtual bool ExitAction() = 0;
+	virtual bool IsFinishedAction() = 0;
+	virtual bool GetSyncData(ScratchBuffer&) = 0;
+	virtual bool GetSyncDataUpdate(ScratchBuffer&) = 0;
+	virtual bool SyncData(ScratchBuffer&) = 0;
+	virtual SkillState* Clone() = 0;
+	virtual void Reset() = 0;
+	virtual bool Finish() = 0;
+
+	SkillType LuaGetType();
+
+	uint8_t SomeHitFlag;
+	eoc::SkillStateType State;
 	FixedString SkillId;
 	ComponentHandle CharacterHandle;
 	ComponentHandle SourceItemHandle;
-	bool CanEnter;
-	bool IsFinished;
-	bool SkillStateOver6_2;
+	bool ConsumeItem;
+	bool ActionFinished;
+	bool CastingFinished2;
 	bool IgnoreChecks;
 	bool IsStealthed;
-	int field_30;
-	float PrepareTimerRemaining;
-	float Unkn_OnSkillCombatCommentEventCondition;
-	float SomeCombatCommentEventTimeoutValue;
-	bool field_40;
-	bool ShouldExit;
-	bool SkillStateOver6;
+	uint32_t BehaviourTransactionId;
+	float ChargeTimerRemaining;
+	float CombatCommentTextKeyOffset;
+	float CombatCommentTextKeyOffsetRemaining;
+	bool OwnsUseActionState;
+	bool RequestExit;
+	bool CastingFinished;
 	FixedString CleanseStatuses;
 	float StatusClearChance;
 	bool CharacterHasSkill;
 };
+
+struct SkillStateDome : public SkillState
+{
+	float AnimationDurationRemaining;
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextEventTimeRemaining;
+	glm::vec3 Position;
+};
+
+struct SkillStateHeal : public SkillState
+{
+	ComponentHandle TargetHandle;
+	float AnimationDuration;
+	float FirstCastTextEventTime;
+};
+
+struct SkillStateJump : public SkillState
+{
+  float NextTextKeyTimeRemaining;
+  ObjectSet<float> TextKeys;
+  float SelfCastTextEventTimeRemaining;
+  float TextKeyTimeRemaining;
+  float AnimationDuration;
+  bool CastEventThrown;
+  glm::vec3 Position;
+};
+
+struct SkillStateMultiStrike : public SkillState
+{
+	ComponentHandle TargetHandle;
+	float AnimationDuration;
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextEventTimeRemaining;
+	float JumpDelay;
+	glm::vec3 CasterPosition;
+	glm::vec3 EndPosition;
+	bool IsFinished;
+	bool CastEventThrown;
+	glm::vec3 CasterPosition2;
+	ObjectSet<ComponentHandle> Targets;
+};
+
+struct SkillStatePath : public SkillState
+{
+	float CastTextKeyTimeRemaining;
+	float AnimationDuration;
+	glm::vec3 StartPosition;
+	int field_6C;
+	int field_70;
+	int field_74;
+	ObjectSet<glm::vec3> Path;
+};
+
+struct SkillStateProjectile : public SkillState
+{
+	struct Cast
+	{
+		float Delay;
+		ComponentHandle TargetObjectHandle;
+		glm::vec3 Position;
+		int field_1C;
+	};
+
+	struct TargetData
+	{
+		glm::vec3 Position;
+		glm::vec3 Position2;
+		ComponentHandle TargetHandle;
+		glm::vec3 StartPosition;
+		glm::vec3 TargetPosition;
+		ObjectSet<ProjectileResult> ProjectileResults;
+		ObjectSet<Cast> Casts;
+		uint64_t NumProjectiles;
+		uint64_t NumProjectilesFired;
+		ObjectSet<NumberDivider> DamageDividers;
+	};
+
+
+	ObjectSet<TargetData> Targets;
+	float CastDelayAndDuration;
+	FixedString CastAnimation;
+	float BaseDelay;
+	float SelfCastTextEventDelay;
+	float ProjectileDelayTimer;
+	float ProjectileDelay;
+	uint64_t ProjectileCount;
+	bool HasAngle;
+	bool MovingObjectIsCaster;
+	bool ThrowOnSkillCastEvent;
+	int NumTotalCasts;
+	int field_A8;
+	int SomeSteeringValue;
+};
+
+struct SkillStateProjectileStrike : public SkillState
+{
+	ComponentHandle NextTargetHandle;
+	glm::vec3 NextTargetPosition;
+	glm::vec3 SteeringTargetPosition;
+	float AnimationDuration;
+	glm::vec3 NextTargetPosition2;
+	float NextProjectileTime;
+	float NextPropertyDataTime;
+	uint64_t ShotProjectileCount;
+	uint64_t CurrentHitNum;
+	float NextDamageTime;
+	float ProjectileDelay;
+	uint64_t ProjectileCount;
+	ObjectSet<NumberDivider> DamageDividers;
+	ObjectSet<ProjectileTargetDesc> Targets;
+	ObjectSet<float> ProjectileTimers;
+	bool NeedsToThrowSkillCastEvent;
+};
+
+struct SkillStateQuake : public SkillState
+{
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextEventTimeRemaining;
+	float AnimationDuration;
+};
+
+struct SkillStateRain : public SkillState
+{
+	float AnimationDuration;
+	float FirstCastTextEventTime;
+	float FirstSelfCastTextEventTime;
+	glm::vec3 TargetPosition;
+};
+
+
+struct SkillStateRush : public SkillState
+{
+	ComponentHandle TargetHandle;
+	glm::vec3 TargetPosition;
+	float AnimationDurationRemaining;
+	glm::vec3 DamageAreaCenter;
+	float DamageAreaRadius;
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextEventTimeRemaining;
+	glm::vec3 StartPosition;
+	float StartTextKeyTimeRemaining;
+	float StepSize;
+	float StepSize2;
+	float HitRadius;
+	float StartTextKeyTime;
+	float StopTextKeyTime;
+	int SteeringTransactionId;
+	ObjectSet<ComponentHandle> DamagedTargets;
+	ComponentHandle SurfaceHandle;
+};
+
+struct SkillStateShout : public SkillState
+{
+	float CastDelayRemaining;
+	float SelfCastTextEventTimeRemaining;
+	float DurationRemaining;
+	glm::vec3 Position;
+	ObjectSet<ComponentHandle> ObjectHandleSet;
+};
+
+struct SkillStateStorm : public SkillState
+{
+	float AnimationDuration;
+	float CastTextKeyTimeRemaining;
+	glm::vec3 Position;
+};
+
+struct SkillStateSummon : public SkillState
+{
+	float AnimationDuration;
+	float FirstCastTextEventTime;
+	float FirstSelfCastTextEvent;
+	bool HasHighLevelSummoning;
+	uint64_t SomeMaxSummonCount;
+	ObjectSet<glm::vec3> SummonPositions;
+};
+
+struct SkillStateTarget : public SkillState
+{
+	ComponentHandle TargetHandle;
+	glm::vec3 TargetPosition;
+	float AnimationDurationRemaining;
+	float FirstCastTextEventTime;
+	ObjectSet<float> TextEventTimers;
+	float SelfCastTextEventTimeRemaining;
+	bool NeedsToThrowCastEvent;
+	ComponentHandle IncreasedDelayDeathCountHandle;
+};
+
+struct SkillStateTeleportation : public SkillState
+{
+	glm::vec3 SourcePosition;
+	ComponentHandle SourceHandle;
+	glm::vec3 TargetPosition;
+	ComponentHandle TargetHandle;
+	float AnimationDuration;
+	float CastTextKeyTimeRemaining;
+	bool TeleportSurface;
+};
+
+struct SkillStateTornado : public SkillState
+{
+	float AnimationDuration;
+	float CastTextKeyTimeRemaining;
+	glm::vec3 Position;
+};
+
+struct SkillStateWall : public SkillState
+{
+	float AnimationDuration;
+	float CastFirstTextKeyTime;
+	float SelfCastTextEventTime;
+	glm::vec3 StartPosition;
+	glm::vec3 EndPosition;
+};
+
+struct SkillStateZone : public SkillState
+{
+	glm::vec3 TargetPosition;
+	float AnimationDuration;
+	float FirstCastTextEventTime;
+	ObjectSet<IEoCServerObject*> Targets;
+	ObjectSet<ComponentHandle> GameActions;
+};
+
 
 END_NS()
 
@@ -126,7 +383,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	ObjectSet<WeaponAnimData> TWeaponAnimData;
 	uint64_t NextWeaponAnimationIndex;
 	float TimeElapsed;
-	uint32_t State;
+	eoc::SkillStateType State;
 	FixedString SkillId;
 	ComponentHandle CharacterHandle;
 	ComponentHandle ItemHandle;

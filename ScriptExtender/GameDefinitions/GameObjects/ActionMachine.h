@@ -61,25 +61,6 @@ struct ActionState : public ProtectedGameObject<ActionState>
 	ActionStateType LuaGetTypeId();
 };
 
-struct ArmorDivider
-{
-	float DamagePerHit;
-	int field_4;
-};
-
-struct NumberDivider
-{
-	stats::DamageType Type;
-	float Amount;
-	float Accumulator;
-};
-
-struct NumberDividers
-{
-	ArmorDivider ArmorAbsorptionDivider;
-	ObjectSet<NumberDivider> DamageDividers;
-};
-
 struct ASAttack : public ActionState
 {
 	ComponentHandle TargetHandle;

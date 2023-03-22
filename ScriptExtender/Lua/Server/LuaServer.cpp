@@ -520,6 +520,35 @@ void LuaPolymorphic<ecl::SkillState>::MakeRef(lua_State* L, ecl::SkillState* o, 
 
 #undef MAKE_REF
 
+#define MAKE_REF(ty) case SkillType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<esv::SkillState##ty*>(o));
+
+void LuaPolymorphic<esv::SkillState>::MakeRef(lua_State* L, esv::SkillState* o, LifetimeHandle const & lifetime)
+{
+	switch (o->GetType()) {
+	case SkillType::SkillHeal: return MakeDirectObjectRef(L, lifetime, static_cast<esv::SkillStateHeal*>(o));
+	MAKE_REF(Zone)
+	MAKE_REF(Jump)
+	MAKE_REF(MultiStrike)
+	MAKE_REF(Path)
+	MAKE_REF(Projectile)
+	MAKE_REF(ProjectileStrike)
+	MAKE_REF(Quake)
+	MAKE_REF(Rain)
+	MAKE_REF(Rush)
+	MAKE_REF(Shout)
+	MAKE_REF(Storm)
+	MAKE_REF(Summon)
+	MAKE_REF(Target)
+	MAKE_REF(Teleportation)
+	MAKE_REF(Tornado)
+	MAKE_REF(Wall)
+	MAKE_REF(Dome)
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+#undef MAKE_REF
+
 void LuaPolymorphic<rf::CameraController>::MakeRef(lua_State* L, rf::CameraController* o, LifetimeHandle const & lifetime)
 {
 	auto const& sym = GetStaticSymbols();
