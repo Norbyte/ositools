@@ -1707,6 +1707,15 @@ BEGIN_BITMASK(MaterialInfoFlags, uint8_t)
 END_ENUM()
 
 
+BEGIN_ENUM(StatusStackingType, uint32_t)
+	EV(AlwaysApply, 0)
+	EV(KeepFirst, 1)
+	EV(KeepLast, 2)
+	EV(Toggle, 3)
+	EV(Variable, 4)
+END_ENUM()
+
+
 BEGIN_ENUM(StatusType, uint32_t)
 	EV(HIT, 1)
 	EV(DYING, 2)

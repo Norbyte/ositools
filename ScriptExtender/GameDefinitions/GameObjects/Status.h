@@ -70,38 +70,33 @@ struct Status : public ProtectedGameObject<Status>
 	virtual void SetObjectHandle(ComponentHandle Handle) = 0;
 	virtual void GetObjectHandle(ComponentHandle * Handle) = 0;
 	virtual StatusType GetStatusId() = 0;
-	// 0 - Stackable
-	// 1 - Apply only the first instance, discard new ones
-	// 2 - Apply only one instance, new instances replace old ones
-	// 3 - Apply only the first instance; triggers combat?
-	virtual uint32_t GetStatusType() = 0;
+	virtual StatusStackingType GetStackingType() = 0;
 	virtual void SetStatsId() = 0;
 	virtual void * GetStatsIdByIndex(int index) = 0;
-	virtual void VMT38() = 0;
+	virtual void SetParamsFromPropertyData(int param1, int param2) = 0;
 	virtual void VMT40() = 0;
 	virtual void VMT48() = 0;
 	virtual bool CanEnter() = 0;
 	virtual void Init() = 0;
 	virtual bool Enter() = 0;
 	virtual bool Resume() = 0;
-	virtual void Update(void * A, float Time_M) = 0;
-	virtual void Tick(int * a2, float a3, float a4) = 0;
+	virtual void Update(GameTime const& time) = 0;
+	virtual void Tick(int& teamId) = 0;
 	virtual void Exit() = 0;
 	virtual void DeleteBeforeEnter() = 0;
-	virtual void ConsumeStatsId() = 0;
-	virtual void VMT98() = 0;
-	virtual void IsImmobilizingStatus() = 0;
-	virtual void OnTurnStarted() = 0;
-	virtual void ShouldSyncToPeer() = 0;
-	virtual void GetSyncData() = 0;
-	virtual void VMTC0() = 0;
-	virtual void Serialize() = 0;
-	virtual void VMTD0() = 0;
+	virtual void RefreshStats() = 0;
+	virtual bool IsConsumeStatus() = 0;
+	virtual bool IsImmobilizingStatus() = 0;
+	virtual void OnStatusEvent(uint32_t eventId) = 0;
+	virtual void VMTB0() = 0;
+	virtual bool GetSyncData(ScratchBuffer& buf) = 0;
+	virtual bool ShouldSyncToPeer(PeerId const& peerId) = 0;
+	virtual void SavegameVisit(ObjectVisitor*) = 0;
+	virtual bool ShouldSavegameVisit() = 0;
 	virtual void CreateVisuals() = 0;
 	virtual void DestroyVisuals() = 0;
 	virtual void SetHostileFlagFromSavingThrow_M() = 0;
-	virtual void GetEnterChance() = 0;
-	virtual void AddStatsData_Maybe() = 0;
+	virtual int32_t GetEnterChance(bool isEnterCheck) = 0;
 
 	// void * VMT;
 	FixedString GUID; // Unused
@@ -128,6 +123,10 @@ struct Status : public ProtectedGameObject<Status>
 
 struct StatusConsumeBase : public Status
 {
+	virtual void AddStatsData(FixedString const& statsId, int turn) = 0;
+	virtual void ConsumeStatsData(FixedString const& statsId, int turn) = 0;
+	virtual void SwapTarget(ComponentHandle const& target) = 0;
+
 	struct StatsData
 	{
 		int32_t Turn;
@@ -155,13 +154,9 @@ struct StatusConsumeBase : public Status
 	glm::vec3 SourceDirection; // Saved
 	ObjectSet<SurfaceTransformActionType> SurfaceChanges;
 	int Turn; // Saved
-	int field_1AC;
 	Status* AuraStatus; // Saved
 	HealEffect HealEffectOverride; // Saved
 	bool Poisoned;
-	char field_1BD;
-	char field_1BE;
-	char field_1BF;
 };
 
 struct StatusVMT
@@ -674,29 +669,29 @@ struct Status
 	virtual void SetOwnerHandle(ComponentHandle handle) = 0;
 	virtual ComponentHandle GetOwnerHandle(ComponentHandle *) = 0;
 	virtual StatusType GetStatusId() = 0;
-	virtual unsigned int GetStatusType() = 0;
+	virtual StatusStackingType GetStackingType() = 0;
 	virtual unsigned int BeforeAddStatus() = 0;
 	virtual bool Enter() = 0;
 	virtual bool Resume() = 0;
-	virtual void Update() = 0;
+	virtual void Update(GameTime const& time) = 0;
 	virtual uint32_t Tick(uint32_t * combatTeamId, float delta) = 0;
 	virtual void Exit() = 0;
 	virtual void OnEarlyDestroy() = 0;
 	virtual void ApplyStatsId() = 0;
 	virtual FixedString* GetIcon() = 0;
-	virtual void field_70() = 0;
-	virtual void GetDescriptionWithoutPrototype() = 0;
+	virtual void GetName(eoc::Text& text, uint32_t font) = 0;
+	virtual void GetPrimaryDescription(eoc::Text& text) = 0;
 	virtual void GetEffectTexts(ObjectSet<STDWString> & texts) = 0;
-	virtual void ConcatTooltipText(eoc::Text& text) = 0;
-	virtual void ConcatDescription(eoc::Text& text) = 0;
+	virtual void GetBuiltinDescription(eoc::Text& text) = 0;
+	virtual void GetPrototypeDescription(eoc::Text& text) = 0;
 	virtual FixedString* GetStatsId() = 0;
 	virtual int GetCauseLevel() = 0;
-	virtual void field_A8() = 0;
+	virtual bool field_A8() = 0;
 	virtual bool ShouldShowVisuals() = 0;
 	virtual bool SyncData(ScratchBuffer& buffer) = 0;
 	virtual void DestroyVisuals() = 0;
 	virtual void RecreateVisuals() = 0;
-	virtual void field_D0() = 0;
+	virtual void ClearCausee() = 0;
 	virtual void OnSetRequestDelete() = 0;
 	virtual void GetTooltipText(eoc::Text& text) = 0;
 	virtual void FetchData() = 0;
