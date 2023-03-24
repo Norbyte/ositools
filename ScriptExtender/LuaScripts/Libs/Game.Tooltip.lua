@@ -993,8 +993,9 @@ local TooltipArrayNames = {
 }
 _TT.TooltipArrayNames = TooltipArrayNames
 
----@type table<string, {Callback:function, TypeIds:table<integer,boolean>|nil, When:string|nil}>
+---@type table<string, {Callback:function, TypeIds:table<integer,boolean>|nil, When:string|nil}[]>
 local CallHandlers = {}
+---@type table<string, {Callback:function, TypeIds:table<integer,boolean>|nil, When:string|nil}[]>
 local InvokeHandlers = {}
 
 ---@param event string|string[]
@@ -1014,11 +1015,14 @@ local function _CallHandler(event, callback, typeIds, when)
 			_CallHandler(event[i], callback, typeIds, when)
 		end
 	else
-		CallHandlers[event] = {
+		if CallHandlers[event] == nil then
+			CallHandlers[event] = {}
+		end
+		table.insert(CallHandlers[event], {
 			Callback = callback,
 			TypeIds = typeIds,
 			When = when
-		}
+		})
 	end
 end
 
@@ -1039,11 +1043,14 @@ local function _InvokeHandler(event, callback, typeIds, when)
 			_CallHandler(event[i], callback, typeIds, when)
 		end
 	else
-		InvokeHandlers[event] = {
+		if InvokeHandlers[event] == nil then
+			InvokeHandlers[event] = {}
+		end
+		table.insert(InvokeHandlers[event], {
 			Callback = callback,
 			TypeIds = typeIds,
 			When = when
-		}
+		})
 	end
 end
 
@@ -1117,6 +1124,7 @@ function _ttHooks:RegisterControllerHooks()
 		end
 	end, _UITYPE.overhead)
 
+	--TODO Probably no longer needed, since we can get the client player
 	_InvokeHandler("setPlayerHandle", function (e, ui, event, doubleHandle)
 		if doubleHandle ~= nil and doubleHandle ~= 0 then
 			local handle = _DoubleToHandle(doubleHandle)
@@ -1164,27 +1172,37 @@ function _ttHooks:Init()
 	RequestProcessor:Init(_ttHooks)
 
 	Ext.Events.UIInvoke:Subscribe(function (e)
-		local handler = InvokeHandlers[e.Function]
-		if handler and ((not handler.When and e.When == "After") or e.When == handler.When) then
-			if handler.TypeIds then
-				if handler.TypeIds[e.UI.Type] == true then
-					handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
+		local handlers = InvokeHandlers[e.Function]
+		if handlers then
+			for i=1,#handlers do
+				local handler = handlers[i]
+				if (not handler.When and e.When == "After") or e.When == handler.When then
+					if handler.TypeIds then
+						if handler.TypeIds[e.UI.Type] == true then
+							handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
+						end
+					else
+						handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
+					end
 				end
-			else
-				handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
 			end
 		end
 	end, {Priority=2})
 	
 	Ext.Events.UICall:Subscribe(function (e)
-		local handler = CallHandlers[e.Function]
-		if handler and ((not handler.When and e.When == "After") or e.When == handler.When) then
-			if handler.TypeIds then
-				if handler.TypeIds[e.UI.Type] == true then
-					handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
+		local handlers = CallHandlers[e.Function]
+		if handlers then
+			for i=1,#handlers do
+				local handler = handlers[i]
+				if (not handler.When and e.When == "After") or e.When == handler.When then
+					if handler.TypeIds then
+						if handler.TypeIds[e.UI.Type] == true then
+							handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
+						end
+					else
+						handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
+					end
 				end
-			else
-				handler.Callback(e, e.UI, e.Function, table.unpack(e.Args))
 			end
 		end
 	end, {Priority=2})
@@ -1806,6 +1824,8 @@ local DescriptionElements = {
 	TalentDescription = true,
 }
 
+---@alias AnyTooltipDescriptionElement AbilityDescription|GenericDescription|ItemDescription|SkillDescription|StatsDescription|StatusDescription|SurfaceDescription|TagDescription|TalentDescription
+
 ---Gets whichever element is the description.
 ---@param fallback AnyTooltipDescriptionElement|nil If a description isn't found, add this element.
 ---@return AnyTooltipDescriptionElement
@@ -2171,6 +2191,8 @@ function _TT.RegisterListener(tooltipTypeOrCallback, idOrNil, callbackOrNil)
 	end
 end
 
+---@alias GameTooltipRequestListener fun(request:AnyTooltipRequest, ui:UIObject, uiType:integer, event:string, id:string|number|boolean|nil, ...:string|number|boolean|nil)
+
 ---@param typeOrCallback string|GameTooltipRequestListener
 ---@param callbackOrNil GameTooltipRequestListener
 ---@param state string The function state, either "before" or "after".
@@ -2184,6 +2206,8 @@ function _TT.RegisterRequestListener(typeOrCallback, callbackOrNil, state)
 		_ttHooks:RegisterRequestListener(nil, typeOrCallback, state)
 	end
 end
+
+---@alias GameTooltipBeforeNotifyListener fun(request:AnyTooltipRequest, ui:UIObject, method:string, tooltip:TooltipData)
 
 ---@param typeOrCallback string|GameTooltipBeforeNotifyListener Request type or the callback to register.
 ---@param callbackOrNil GameTooltipBeforeNotifyListener|nil The callback to register if the first parameter is a string.
@@ -2292,20 +2316,20 @@ end, _highPriority)
 ---@class TooltipElement
 ---@field Type TooltipElementType
 
----@class TooltipLabelElement
+---@class TooltipLabelElement:TooltipElement
 ---@field Label string
 
----@class TooltipLabelDamageElement
+---@class TooltipLabelDamageElement:TooltipElement
 ---@field Label string
 ---@field DamageType integer
 ---@field MinDamage integer
 ---@field MaxDamage integer
 
----@class TooltipLabelNumValueElement
+---@class TooltipLabelNumValueElement:TooltipElement
 ---@field Label string
 ---@field Value number
 
----@class TooltipLabelStringValueElement
+---@class TooltipLabelStringValueElement:TooltipElement
 ---@field Label string
 ---@field Value string
 
@@ -2533,11 +2557,5 @@ end, _highPriority)
 ---@class StatusBonus:TooltipLabelElement
 ---@class StatusMalus:TooltipLabelElement
 ---@class StatusDescription:TooltipLabelElement
-
----@alias AnyTooltipDescriptionElement AbilityDescription|GenericDescription|ItemDescription|SkillDescription|StatsDescription|StatusDescription|SurfaceDescription|TagDescription|TalentDescription
-
----@alias GameTooltipRequestListener fun(request:AnyTooltipRequest, ui:UIObject, uiType:integer, event:string, id:string|number|boolean|nil, ...:string|number|boolean|nil)
-
----@alias GameTooltipBeforeNotifyListener fun(request:AnyTooltipRequest, ui:UIObject, method:string, tooltip:TooltipData)
 
 --#endregion
