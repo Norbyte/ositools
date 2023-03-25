@@ -461,8 +461,9 @@ void UserVariableManager::NetworkSync(UserVar const& var)
 
 	UserVariable value;
 	value.FromNetMessage(var);
+	value.Dirty = true;
 
-	auto userVars = Set(*gameObject->GetGuid(), key, *proto, std::move(value));
+	Set(*gameObject->GetGuid(), key, *proto, std::move(value));
 
 	if (cache_ && !proto->Has(UserVariableFlags::DontCache)) {
 		ComponentHandle handle;
