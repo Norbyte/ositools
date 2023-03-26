@@ -115,6 +115,11 @@ namespace dse
 			return userVariables_;
 		}
 
+		inline ModVariableManager& GetModVariables()
+		{
+			return modVariables_;
+		}
+
 		inline CustomRequirementContext& GetCustomRequirementContext()
 		{
 			return customRequirementContext_;
@@ -142,6 +147,7 @@ namespace dse
 		std::unordered_map<STDString, STDString> loadedFileFullPaths_;
 
 		UserVariableManager userVariables_;
+		ModVariableManager modVariables_;
 		CustomRequirementContext customRequirementContext_;
 
 		void LuaResetInternal();

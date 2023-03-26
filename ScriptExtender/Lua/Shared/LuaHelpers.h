@@ -19,7 +19,8 @@ enum class MetatableTag : uint8_t
 	EnumValue = 3,
 	BitfieldValue = 4,
 	UserVariableHolder = 5,
-	Max = UserVariableHolder
+	ModVariableHolder = 6,
+	Max = ModVariableHolder
 };
 
 #if !defined(NDEBUG)

@@ -85,6 +85,7 @@ void RegisterSharedMetatables(lua_State* L)
 	EnumValueMetatable::RegisterMetatable(L);
 	BitfieldValueMetatable::RegisterMetatable(L);
 	UserVariableHolderMetatable::RegisterMetatable(L);
+	ModVariableHolderMetatable::RegisterMetatable(L);
 	InitObjectProxyPropertyMaps();
 	RegisterEntityProxy(L);
 	StatsExtraDataProxy::RegisterMetatable(L);

@@ -31,7 +31,8 @@ namespace dse
 	}
 
 	ExtensionStateBase::ExtensionStateBase(bool isServer)
-		: userVariables_(isServer)
+		: userVariables_(isServer),
+		modVariables_(isServer)
 	{}
 
 	ExtensionStateBase::~ExtensionStateBase()
@@ -327,6 +328,7 @@ namespace dse
 		}
 
 		userVariables_.Update();
+		modVariables_.Update();
 	}
 
 

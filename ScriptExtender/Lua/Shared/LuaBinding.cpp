@@ -480,7 +480,8 @@ namespace dse::lua
 		: generationId_(generationId),
 		lifetimeStack_(lifetimePool_),
 		globalLifetime_(lifetimePool_.Allocate()),
-		variableManager_(isServer ? gExtender->GetServer().GetExtensionState().GetUserVariables() : gExtender->GetClient().GetExtensionState().GetUserVariables(), isServer)
+		variableManager_(isServer ? gExtender->GetServer().GetExtensionState().GetUserVariables() : gExtender->GetClient().GetExtensionState().GetUserVariables(), isServer),
+		modVariableManager_(isServer ? gExtender->GetServer().GetExtensionState().GetModVariables() : gExtender->GetClient().GetExtensionState().GetModVariables(), isServer)
 	{
 		L = lua_newstate(LuaAlloc, nullptr);
 		internal_ = lua_new_internal_state();
@@ -511,6 +512,7 @@ namespace dse::lua
 		customDamageTypes_.Clear();
 		customRequirementCallbacks_.Clear();
 		variableManager_.Invalidate();
+		modVariableManager_.Invalidate();
 	}
 
 	State* State::FromLua(lua_State* L)
@@ -756,6 +758,7 @@ namespace dse::lua
 	void State::OnLevelLoading()
 	{
 		variableManager_.Invalidate();
+		modVariableManager_.Invalidate();
 	}
 
 	void State::OnResetCompleted()
@@ -771,6 +774,7 @@ namespace dse::lua
 
 		lua_gc(L, LUA_GCSTEP, 10);
 		variableManager_.Flush();
+		modVariableManager_.Flush();
 	}
 
 	void State::OnStatsStructureLoaded()

@@ -276,6 +276,7 @@ void ScriptExtender::LoadExtensionState(ExtensionStateContext ctx)
 		gExtender->GetLibraryManager().ApplyCodePatches();
 		network_.ExtendNetworking();
 		osiris_.GetCustomFunctionManager().ClearDynamicEntries();
+		extensionState_->GetModVariables().OnModuleLoading();
 		extensionState_->LuaReset(ctx, true);
 	}
 

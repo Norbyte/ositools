@@ -239,6 +239,7 @@ namespace lua
 	class Ref;
 	class UserspaceClassBase;
 	class CachedUserVariableManager;
+	class CachedModVariableManager;
 }
 
 END_SE()

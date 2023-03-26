@@ -237,6 +237,11 @@ namespace dse::lua
 			return variableManager_;
 		}
 
+		inline CachedModVariableManager& GetModVariableManager()
+		{
+			return modVariableManager_;
+		}
+
 		virtual void Initialize() = 0;
 		virtual void Shutdown();
 		virtual bool IsClient() = 0;
@@ -291,6 +296,7 @@ namespace dse::lua
 		CustomDamageTypeCallbackManager customDamageTypes_;
 		CustomRequirementCallbackManager customRequirementCallbacks_;
 		CachedUserVariableManager variableManager_;
+		CachedModVariableManager modVariableManager_;
 
 		void OpenLibs();
 		EventResult DispatchEvent(EventBase& evt, char const* eventName, bool canPreventAction, uint32_t restrictions);

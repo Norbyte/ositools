@@ -63,6 +63,8 @@ namespace dse
 		void * OnRemovedFromHost() override;
 		void * Unknown2() override;
 
+		void SyncUserVars(MsgUserVars const& msg);
+
 	protected:
 		virtual void ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg) = 0;
 	};

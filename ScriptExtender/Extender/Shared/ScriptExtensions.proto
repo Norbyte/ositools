@@ -82,6 +82,7 @@ enum NetIdType {
   NETID_UNKNOWN = 0;
   NETID_CHARACTER = 1;
   NETID_ITEM = 2;
+  NETID_MODULE = 3;
 };
 
 message UserVar {

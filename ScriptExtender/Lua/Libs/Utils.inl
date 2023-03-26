@@ -382,6 +382,62 @@ void DirtyUserVariables(std::optional<FixedString> gameObject, std::optional<Fix
 	}
 }
 
+void RegisterModVariable(lua_State* L, FixedString moduleUuid, FixedString name)
+{
+	auto vars = gExtender->GetCurrentExtensionState()->GetModVariables().GetOrCreateMod(moduleUuid);
+	UserVariablePrototype proto;
+
+	luaL_checktype(L, 2, LUA_TTABLE);
+	proto.Flags = ParseUserVariableFlags(L, 2);
+
+	vars->RegisterPrototype(name, proto);
+}
+
+UserReturn GetModVariables(lua_State* L, FixedString moduleUuid)
+{
+	auto& mv = gExtender->GetCurrentExtensionState()->GetModVariables();
+	auto modIndex = mv.GuidToModuleIndex(moduleUuid);
+	if (!modIndex) {
+		OsiError("Module '" << moduleUuid << "' is not loaded!");
+		push(L, nullptr);
+		return 1;
+	}
+
+	mv.GetOrCreateMod(moduleUuid);
+	ModVariableHolderMetatable::Make(L, *modIndex);
+	return 1;
+}
+
+void SyncModVariables()
+{
+	auto& vars = gExtender->GetCurrentExtensionState()->GetModVariables();
+	vars.Flush(true);
+}
+
+void DirtyModVariables(std::optional<FixedString> moduleUuid, std::optional<FixedString> key)
+{
+	auto& vars = gExtender->GetCurrentExtensionState()->GetModVariables();
+	if (!moduleUuid) {
+		for (auto& mod : vars.GetAll()) {
+			for (auto& var : mod.Value.GetAll()) {
+				vars.MarkDirty(mod.Key, var.Key, var.Value);
+			}
+		}
+	} else if (!key) {
+		auto modVars = vars.GetAll(*moduleUuid);
+		if (modVars != nullptr) {
+			for (auto& var : *modVars) {
+				vars.MarkDirty(*moduleUuid, var.Key, var.Value);
+			}
+		}
+	} else {
+		auto var = vars.Get(*moduleUuid, *key);
+		if (var != nullptr) {
+			vars.MarkDirty(*moduleUuid, *key, *var);
+		}
+	}
+}
+
 void RegisterUtilsLib()
 {
 	DECLARE_MODULE(Utils, Both)
@@ -407,9 +463,15 @@ void RegisterUtilsLib()
 	MODULE_FUNCTION(ShowErrorAndExitGame)
 	MODULE_FUNCTION(GetGlobalSwitches)
 	MODULE_FUNCTION(GetGraphicSettings)
+
 	MODULE_FUNCTION(RegisterUserVariable)
 	MODULE_FUNCTION(SyncUserVariables)
 	MODULE_FUNCTION(DirtyUserVariables)
+
+	MODULE_FUNCTION(RegisterModVariable)
+	MODULE_FUNCTION(GetModVariables)
+	MODULE_FUNCTION(SyncModVariables)
+	MODULE_FUNCTION(DirtyModVariables)
 	END_MODULE()
 }
 

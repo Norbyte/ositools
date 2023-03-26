@@ -107,7 +107,7 @@ public:
 	void Update();
 	void Flush(bool force);
 	void SavegameVisit(ObjectVisitor* visitor);
-	void OnNetworkSync(MsgUserVars const& msg);
+	void NetworkSync(UserVar const& var);
 
 private:
 	// Max (approximate) size of sync message we're allowed to send
@@ -128,10 +128,84 @@ private:
 	bool isServer_;
 	lua::CachedUserVariableManager* cache_{ nullptr };
 
-	void NetworkSync(UserVar const& var);
 	IGameObject* NetIdToGameObject(UserVar const& var);
 	void Sync(FixedString const& gameObject, FixedString const& key, UserVariable const& value);
 	std::optional<std::pair<uint32_t, NetId>> GuidToNetId(FixedString const& gameObject);
+	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
+	bool MakeSyncMessage();
+	void SendSyncs();
+};
+
+class ModVariableMap
+{
+public:
+	using VariableMap = Map<FixedString, UserVariable>;
+
+	inline ModVariableMap(bool isServer)
+		: vars_(GetNearestLowerPrime(100)),
+		isServer_(isServer)
+	{}
+
+	UserVariable* Get(FixedString const& key);
+	VariableMap& GetAll();
+	UserVariable* Set(FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
+	UserVariablePrototype const* GetPrototype(FixedString const& key) const;
+	void RegisterPrototype(FixedString const& key, UserVariablePrototype const& proto);
+	void SavegameVisit(ObjectVisitor* visitor);
+	UserVariablePrototype const* NetworkSync(UserVar const& var);
+
+private:
+	VariableMap vars_;
+	Map<FixedString, UserVariablePrototype> prototypes_;
+	bool isServer_;
+};
+
+class ModVariableManager
+{
+public:
+	inline ModVariableManager(bool isServer)
+		: isServer_(isServer)
+	{}
+
+	UserVariable* Get(FixedString const& modUuid, FixedString const& key);
+	ModVariableMap::VariableMap* GetAll(FixedString const& modUuid);
+	Map<FixedString, ModVariableMap>& GetAll();
+	ModVariableMap* GetMod(FixedString const& modUuid);
+	ModVariableMap* GetOrCreateMod(FixedString const& modUuid);
+	UserVariablePrototype const* GetPrototype(FixedString const& modUuid, FixedString const& key) const;
+	void RegisterPrototype(FixedString const& modUuid, FixedString const& key, UserVariablePrototype const& proto);
+	ModVariableMap* Set(FixedString const& modUuid, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
+	void MarkDirty(FixedString const& modUuid, FixedString const& key, UserVariable& value);
+
+	void OnModuleLoading();
+	void BindCache(lua::CachedModVariableManager* cache);
+	void Update();
+	void Flush(bool force);
+	void SavegameVisit(ObjectVisitor* visitor);
+	void NetworkSync(UserVar const& var);
+	std::optional<uint32_t> GuidToModuleIndex(FixedString const& modUuid);
+
+private:
+	// Max (approximate) size of sync message we're allowed to send
+	static constexpr size_t SyncMessageBudget = 300000;
+
+	struct SyncRequest
+	{
+		FixedString ModUuid;
+		FixedString Variable;
+	};
+
+	Map<FixedString, uint32_t> modIndices_;
+	Map<FixedString, ModVariableMap> vars_;
+	ObjectSet<SyncRequest> deferredSyncs_;
+	ObjectSet<SyncRequest> nextTickSyncs_;
+	ScriptExtenderMessage* syncMsg_{ nullptr };
+	size_t syncMsgBudget_{ 0 };
+	bool isServer_;
+	lua::CachedModVariableManager* cache_{ nullptr };
+
+	Module* NetIdToMod(UserVar const& var);
+	void Sync(FixedString const& gameObject, FixedString const& key, UserVariable const& value);
 	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
 	bool MakeSyncMessage();
 	void SendSyncs();
@@ -221,6 +295,56 @@ private:
 	CachedUserVariable* GetFromCache(ComponentHandle component, FixedString const& key);
 	CachedUserVariable* PutCache(lua_State* L, ComponentHandle component, FixedString const& key, FixedString const& gameObjectGuid, UserVariablePrototype const& proto, UserVariable const& value);
 	CachedUserVariable* PutCache(ComponentHandle component, FixedString const& key, FixedString const& gameObjectGuid, UserVariablePrototype const& proto, CachedUserVariable && value, bool isWrite);
+};
+
+class CachedModVariableManager
+{
+public:
+	CachedModVariableManager(ModVariableManager& global, bool isServer);
+	~CachedModVariableManager();
+
+	inline ModVariableManager& GetGlobal() const
+	{
+		return global_;
+	}
+
+	inline bool IsServer() const
+	{
+		return isServer_;
+	}
+
+	FixedString ModIndexToGuid(uint32_t modIndex);
+	void Push(lua_State* L, uint32_t modIndex, FixedString const& key);
+	void Push(lua_State* L, uint32_t modIndex, FixedString const& key, UserVariablePrototype const& proto);
+	void Set(lua_State* L, uint32_t modIndex, FixedString const& key, CachedUserVariable && var);
+	void Set(lua_State* L, uint32_t modIndex, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && var);
+	void Invalidate();
+	void Invalidate(uint32_t modIndex, FixedString const& key);
+	void Flush();
+
+private:
+	struct FlushRequest
+	{
+		uint32_t ModIndex;
+		FixedString Variable;
+		UserVariablePrototype const* Proto;
+	};
+	
+	struct ModVariables
+	{
+		FixedString CachedGuid;
+		Map<FixedString, CachedUserVariable> Vars;
+	};
+
+	ModVariableManager& global_;
+	bool isServer_;
+	Map<uint32_t, ModVariables> vars_;
+	ObjectSet<FlushRequest> flushQueue_;
+
+	CachedUserVariable* GetFromCache(uint32_t modIndex, FixedString const& key, FixedString& modUuid);
+	CachedUserVariable* GetFromCache(uint32_t modIndex, FixedString const& key);
+	CachedUserVariable* PutCache(lua_State* L, uint32_t modIndex, FixedString const& key, FixedString const& modUuid, UserVariablePrototype const& proto, UserVariable const& value);
+	CachedUserVariable* PutCache(uint32_t modIndex, FixedString const& key, FixedString const& modUuid, UserVariablePrototype const& proto, CachedUserVariable && value, bool isWrite);
 };
 
 END_NS()

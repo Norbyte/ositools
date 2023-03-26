@@ -58,6 +58,13 @@ std::optional<STDString> GetCppObjectTypeName(lua_State * L, int index)
 		return UserVariableHolderMetatable::GetTypeName(L, val);
 	}
 
+	case MetatableTag::ModVariableHolder:
+	{
+		CppValueMetadata val;
+		lua_get_cppvalue(L, index, val);
+		return ModVariableHolderMetatable::GetTypeName(L, val);
+	}
+
 	default:
 		return {};
 	}

@@ -394,6 +394,7 @@ void ScriptExtender::LoadExtensionState(ExtensionStateContext ctx)
 		OsiMsg("Initializing client with target context " << ContextToString(ctx));
 		gExtender->GetLibraryManager().ApplyCodePatches();
 		network_.ExtendNetworking();
+		extensionState_->GetModVariables().OnModuleLoading();
 		extensionState_->LuaReset(ctx, true);
 	}
 

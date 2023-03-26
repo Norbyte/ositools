@@ -6,6 +6,20 @@
 
 BEGIN_SE()
 
+void ExtenderProtocolBase::SyncUserVars(MsgUserVars const& msg)
+{
+	USER_VAR_DBG("Received sync message from peer");
+	auto state = gExtender->GetCurrentExtensionState();
+	for (auto const& var : msg.vars()) {
+		if (var.net_id_type() == NetIdType::NETID_MODULE) {
+			state->GetModVariables().NetworkSync(var);
+		}
+		else {
+			state->GetUserVariables().NetworkSync(var);
+		}
+	}
+}
+
 void UserVariable::SavegameVisit(ObjectVisitor* visitor)
 {
 	if (visitor->IsReading()) {
@@ -114,6 +128,7 @@ size_t UserVariable::Budget() const
 
 	return budget;
 }
+
 
 UserVariable* UserVariableManager::Get(FixedString const& gameObject, FixedString const& key)
 {
@@ -433,14 +448,6 @@ void UserVariableManager::SavegameVisit(ObjectVisitor* visitor)
 	}
 }
 
-void UserVariableManager::OnNetworkSync(MsgUserVars const& msg)
-{
-	USER_VAR_DBG("Received sync message from peer");
-	for (auto const& var : msg.vars()) {
-		NetworkSync(var);
-	}
-}
-
 void UserVariableManager::NetworkSync(UserVar const& var)
 {
 	USER_VAR_DBG("Received sync for %d/%s", var.net_id(), var.key().c_str());
@@ -490,6 +497,461 @@ IGameObject* UserVariableManager::NetIdToGameObject(UserVar const& var)
 
 		default:
 			ERR("Received user variable sync for unknown NetID class %d!", var.net_id_type());
+			break;
+		}
+	}
+
+	return nullptr;
+}
+
+
+
+UserVariable* ModVariableMap::Get(FixedString const& key)
+{
+	return vars_.try_get_ptr(key);
+}
+
+ModVariableMap::VariableMap& ModVariableMap::GetAll()
+{
+	return vars_;
+}
+
+UserVariable* ModVariableMap::Set(FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
+{
+	UserVariable* var;
+	auto valueIt = vars_.find(key);
+	if (valueIt != vars_.end()) {
+		valueIt.Value() = std::move(value);
+		var = &valueIt.Value();
+	} else {
+		var = vars_.insert(std::make_pair(key, std::move(value)));
+	}
+
+	return var;
+}
+
+UserVariablePrototype const* ModVariableMap::GetPrototype(FixedString const& key) const
+{
+	return prototypes_.try_get_ptr(key);
+}
+
+void ModVariableMap::RegisterPrototype(FixedString const& key, UserVariablePrototype const& proto)
+{
+	prototypes_.insert(std::make_pair(key, proto));
+}
+
+void ModVariableMap::SavegameVisit(ObjectVisitor* visitor)
+{
+	STDString nullStr;
+	if (visitor->IsReading()) {
+		FixedString gameObject;
+		uint32_t numVars;
+		visitor->VisitCount(GFS.strVariable, &numVars);
+
+		for (uint32_t j = 0; j < numVars; j++) {
+			if (visitor->EnterNode(GFS.strVariable, GFS.strName)) {
+				FixedString name;
+				visitor->VisitFixedString(GFS.strName, name, GFS.strEmpty);
+				USER_VAR_DBG("Savegame restore var %s/%s", gameObject.GetStringOrDefault(), name.GetStringOrDefault());
+							
+				auto var = vars_.insert(std::make_pair(name, UserVariable{}));
+				var->SavegameVisit(visitor);
+				visitor->ExitNode(GFS.strVariable);
+
+				auto proto = GetPrototype(name);
+				if (proto && proto->NeedsSyncFor(isServer_)) {
+					USER_VAR_DBG("Request deferred sync for var %s/%s", gameObject.GetStringOrDefault(), name.GetStringOrDefault());
+					var->Dirty = true;
+				}
+			}
+		}
+	} else {
+		for (auto& kv : vars_) {
+			auto proto = GetPrototype(kv.Key);
+			if (proto && proto->Has(UserVariableFlags::Persistent)) {
+				if (visitor->EnterNode(GFS.strVariable, GFS.strName)) {
+					visitor->VisitFixedString(GFS.strName, kv.Key, GFS.strEmpty);
+					USER_VAR_DBG("Savegame persist var %s/%s", gameObject.Key.GetStringOrDefault(), kv.Key.GetStringOrDefault());
+					kv.Value.SavegameVisit(visitor);
+					visitor->ExitNode(GFS.strVariable);
+				}
+			}
+		}
+	}
+}
+
+UserVariablePrototype const* ModVariableMap::NetworkSync(UserVar const& var)
+{
+	FixedString key(var.key());
+	auto proto = GetPrototype(key);
+	if (!proto) {
+		ERR("Tried to sync variable '%s' that has no prototype!", var.key().c_str());
+		return nullptr;
+	}
+	
+	if (!proto->NeedsSyncFor(!isServer_)) {
+		ERR("Tried to sync variable '%s' in illegal direction!", var.key().c_str());
+		return nullptr;
+	}
+
+	UserVariable value;
+	value.FromNetMessage(var);
+	value.Dirty = true;
+
+	Set(key, *proto, std::move(value));
+	return proto;
+}
+
+
+
+
+
+
+
+UserVariable* ModVariableManager::Get(FixedString const& modUuid, FixedString const& key)
+{
+	auto it = vars_.find(modUuid);
+	if (it != vars_.end()) {
+		return it.Value().Get(key);
+	}
+
+	return nullptr;
+}
+
+ModVariableMap::VariableMap* ModVariableManager::GetAll(FixedString const& modUuid)
+{
+	auto it = vars_.find(modUuid);
+	if (it != vars_.end()) {
+		return &it.Value().GetAll();
+	} else {
+		return nullptr;
+	}
+}
+
+Map<FixedString, ModVariableMap>& ModVariableManager::GetAll()
+{
+	return vars_;
+}
+
+ModVariableMap* ModVariableManager::GetMod(FixedString const& modUuid)
+{
+	return vars_.try_get_ptr(modUuid);
+}
+
+ModVariableMap* ModVariableManager::GetOrCreateMod(FixedString const& modUuid)
+{
+	auto it = vars_.find(modUuid);
+	if (it != vars_.end()) {
+		return &it.Value();
+	} else {
+		return vars_.insert(std::make_pair(modUuid, ModVariableMap(isServer_)));
+	}
+}
+
+UserVariablePrototype const* ModVariableManager::GetPrototype(FixedString const& modUuid, FixedString const& key) const
+{
+	auto it = vars_.find(modUuid);
+	if (it != vars_.end()) {
+		return it.Value().GetPrototype(key);
+	} else {
+		return nullptr;
+	}
+}
+
+void ModVariableManager::MarkDirty(FixedString const& modUuid, FixedString const& key, UserVariable& value)
+{
+	auto proto = GetPrototype(modUuid, key);
+	if (proto == nullptr) return;
+
+	value.Dirty = true;
+	if (proto->NeedsSyncFor(isServer_)) {
+		if (proto->Has(UserVariableFlags::SyncOnTick)) {
+			USER_VAR_DBG("MarkDirty next tick sync for mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			nextTickSyncs_.push_back(SyncRequest{
+				.ModUuid = modUuid,
+				.Variable = key
+			});
+		} else {
+			USER_VAR_DBG("MarkDirty deferred sync for mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			deferredSyncs_.push_back(SyncRequest{
+				.ModUuid = modUuid,
+				.Variable = key
+			});
+		}
+	}
+}
+
+ModVariableMap* ModVariableManager::Set(FixedString const& modUuid, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
+{
+	if (value.Dirty && proto.NeedsSyncFor(isServer_)) {
+		if (proto.Has(UserVariableFlags::SyncOnWrite)) {
+			USER_VAR_DBG("Immediate sync mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			if (MakeSyncMessage()) {
+				Sync(modUuid, key, value);
+				SendSyncs();
+			}
+		} else if (proto.Has(UserVariableFlags::SyncOnTick)) {
+			USER_VAR_DBG("Request next tick sync for mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			nextTickSyncs_.push_back(SyncRequest{
+				.ModUuid = modUuid,
+				.Variable = key
+			});
+		} else {
+			USER_VAR_DBG("Request deferred sync for mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			deferredSyncs_.push_back(SyncRequest{
+				.ModUuid = modUuid,
+				.Variable = key
+			});
+		}
+	}
+
+	auto mod = GetOrCreateMod(modUuid);
+
+	if (value.Dirty && proto.NeedsSyncFor(isServer_)) {
+		if (proto.Has(UserVariableFlags::SyncOnWrite)) {
+			USER_VAR_DBG("Immediate sync mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			if (MakeSyncMessage()) {
+				Sync(modUuid, key, value);
+				SendSyncs();
+			}
+		} else if (proto.Has(UserVariableFlags::SyncOnTick)) {
+			USER_VAR_DBG("Request next tick sync for mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			nextTickSyncs_.push_back(SyncRequest{
+				.ModUuid = modUuid,
+				.Variable = key
+			});
+		} else {
+			USER_VAR_DBG("Request deferred sync for mod var %s/%s", modUuid.GetStringOrDefault(), key.GetStringOrDefault());
+			deferredSyncs_.push_back(SyncRequest{
+				.ModUuid = modUuid,
+				.Variable = key
+			});
+		}
+	}
+
+	mod->Set(modUuid, proto, std::move(value));
+	return mod;
+}
+
+void ModVariableManager::Sync(FixedString const& modUuid, FixedString const& key, UserVariable const& value)
+{
+	auto netId = GuidToModuleIndex(modUuid);
+	if (!netId) {
+		ERR("Tried to sync variables of unknown mod %s!", modUuid.GetStringOrDefault());
+		return;
+	}
+
+	if (syncMsgBudget_ > SyncMessageBudget) {
+		SendSyncs();
+		MakeSyncMessage();
+	}
+
+	auto var = syncMsg_->GetMessage().mutable_user_vars()->add_vars();
+	var->set_net_id_type(NetIdType::NETID_MODULE);
+	var->set_net_id(*netId);
+	var->set_key(key.GetStringOrDefault());
+	value.ToNetMessage(*var);
+	syncMsgBudget_ += value.Budget() + key.GetMetadata()->Length;
+}
+
+std::optional<uint32_t> ModVariableManager::GuidToModuleIndex(FixedString const& modUuid)
+{
+	auto it = modIndices_.find(modUuid);
+	if (it != modIndices_.end()) {
+		return it.Value();
+	}
+
+	return {};
+}
+
+void ModVariableManager::FlushSyncQueue(ObjectSet<SyncRequest>& queue)
+{
+	if (!MakeSyncMessage()) return;
+
+	for (auto const& req : queue) {
+		auto value = Get(req.ModUuid, req.Variable);
+		if (value && value->Dirty) {
+			USER_VAR_DBG("Flush sync mod var %s/%s", req.GameObject.GetStringOrDefault(), req.Variable.GetStringOrDefault());
+			Sync(req.ModUuid, req.Variable, *value);
+			value->Dirty = false;
+		}
+	}
+
+	queue.clear();
+}
+
+bool ModVariableManager::MakeSyncMessage()
+{
+	if (syncMsg_ == nullptr) {
+		if (isServer_) {
+			syncMsg_ = gExtender->GetServer().GetNetworkManager().GetFreeMessage();
+		} else {
+			syncMsg_ = gExtender->GetClient().GetNetworkManager().GetFreeMessage();
+		}
+
+		if (syncMsg_) {
+			syncMsg_->GetMessage().mutable_user_vars();
+		}
+	}
+
+	return syncMsg_ != nullptr;
+}
+
+void ModVariableManager::SendSyncs()
+{
+	if (syncMsg_ && syncMsg_->GetMessage().user_vars().vars_size() > 0) {
+		if (isServer_) {
+			USER_VAR_DBG("Syncing mod vars to client(s)");
+			gExtender->GetServer().GetNetworkManager().BroadcastToConnectedPeers(syncMsg_, ReservedUserId, false);
+		} else {
+			USER_VAR_DBG("Syncing mod vars to server");
+			gExtender->GetClient().GetNetworkManager().Send(syncMsg_);
+		}
+
+		syncMsg_ = nullptr;
+		syncMsgBudget_ = 0;
+	}
+}
+
+void ModVariableManager::Flush(bool force)
+{
+	if (isServer_) {
+		auto state = GetStaticSymbols().GetServerState();
+		if (!state 
+			|| *state == dse::esv::GameState::LoadSession
+			|| *state == dse::esv::GameState::LoadLevel
+			|| *state == dse::esv::GameState::Sync) {
+			return;
+		}
+	} else {
+		auto state = GetStaticSymbols().GetClientState();
+		if (!state
+			|| *state == dse::ecl::GameState::LoadSession
+			|| *state == dse::ecl::GameState::LoadLevel
+			|| *state == dse::ecl::GameState::PrepareRunning) {
+			return;
+		}
+	}
+
+
+	if (!deferredSyncs_.empty()) {
+		USER_VAR_DBG("Flushing deferred syncs");
+		FlushSyncQueue(deferredSyncs_);
+	}
+	
+	if (force && !nextTickSyncs_.empty()) {
+		USER_VAR_DBG("Flushing next tick syncs");
+		FlushSyncQueue(nextTickSyncs_);
+	}
+
+	SendSyncs();
+}
+
+void ModVariableManager::BindCache(lua::CachedModVariableManager* cache)
+{
+	cache_ = cache;
+}
+
+void ModVariableManager::Update()
+{
+	Flush(true);
+}
+
+void ModVariableManager::OnModuleLoading()
+{
+	modIndices_.clear();
+	auto& mod = (isServer_ ? GetModManagerServer()->BaseModule : GetModManagerClient()->BaseModule);
+	uint32_t nextIndex{ 0 };
+	for (auto const& mod : mod.LoadOrderedModules) {
+		modIndices_.insert(std::make_pair(mod.Info.ModuleUUID, nextIndex++));
+	}
+}
+
+void ModVariableManager::RegisterPrototype(FixedString const& modUuid, FixedString const& key, UserVariablePrototype const& proto)
+{
+	GetOrCreateMod(modUuid)->RegisterPrototype(key, proto);
+}
+
+void ModVariableManager::SavegameVisit(ObjectVisitor* visitor)
+{
+	STDString nullStr;
+	if (visitor->EnterNode(GFS.strModVariables, GFS.strEmpty)) {
+		if (visitor->IsReading()) {
+			vars_.clear();
+			uint32_t numVars;
+			visitor->VisitCount(GFS.strGameObjectVariables, &numVars);
+
+			for (uint32_t i = 0; i < numVars; i++) {
+				if (visitor->EnterNode(GFS.strModVariables, GFS.strModule)) {
+					FixedString modUuid;
+					visitor->VisitFixedString(GFS.strModule, modUuid, GFS.strEmpty);
+					auto mod = GetOrCreateMod(modUuid);
+					mod->SavegameVisit(visitor);
+					for (auto const& kv : mod->GetAll()) {
+						if (kv.Value.Dirty) {
+							deferredSyncs_.push_back(SyncRequest{
+								.ModUuid = modUuid,
+								.Variable = kv.Key
+							});
+						}
+					}
+					visitor->ExitNode(GFS.strModVariables);
+				}
+			}
+		} else {
+			if (cache_) {
+				cache_->Flush();
+			}
+
+			for (auto& mod : vars_) {
+				if (visitor->EnterNode(GFS.strModVariables, GFS.strModule)) {
+					visitor->VisitFixedString(GFS.strModule, mod.Key, GFS.strEmpty);
+					mod.Value.SavegameVisit(visitor);
+					visitor->ExitNode(GFS.strModVariables);
+				}
+			}
+		}
+
+		visitor->ExitNode(GFS.strModVariables);
+	}
+}
+
+void ModVariableManager::NetworkSync(UserVar const& var)
+{
+	USER_VAR_DBG("Received sync for %d/%s", var.net_id(), var.key().c_str());
+	auto mod = NetIdToMod(var);
+	if (!mod) return;
+
+	auto map = GetMod(mod->Info.ModuleUUID);
+	if (!map) {
+		ERR("Tried to sync variable for nonexistent mod '%s'!", mod->Info.ModuleUUID.GetStringOrDefault());
+		return;
+	}
+
+	auto proto = map->NetworkSync(var);
+
+	if (proto && cache_ && !proto->Has(UserVariableFlags::DontCache)) {
+		cache_->Invalidate(var.net_id(), FixedString(var.key()));
+	}
+}
+
+Module* ModVariableManager::NetIdToMod(UserVar const& var)
+{
+	if (isServer_) {
+		switch (var.net_id_type()) {
+		// FIXME - overflow check!
+		case NETID_MODULE: return &GetModManagerServer()->BaseModule.LoadOrderedModules[var.net_id()];
+
+		default:
+			ERR("Received mod variable sync for unknown NetID class %d!", var.net_id_type());
+			break;
+		}
+	} else {
+		switch (var.net_id_type()) {
+		case NETID_MODULE: return &GetModManagerClient()->BaseModule.LoadOrderedModules[var.net_id()];
+
+		default:
+			ERR("Received mod variable sync for unknown NetID class %d!", var.net_id_type());
 			break;
 		}
 	}
@@ -919,6 +1381,223 @@ void CachedUserVariableManager::Flush()
 				auto userVar = var->ToUserVariable(lua->GetState());
 				userVar.Dirty = true;
 				global_.Set(gameObjectGuid, req.Variable, *req.Proto, std::move(userVar));
+				var->Dirty = false;
+			}
+		}
+
+		flushQueue_.clear();
+	}
+}
+
+
+
+CachedModVariableManager::CachedModVariableManager(ModVariableManager& global, bool isServer)
+	: global_(global), isServer_(isServer),
+	vars_(GetNearestLowerPrime(100))
+{
+	global_.BindCache(this);
+}
+
+CachedModVariableManager::~CachedModVariableManager()
+{
+	global_.BindCache(nullptr);
+}
+
+FixedString CachedModVariableManager::ModIndexToGuid(uint32_t modIndex)
+{
+	if (isServer_) {
+		return GetModManagerServer()->BaseModule.LoadOrderedModules[modIndex].Info.ModuleUUID;
+	} else {
+		return GetModManagerClient()->BaseModule.LoadOrderedModules[modIndex].Info.ModuleUUID;
+	}
+}
+
+CachedUserVariable* CachedModVariableManager::GetFromCache(uint32_t modIndex, FixedString const& key, FixedString& modUuid)
+{
+	auto it = vars_.find(modIndex);
+	if (it != vars_.end()) {
+		auto valueIt = it.Value().Vars.find(key);
+		if (valueIt != it.Value().Vars.end()) {
+			modUuid = it.Value().CachedGuid;
+			return &valueIt.Value();
+		}
+	}
+
+	return nullptr;
+}
+
+CachedUserVariable* CachedModVariableManager::GetFromCache(uint32_t modIndex, FixedString const& key)
+{
+	auto it = vars_.find(modIndex);
+	if (it != vars_.end()) {
+		auto valueIt = it.Value().Vars.find(key);
+		if (valueIt != it.Value().Vars.end()) {
+			return &valueIt.Value();
+		}
+	}
+
+	return nullptr;
+}
+
+CachedUserVariable* CachedModVariableManager::PutCache(uint32_t modIndex, FixedString const& key, FixedString const& modUuid, UserVariablePrototype const& proto, CachedUserVariable&& value, bool isWrite)
+{
+	CachedUserVariable* var;
+	ModVariables* vars;
+	bool wasDirty{ false };
+
+	auto it = vars_.find(modIndex);
+	if (it != vars_.end()) {
+		vars = &it.Value();
+		auto valueIt = it.Value().Vars.find(key);
+		if (valueIt != it.Value().Vars.end()) {
+			wasDirty = valueIt.Value().Dirty;
+			bool dirty = valueIt.Value().Dirty || (isWrite && valueIt.Value().LikelyChanged(value));
+			valueIt.Value() = std::move(value);
+			var = &valueIt.Value();
+			var->Dirty = dirty;
+		} else {
+			var = it.Value().Vars.insert(std::make_pair(key, std::move(value)));
+			var->Dirty = isWrite;
+		}
+	} else {
+		vars = vars_.insert(std::make_pair(modIndex, ModVariables{}));
+		if (modUuid) {
+			vars->CachedGuid = modUuid;
+		} else {
+			vars->CachedGuid = ModIndexToGuid(modIndex);
+		}
+
+		var = vars->Vars.insert(std::make_pair(key, std::move(value)));
+		var->Dirty = isWrite;
+	}
+
+	if (!wasDirty && var->Dirty) {
+		USER_VAR_DBG("Mark cached mod var for flush %s/%s", vars->CachedGuid.GetString(), key.GetStringOrDefault());
+		flushQueue_.push_back(FlushRequest{
+			.ModIndex = modIndex,
+			.Variable = key,
+			.Proto = &proto
+		});
+	}
+
+	return var;
+}
+
+CachedUserVariable* CachedModVariableManager::PutCache(lua_State* L, uint32_t modIndex, FixedString const& key, FixedString const& modUuid, UserVariablePrototype const& proto, UserVariable const& value)
+{
+	CachedUserVariable var(L, value);
+	return PutCache(modIndex, key, modUuid, proto, std::move(var), false);
+}
+
+void CachedModVariableManager::Push(lua_State* L, uint32_t modIndex, FixedString const& key)
+{
+	auto proto = global_.GetPrototype(ModIndexToGuid(modIndex), key);
+	if (!proto) {
+		push(L, nullptr);
+		return;
+	}
+
+	return Push(L, modIndex, key, *proto);
+}
+
+void CachedModVariableManager::Push(lua_State* L, uint32_t modIndex, FixedString const& key, UserVariablePrototype const& proto)
+{
+	FixedString modUuid;
+	if (!proto.Has(UserVariableFlags::DontCache)) {
+		auto cached = GetFromCache(modIndex, key, modUuid);
+		if (cached) {
+			cached->Push(L);
+			return;
+		}
+	}
+
+	if (!modUuid) {
+		modUuid = ModIndexToGuid(modIndex);
+		if (!modUuid) {
+			push(L, nullptr);
+			return;
+		}
+	}
+
+	auto value = global_.Get(modUuid, key);
+	if (!value) {
+		push(L, nullptr);
+		return;
+	}
+
+	if (!proto.Has(UserVariableFlags::DontCache)) {
+		USER_VAR_DBG("Cache global mod var %d/%s", modIndex, key.GetStringOrDefault());
+		auto cached = PutCache(L, modIndex, key, modUuid, proto, *value);
+		cached->Push(L);
+	} else {
+		CachedUserVariable cached(L, *value);
+		cached.Push(L);
+	}
+}
+
+void CachedModVariableManager::Set(lua_State* L, uint32_t modIndex, FixedString const& key, CachedUserVariable && var)
+{
+	auto proto = global_.GetPrototype(ModIndexToGuid(modIndex), key);
+	if (!proto) {
+		OsiError("Tried to set user variable '" << key << "' that is not registered!");
+		return;
+	}
+
+	Set(L, modIndex, key, *proto, std::move(var));
+}
+
+void CachedModVariableManager::Set(lua_State* L, uint32_t modIndex, FixedString const& key, UserVariablePrototype const& proto, CachedUserVariable && var)
+{
+	if (!proto.Has(UserVariableFlags::DontCache)) {
+		USER_VAR_DBG("Set cached mod var %d/%s", modIndex, key.GetStringOrDefault());
+		auto cachedVar = PutCache(modIndex, key, FixedString{}, proto, std::move(var), true);
+
+		if (cachedVar->Dirty && proto.NeedsSyncFor(isServer_) && proto.Has(UserVariableFlags::SyncOnWrite)) {
+			USER_VAR_DBG("Set global mod var %d/%s", modIndex, key.GetStringOrDefault());
+			auto userVar = cachedVar->ToUserVariable(L);
+			cachedVar->Dirty = false;
+			userVar.Dirty = true;
+			global_.Set(ModIndexToGuid(modIndex), key, proto, std::move(userVar));
+		}
+	} else {
+		USER_VAR_DBG("Set global var %d/%s", modIndex, key.GetStringOrDefault());
+		auto userVar = var.ToUserVariable(L);
+		userVar.Dirty = true;
+		global_.Set(ModIndexToGuid(modIndex), key, proto, std::move(userVar));
+	}
+}
+
+void CachedModVariableManager::Invalidate()
+{
+	vars_.clear();
+	flushQueue_.clear();
+}
+
+void CachedModVariableManager::Invalidate(uint32_t modIndex, FixedString const& key)
+{
+	auto it = vars_.find(modIndex);
+	if (it != vars_.end()) {
+		auto valueIt = it.Value().Vars.find(key);
+		if (valueIt != it.Value().Vars.end()) {
+			USER_VAR_DBG("Invalidate cached mod var %d/%s", modIndex, key.GetStringOrDefault());
+			it.Value().Vars.erase(valueIt);
+		}
+	}
+}
+
+void CachedModVariableManager::Flush()
+{
+	LuaVirtualPin lua;
+
+	if (lua) {
+		for (auto const& req : flushQueue_) {
+			FixedString modUuid;
+			auto var = GetFromCache(req.ModIndex, req.Variable, modUuid);
+			if (var && var->Dirty) {
+				USER_VAR_DBG("Flush cached mod var %d/%s", req.ModIndex, req.Variable.GetStringOrDefault());
+				auto userVar = var->ToUserVariable(lua->GetState());
+				userVar.Dirty = true;
+				global_.Set(modUuid, req.Variable, *req.Proto, std::move(userVar));
 				var->Dirty = false;
 			}
 		}

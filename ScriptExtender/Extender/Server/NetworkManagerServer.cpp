@@ -37,7 +37,7 @@ void ExtenderProtocol::ProcessExtenderMessage(net::MessageContext& context, Mess
 
 	case MessageWrapper::kUserVars:
 	{
-		gExtender->GetServer().GetExtensionState().GetUserVariables().OnNetworkSync(msg.user_vars());
+		SyncUserVars(msg.user_vars());
 		break;
 	}
 
