@@ -387,8 +387,8 @@ void RegisterModVariable(lua_State* L, FixedString moduleUuid, FixedString name)
 	auto vars = gExtender->GetCurrentExtensionState()->GetModVariables().GetOrCreateMod(moduleUuid);
 	UserVariablePrototype proto;
 
-	luaL_checktype(L, 2, LUA_TTABLE);
-	proto.Flags = ParseUserVariableFlags(L, 2);
+	luaL_checktype(L, 3, LUA_TTABLE);
+	proto.Flags = ParseUserVariableFlags(L, 3);
 
 	vars->RegisterPrototype(name, proto);
 }
