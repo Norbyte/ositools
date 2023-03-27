@@ -396,7 +396,7 @@ void RegisterModVariable(lua_State* L, FixedString moduleUuid, FixedString name)
 UserReturn GetModVariables(lua_State* L, FixedString moduleUuid)
 {
 	auto& mv = gExtender->GetCurrentExtensionState()->GetModVariables();
-	auto modIndex = mv.GuidToModuleIndex(moduleUuid);
+	auto modIndex = mv.GuidToNetId(moduleUuid);
 	if (!modIndex) {
 		OsiError("Module '" << moduleUuid << "' is not loaded!");
 		push(L, nullptr);
@@ -404,7 +404,7 @@ UserReturn GetModVariables(lua_State* L, FixedString moduleUuid)
 	}
 
 	mv.GetOrCreateMod(moduleUuid);
-	ModVariableHolderMetatable::Make(L, *modIndex);
+	ModVariableHolderMetatable::Make(L, modIndex->second.Id);
 	return 1;
 }
 

@@ -5,6 +5,7 @@
 
 BEGIN_SE()
 
+enum NetIdType;
 class MsgUserVars;
 class UserVar;
 
@@ -82,7 +83,49 @@ struct UserVariablePrototype
 	}
 };
 
-class UserVariableManager
+class UserVariableInterface
+{
+public:
+	virtual FixedString NetIdToGuid(UserVar const& var) const = 0;
+	virtual std::optional<std::pair<NetIdType, NetId>> GuidToNetId(FixedString const& guid) const = 0;
+	virtual UserVariable* Get(FixedString const& gameObject, FixedString const& key) = 0;
+};
+
+class UserVariableSyncWriter
+{
+public:
+	inline UserVariableSyncWriter(UserVariableInterface* vars, bool isServer)
+		: vars_(vars), isServer_(isServer)
+	{}
+
+	void Flush(bool force);
+	void Sync(FixedString const& guid, FixedString const& key, UserVariablePrototype const& proto, UserVariable const* value);
+	void DeferredSync(FixedString const& guid, FixedString const& key);
+
+private:
+	// Max (approximate) size of sync message we're allowed to send
+	static constexpr size_t SyncMessageBudget = 300000;
+
+	struct SyncRequest
+	{
+		FixedString Entity;
+		FixedString Variable;
+	};
+
+	UserVariableInterface* vars_;
+	ObjectSet<SyncRequest> deferredSyncs_;
+	ObjectSet<SyncRequest> nextTickSyncs_;
+	ScriptExtenderMessage* syncMsg_{ nullptr };
+	size_t syncMsgBudget_{ 0 };
+	bool isServer_;
+
+	void AppendToSyncMessage(FixedString const& gameObject, FixedString const& key, UserVariable const& value);
+	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
+	bool MakeSyncMessage();
+	void SendSyncs();
+};
+
+class UserVariableManager : public UserVariableInterface
 {
 public:
 	struct ComponentVariables
@@ -92,10 +135,14 @@ public:
 
 	inline UserVariableManager(bool isServer)
 		: vars_(GetNearestLowerPrime(10000)),
+		sync_(this, isServer),
 		isServer_(isServer)
 	{}
 
-	UserVariable* Get(FixedString const& gameObject, FixedString const& key);
+	FixedString NetIdToGuid(UserVar const& var) const override;
+	std::optional<std::pair<NetIdType, NetId>> GuidToNetId(FixedString const& guid) const override;
+	UserVariable* Get(FixedString const& gameObject, FixedString const& key) override;
+
 	Map<FixedString, UserVariable>* GetAll(FixedString const& gameObject);
 	Map<FixedString, ComponentVariables>& GetAll();
 	ComponentVariables* Set(FixedString const& gameObject, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
@@ -110,30 +157,13 @@ public:
 	void NetworkSync(UserVar const& var);
 
 private:
-	// Max (approximate) size of sync message we're allowed to send
-	static constexpr size_t SyncMessageBudget = 300000;
-
-	struct SyncRequest
-	{
-		FixedString GameObject;
-		FixedString Variable;
-	};
-
 	Map<FixedString, ComponentVariables> vars_;
 	Map<FixedString, UserVariablePrototype> prototypes_;
-	ObjectSet<SyncRequest> deferredSyncs_;
-	ObjectSet<SyncRequest> nextTickSyncs_;
-	ScriptExtenderMessage* syncMsg_{ nullptr };
-	size_t syncMsgBudget_{ 0 };
+	UserVariableSyncWriter sync_;
 	bool isServer_;
 	lua::CachedUserVariableManager* cache_{ nullptr };
 
-	IGameObject* NetIdToGameObject(UserVar const& var);
-	void Sync(FixedString const& gameObject, FixedString const& key, UserVariable const& value);
-	std::optional<std::pair<uint32_t, NetId>> GuidToNetId(FixedString const& gameObject);
-	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
-	bool MakeSyncMessage();
-	void SendSyncs();
+	IGameObject* NetIdToGameObject(UserVar const& var) const;
 };
 
 class ModVariableMap
@@ -141,8 +171,9 @@ class ModVariableMap
 public:
 	using VariableMap = Map<FixedString, UserVariable>;
 
-	inline ModVariableMap(bool isServer)
-		: vars_(GetNearestLowerPrime(100)),
+	inline ModVariableMap(FixedString gameObject, bool isServer)
+		: gameObject_(gameObject), 
+		vars_(GetNearestLowerPrime(100)),
 		isServer_(isServer)
 	{}
 
@@ -155,19 +186,24 @@ public:
 	UserVariablePrototype const* NetworkSync(UserVar const& var);
 
 private:
+	FixedString gameObject_;
 	VariableMap vars_;
 	Map<FixedString, UserVariablePrototype> prototypes_;
 	bool isServer_;
 };
 
-class ModVariableManager
+class ModVariableManager : public UserVariableInterface
 {
 public:
 	inline ModVariableManager(bool isServer)
-		: isServer_(isServer)
+		: sync_(this, isServer),
+		isServer_(isServer)
 	{}
 
-	UserVariable* Get(FixedString const& modUuid, FixedString const& key);
+	FixedString NetIdToGuid(UserVar const& var) const override;
+	std::optional<std::pair<NetIdType, NetId>> GuidToNetId(FixedString const& guid) const override;
+	UserVariable* Get(FixedString const& modUuid, FixedString const& key) override;
+
 	ModVariableMap::VariableMap* GetAll(FixedString const& modUuid);
 	Map<FixedString, ModVariableMap>& GetAll();
 	ModVariableMap* GetMod(FixedString const& modUuid);
@@ -183,32 +219,13 @@ public:
 	void Flush(bool force);
 	void SavegameVisit(ObjectVisitor* visitor);
 	void NetworkSync(UserVar const& var);
-	std::optional<uint32_t> GuidToModuleIndex(FixedString const& modUuid);
 
 private:
-	// Max (approximate) size of sync message we're allowed to send
-	static constexpr size_t SyncMessageBudget = 300000;
-
-	struct SyncRequest
-	{
-		FixedString ModUuid;
-		FixedString Variable;
-	};
-
 	Map<FixedString, uint32_t> modIndices_;
 	Map<FixedString, ModVariableMap> vars_;
-	ObjectSet<SyncRequest> deferredSyncs_;
-	ObjectSet<SyncRequest> nextTickSyncs_;
-	ScriptExtenderMessage* syncMsg_{ nullptr };
-	size_t syncMsgBudget_{ 0 };
+	UserVariableSyncWriter sync_;
 	bool isServer_;
 	lua::CachedModVariableManager* cache_{ nullptr };
-
-	Module* NetIdToMod(UserVar const& var);
-	void Sync(FixedString const& gameObject, FixedString const& key, UserVariable const& value);
-	void FlushSyncQueue(ObjectSet<SyncRequest>& queue);
-	bool MakeSyncMessage();
-	void SendSyncs();
 };
 
 END_SE()
