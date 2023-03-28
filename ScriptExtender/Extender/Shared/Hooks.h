@@ -81,7 +81,7 @@ public:
 #if defined(OSI_EOCAPP)
 	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, stats::ItemSlot32 slot, stats::Requirement* pRequirement);
 #else
-	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, ItemSlot32 slot, bool checkRequirements, stats::Requirement* pRequirement);
+	bool OnReevaluateRequirements(stats::Character::ReevaluateRequirementsProc* wrapped, stats::Character* self, stats::ItemSlot32 slot, bool checkRequirements, stats::Requirement* pRequirement);
 #endif
 
 	void OnItemSetupDescriptionToFlash(ecl::Item::SetupDescriptionToFlashProc* wrapped, ecl::Item* self, ig::FlashObject* flash, char const* path,

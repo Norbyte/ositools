@@ -469,7 +469,7 @@
       48 8B CF  // mov     rcx, rdi
       48 89 7D EF  // mov     [rbp+57h+var_68], rdi
       <Target Type="Indirect" Offset="6" Symbol="RPGStats__Load" />
-      <Target Type="Indirect" Offset="@func" NextSymbol="RPGStats::ParseStructureFolder" NextSymbolSeekSize="0x100" />
+      <Target Type="Indirect" Offset="0" NextSymbol="RPGStats::ParseStructureFolder" NextSymbolSeekSize="0x100" />
     </Mapping>
 
     <Mapping Name="RPGStats::GetItemLeveledBaseStat">

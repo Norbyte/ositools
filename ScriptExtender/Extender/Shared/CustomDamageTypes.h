@@ -57,14 +57,14 @@ public:
 	float GetDamageBoostByType(stats::Character::GetDamageBoostByTypeProc* wrapped, stats::Character* self,
 		stats::DamageType damageType);
 #else
-	void GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, DamageType& damageType,
+	void GetColorCodeAndTypeDmg(stats::ColorCodeAndTypeDmgProc* wrapped, eoc::Text* text, stats::DamageType& damageType,
 		unsigned int amount, bool reflected);
-	bool ComputeScaledDamage(stats::Character::ComputeScaledDamageProc* wrapped, Character* self, Item* weapon, 
-		DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages);
-	int32_t GetResistance(stats::Character::GetResistanceProc* wrapped, Character* self,
-		DamageType damageType, bool baseValues, bool excludeBoosts);
-	float GetDamageBoostByType(stats::Character::GetDamageBoostByTypeProc* wrapped, Character* self,
-		DamageType damageType, bool excludeBoosts);
+	bool ComputeScaledDamage(stats::Character::ComputeScaledDamageProc* wrapped, stats::Character* self, stats::Item* weapon,
+		stats::DamageDescList* damages, bool includeBoosts, bool keepCurrentDamages);
+	int32_t GetResistance(stats::Character::GetResistanceProc* wrapped, stats::Character* self,
+		stats::DamageType damageType, bool baseValues, bool excludeBoosts);
+	float GetDamageBoostByType(stats::Character::GetDamageBoostByTypeProc* wrapped, stats::Character* self,
+		stats::DamageType damageType, bool excludeBoosts);
 #endif
 	bool ComputeItemDamage(stats::Item::ComputeDamageProc* wrapped, stats::Item* self,
 		stats::DamageDescList* damages, bool keepCurrentDamages);
