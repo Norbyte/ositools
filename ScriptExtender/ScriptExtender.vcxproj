@@ -367,6 +367,7 @@
     <None Include="Lua\Libs\Stats.inl" />
     <None Include="Lua\Libs\Types.inl" />
     <None Include="Lua\Libs\Utils.inl" />
+    <None Include="Lua\Libs\Vars.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />
     <None Include="Lua\Server\ServerEntitySystem.inl" />
     <None Include="Lua\Server\ServerItem.inl" />

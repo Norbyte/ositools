@@ -1,8 +1,8 @@
 #include <Extender/Shared/UserVariables.h>
 #include <Lua/Libs/Json.h>
 
-// #define USER_VAR_DBG(msg, ...)
-#define USER_VAR_DBG(msg, ...) DEBUG(msg, __VA_ARGS__)
+#define USER_VAR_DBG(msg, ...)
+// #define USER_VAR_DBG(msg, ...) DEBUG(msg, __VA_ARGS__)
 
 BEGIN_SE()
 

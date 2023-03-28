@@ -2,6 +2,7 @@
 #include <Lua/Libs/LibraryRegistrationHelpers.h>
 
 #include <Lua/Libs/Utils.inl>
+#include <Lua/Libs/Vars.inl>
 #include <Lua/Libs/Json.inl>
 #include <Lua/Libs/Types.inl>
 #include <Lua/Libs/Audio.inl>
@@ -95,6 +96,7 @@ void RegisterSharedMetatables(lua_State* L)
 void RegisterSharedLibraries()
 {
 	utils::RegisterUtilsLib();
+	vars::RegisterVarsLib();
 	json::RegisterJsonLib();
 	types::RegisterTypesLib();
 	io::RegisterIOLib();

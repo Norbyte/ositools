@@ -176,6 +176,15 @@ Ext.OnNextTick = function (fun)
 	Ext.Events.Tick:Subscribe(fun, {Once = true})
 end
 
+-- Backwards compatibility with old variable APIs
+Ext.Utils.RegisterUserVariable = CallDeprecated(Ext.Vars.RegisterUserVariable, "Utils.RegisterUserVariable", "Vars.RegisterUserVariable")
+Ext.Utils.SyncUserVariables = CallDeprecated(Ext.Vars.SyncUserVariables, "Utils.SyncUserVariables", "Vars.SyncUserVariables")
+Ext.Utils.DirtyUserVariables = CallDeprecated(Ext.Vars.DirtyUserVariables, "Utils.DirtyUserVariables", "Vars.DirtyUserVariables")
+Ext.Utils.RegisterModVariable = CallDeprecated(Ext.Vars.RegisterModVariable, "Utils.RegisterModVariable", "Vars.RegisterModVariable")
+Ext.Utils.GetModVariables = CallDeprecated(Ext.Vars.GetModVariables, "Utils.GetModVariables", "Vars.GetModVariables")
+Ext.Utils.SyncModVariables = CallDeprecated(Ext.Vars.SyncModVariables, "Utils.SyncModVariables", "Vars.SyncModVariables")
+Ext.Utils.DirtyModVariables = CallDeprecated(Ext.Vars.DirtyModVariables, "Utils.DirtyModVariables", "Vars.DirtyModVariables")
+
 -- Backwards compatibility with old JSON APIs
 Ext.JsonStringify = CallDeprecated(Ext.Json.Stringify, "JsonStringify", "Json.Stringify")
 Ext.JsonParse = CallDeprecated(Ext.Json.Parse, "JsonParse", "Json.Parse")
