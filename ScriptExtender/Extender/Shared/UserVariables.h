@@ -81,6 +81,8 @@ struct UserVariablePrototype
 	{
 		return Has(server ? UserVariableFlags::WriteableOnServer : UserVariableFlags::WriteableOnClient);
 	}
+
+	bool NeedsRebroadcast(bool server) const;
 };
 
 class UserVariableInterface
@@ -171,11 +173,16 @@ class ModVariableMap
 public:
 	using VariableMap = Map<FixedString, UserVariable>;
 
-	inline ModVariableMap(FixedString gameObject, bool isServer)
-		: gameObject_(gameObject), 
+	inline ModVariableMap(FixedString moduleUuid, bool isServer)
+		: moduleUuid_(moduleUuid),
 		vars_(GetNearestLowerPrime(100)),
 		isServer_(isServer)
 	{}
+
+	inline FixedString const& ModuleUuid() const
+	{
+		return moduleUuid_;
+	}
 
 	UserVariable* Get(FixedString const& key);
 	VariableMap& GetAll();
@@ -183,10 +190,9 @@ public:
 	UserVariablePrototype const* GetPrototype(FixedString const& key) const;
 	void RegisterPrototype(FixedString const& key, UserVariablePrototype const& proto);
 	void SavegameVisit(ObjectVisitor* visitor);
-	UserVariablePrototype const* NetworkSync(UserVar const& var);
 
 private:
-	FixedString gameObject_;
+	FixedString moduleUuid_;
 	VariableMap vars_;
 	Map<FixedString, UserVariablePrototype> prototypes_;
 	bool isServer_;
@@ -211,6 +217,7 @@ public:
 	UserVariablePrototype const* GetPrototype(FixedString const& modUuid, FixedString const& key) const;
 	void RegisterPrototype(FixedString const& modUuid, FixedString const& key, UserVariablePrototype const& proto);
 	ModVariableMap* Set(FixedString const& modUuid, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
+	void Set(ModVariableMap& mod, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
 	void MarkDirty(FixedString const& modUuid, FixedString const& key, UserVariable& value);
 
 	void OnModuleLoading();

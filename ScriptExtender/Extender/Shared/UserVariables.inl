@@ -131,6 +131,27 @@ size_t UserVariable::Budget() const
 }
 
 
+bool UserVariablePrototype::NeedsRebroadcast(bool server) const
+{
+	if (
+		// There is no server->client->server broadcast functionality, 
+		// only client->server->client messages can be resynced
+		server
+		// Ensure that clients actually need to see this variable
+		&& IsAvailableFor(false)
+		// Ensure that we can sync to clients
+		&& NeedsSyncFor(true)
+	) {
+		// If we only have a local client, no need to resync user vars
+		auto server = gExtender->GetServer().GetNetworkManager().GetServer();
+		if (server && server->ActivePeerIds.size() > 1) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 void UserVariableSyncWriter::Flush(bool force)
 {
@@ -446,7 +467,7 @@ void UserVariableManager::NetworkSync(UserVar const& var)
 
 	UserVariable value;
 	value.FromNetMessage(var);
-	value.Dirty = true;
+	value.Dirty = proto->NeedsRebroadcast(isServer_);
 
 	Set(*gameObject->GetGuid(), key, *proto, std::move(value));
 
@@ -568,7 +589,7 @@ void ModVariableMap::SavegameVisit(ObjectVisitor* visitor)
 			if (visitor->EnterNode(GFS.strVariable, GFS.strName)) {
 				FixedString name;
 				visitor->VisitFixedString(GFS.strName, name, GFS.strEmpty);
-				USER_VAR_DBG("Savegame restore var %s/%s", gameObject_.GetStringOrDefault(), name.GetStringOrDefault());
+				USER_VAR_DBG("Savegame restore var %s/%s", moduleUuid_.GetStringOrDefault(), name.GetStringOrDefault());
 							
 				auto var = vars_.insert(std::make_pair(name, UserVariable{}));
 				var->SavegameVisit(visitor);
@@ -576,7 +597,7 @@ void ModVariableMap::SavegameVisit(ObjectVisitor* visitor)
 
 				auto proto = GetPrototype(name);
 				if (proto && proto->NeedsSyncFor(isServer_)) {
-					USER_VAR_DBG("Request deferred sync for var %s/%s", gameObject_.GetStringOrDefault(), name.GetStringOrDefault());
+					USER_VAR_DBG("Request deferred sync for var %s/%s", moduleUuid_.GetStringOrDefault(), name.GetStringOrDefault());
 					var->Dirty = true;
 				}
 			}
@@ -587,35 +608,13 @@ void ModVariableMap::SavegameVisit(ObjectVisitor* visitor)
 			if (proto && proto->Has(UserVariableFlags::Persistent)) {
 				if (visitor->EnterNode(GFS.strVariable, GFS.strName)) {
 					visitor->VisitFixedString(GFS.strName, kv.Key, GFS.strEmpty);
-					USER_VAR_DBG("Savegame persist var %s/%s", gameObject_.GetStringOrDefault(), kv.Key.GetStringOrDefault());
+					USER_VAR_DBG("Savegame persist var %s/%s", moduleUuid_.GetStringOrDefault(), kv.Key.GetStringOrDefault());
 					kv.Value.SavegameVisit(visitor);
 					visitor->ExitNode(GFS.strVariable);
 				}
 			}
 		}
 	}
-}
-
-UserVariablePrototype const* ModVariableMap::NetworkSync(UserVar const& var)
-{
-	FixedString key(var.key());
-	auto proto = GetPrototype(key);
-	if (!proto) {
-		ERR("Tried to sync variable '%s' that has no prototype!", var.key().c_str());
-		return nullptr;
-	}
-	
-	if (!proto->NeedsSyncFor(!isServer_)) {
-		ERR("Tried to sync variable '%s' in illegal direction!", var.key().c_str());
-		return nullptr;
-	}
-
-	UserVariable value;
-	value.FromNetMessage(var);
-	value.Dirty = true;
-
-	Set(key, *proto, std::move(value));
-	return proto;
 }
 
 
@@ -685,13 +684,18 @@ void ModVariableManager::MarkDirty(FixedString const& modUuid, FixedString const
 
 ModVariableMap* ModVariableManager::Set(FixedString const& modUuid, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
 {
+	auto mod = GetOrCreateMod(modUuid);
+	Set(*mod, key, proto, std::move(value));
+	return mod;
+}
+
+void ModVariableManager::Set(ModVariableMap& mod, FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
+{
 	if (value.Dirty) {
-		sync_.Sync(modUuid, key, proto, &value);
+		sync_.Sync(mod.ModuleUuid(), key, proto, &value);
 	}
 
-	auto mod = GetOrCreateMod(modUuid);
-	mod->Set(key, proto, std::move(value));
-	return mod;
+	mod.Set(key, proto, std::move(value));
 }
 
 std::optional<std::pair<NetIdType, NetId>> ModVariableManager::GuidToNetId(FixedString const& guid) const
@@ -787,10 +791,26 @@ void ModVariableManager::NetworkSync(UserVar const& var)
 		return;
 	}
 
-	auto proto = map->NetworkSync(var);
+	FixedString key(var.key());
+	auto proto = map->GetPrototype(key);
+	if (!proto) {
+		ERR("Tried to sync variable '%s' that has no prototype!", var.key().c_str());
+		return;
+	}
+
+	if (!proto->NeedsSyncFor(!isServer_)) {
+		ERR("Tried to sync variable '%s' in illegal direction!", var.key().c_str());
+		return;
+	}
+
+	UserVariable value;
+	value.FromNetMessage(var);
+	value.Dirty = proto->NeedsRebroadcast(isServer_);
+
+	Set(*map, key, *proto, std::move(value));
 
 	if (proto && cache_ && !proto->Has(UserVariableFlags::DontCache)) {
-		cache_->Invalidate(var.net_id(), FixedString(var.key()));
+		cache_->Invalidate(var.net_id(), key);
 	}
 }
 
