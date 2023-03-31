@@ -682,6 +682,38 @@ function Ext.UpdateShroud(x, y, layer, value) end
 function Ext.EnableExperimentalPropertyWrites() end
 
 --#endregion
+
+--#region Deprecated Module Functions
+
+--- @deprecated
+--- Use `Ext.Vars.RegisterModVariable` instead.
+Ext_Utils.RegisterModVariable = Ext.Vars.RegisterModVariable
+
+--- @deprecated
+--- Use `Ext.Vars.RegisterUserVariable` instead.
+Ext_Utils.RegisterUserVariable = Ext.Vars.RegisterUserVariable
+
+--- @deprecated
+--- Use `Ext.Vars.GetModVariables` instead.
+Ext_Utils.GetModVariables = Ext.Vars.GetModVariables
+
+--- @deprecated
+--- Use `Ext.Vars.SyncUserVariables` instead.
+Ext_Utils.SyncUserVariables = Ext.Vars.SyncUserVariables
+
+--- @deprecated
+--- Use `Ext.Vars.SyncModVariables` instead.
+Ext_Utils.SyncModVariables = Ext.Vars.SyncModVariables
+
+--- @deprecated
+--- Use `Ext.Vars.DirtyModVariables` instead.
+Ext_Utils.DirtyUserVariables = Ext.Vars.DirtyUserVariables
+
+--- @deprecated
+--- Use `Ext.Vars.DirtyModVariables` instead.
+Ext_Utils.DirtyModVariables = Ext.Vars.DirtyUserVariables
+
+--#endregion
 ]],
 BaseExtraData = [[
 Ext.ExtraData = {
