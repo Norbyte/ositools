@@ -472,7 +472,7 @@ function EncodeTooltipArmorSet(tt, element)
     end
 end
 
---- @param tt table Flash tooltip array
+--- @param elements table Flash tooltip array
 --- @return table
 function EncodeTooltipArray(elements)
     local tt = {}

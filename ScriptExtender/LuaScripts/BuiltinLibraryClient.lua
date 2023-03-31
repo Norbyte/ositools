@@ -243,11 +243,25 @@ end)
 
 -- Debug helper to get current player character
 _C = function ()
-	local statusConsole = Ext.UI.GetByType(117)
-	if statusConsole == nil then return end
-	local handle = statusConsole:GetPlayerHandle()
-	if handle == nil then return end
-	return Ext.Entity.GetCharacter(handle)
+	local playerManager = Ext.Entity.GetPlayerManager()
+	if playerManager then
+		local players = {}
+		--Can be multiple characters in splitscreen
+		for _,data in pairs(playerManager.ClientPlayerData) do
+			local player = Ext.Entity.GetCharacter(data.CharacterNetId)
+			if player then
+				players[#players+1] = player
+			end
+		end
+		return table.unpack(players)
+	else
+		--Previous way we got the client player
+		local statusConsole = Ext.UI.GetByType(117)
+		if statusConsole == nil then return end
+		local handle = statusConsole:GetPlayerHandle()
+		if handle == nil then return end
+		return Ext.Entity.GetCharacter(handle)
+	end
 end
 
 -- Debug helper to get character being examined

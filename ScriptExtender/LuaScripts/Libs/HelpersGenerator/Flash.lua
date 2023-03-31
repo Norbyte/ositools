@@ -1,0 +1,248 @@
+return[[--#region Flash Types
+
+--- @alias FlashTextFormatAlign "center"|"end"|"justify"|"left"|"right"|"start"
+
+--- Represents an object in Flash
+--- Implements the __index and __newindex metamethods using string keys (i.e. allows table-like behavior):
+--- obj.field = 123 -- Can assign values to any object property
+--- Ext.Print(obj.field) -- Can read any object property
+--- Field values are returned using the appropriate Lua type;
+--- Flash Boolean/Number/string = Lua boolean/number/string
+--- Flash Object = Lua engine class FlashObject
+--- Flash array = Lua engine class FlashArray
+--- Flash function = Lua engine class FlashFunction
+--- @class FlashObject
+--- @field toString fun():string Returns the string representation of the specified object.
+--- @field toLocaleString fun():string Returns the string representation of this object, formatted according to locale-specific conventions.
+--- @field hasOwnProperty fun(name:string):boolean Indicates whether an object has a specified property defined.
+
+--- Represents an array in Flash that begins at index 0
+--- Implements the __index, __newindex and __len metamethods using integer keys (i.e. allows table-like behavior):
+--- arr[2] = 123 -- Can assign values to any array index
+--- Ext.Print(arr[2]) -- Can read any array index
+--- Ext.Print(#arr) -- Can query length of array
+--- @class FlashArray<T>: { [integer]: T }
+
+--- Represents a function or method in Flash
+--- Implements the __call metamethod (i.e. can be called)
+--- The passed arguments are forwarded to the Flash method and the return value of the Flash method is returned
+--- @class FlashFunction
+
+--- @class FlashEvent:FlashObject
+
+--- @class FlashEventDispatcher:FlashObject
+--- @field dispatchEvent fun(event:FlashEvent):boolean Dispatches an event into the event flow.
+--- @field hasEventListener fun(type:string):boolean Checks whether the EventDispatcher object has any listeners registered for a specific type of event.
+--- @field willTrigger fun(type:string):boolean Checks whether an event listener is registered with this EventDispatcher object or any of its ancestors for the specified event type.
+
+--- Currently unsupported type 12
+--- @class FlashDisplayObject:FlashEventDispatcher
+--- @field alpha number Indicates the alpha transparency value of the object specified.
+--- @field blendMode string A value from the BlendMode class that specifies which blend mode to use.
+--- @field blendShader Shader [write-only] Sets a shader that is used for blending the foreground and background.
+--- @field cacheAsBitmap boolean If set to true, Flash runtimes cache an internal bitmap representation of the display object.
+--- @field cacheAsBitmapMatrix Matrix If non-null, this Matrix object defines how a display object is rendered when cacheAsBitmap is set to true.
+--- @field filters Array An indexed array that contains each filter object currently associated with the display object.
+--- @field height number Indicates the height of the display object, in pixels.
+--- @field loaderInfo LoaderInfo [read-only] Returns a LoaderInfo object containing information about loading the file to which this display object belongs.
+--- @field mask FlashDisplayObject The calling display object is masked by the specified mask object.
+--- @field metaData FlashObject Obtains the meta data object of the DisplayObject instance if meta data was stored alongside the the instance of this DisplayObject in the SWF file through a PlaceObject4 tag.
+--- @field mouseX number [read-only] Indicates the x coordinate of the mouse or user input device position, in pixels.
+--- @field mouseY number [read-only] Indicates the y coordinate of the mouse or user input device position, in pixels.
+--- @field name string Indicates the instance name of the DisplayObject.
+--- @field opaqueBackground FlashObject Specifies whether the display object is opaque with a certain background color.
+--- @field parent FlashDisplayObjectContainer [read-only] Indicates the DisplayObjectContainer object that contains this display object.
+--- @field root FlashDisplayObject [read-only] For a display object in a loaded SWF file, the root property is the top-most display object in the portion of the display list's tree structure represented by that SWF file.
+--- @field rotation number Indicates the rotation of the DisplayObject instance, in degrees, from its original orientation.
+--- @field rotationX number Indicates the x-axis rotation of the DisplayObject instance, in degrees, from its original orientation relative to the 3D parent container.
+--- @field rotationY number Indicates the y-axis rotation of the DisplayObject instance, in degrees, from its original orientation relative to the 3D parent container.
+--- @field rotationZ number Indicates the z-axis rotation of the DisplayObject instance, in degrees, from its original orientation relative to the 3D parent container.
+--- @field scale9Grid FlashRectangle The current scaling grid that is in effect.
+--- @field scaleX number Indicates the horizontal scale (percentage) of the object as applied from the registration point.
+--- @field scaleY number Indicates the vertical scale (percentage) of an object as applied from the registration point of the object.
+--- @field scaleZ number Indicates the depth scale (percentage) of an object as applied from the registration point of the object.
+--- @field scrollRect FlashRectangle The scroll rectangle bounds of the display object.
+--- @field stage Stage [read-only] The Stage of the display object.
+--- @field transform flash.geom:Transform An object with properties pertaining to a display object's matrix, color transform, and pixel bounds.
+--- @field visible boolean Whether or not the display object is visible.
+--- @field width number Indicates the width of the display object, in pixels.
+--- @field x number Indicates the x coordinate of the DisplayObject instance relative to the local coordinates of the parent DisplayObjectContainer.
+--- @field y number Indicates the y coordinate of the DisplayObject instance relative to the local coordinates of the parent DisplayObjectContainer.
+--- @field z number Indicates the z coordinate position along the z-axis of the DisplayObject instance relative to the 3D parent container.
+--- @field hitTestPoint fun(x:number, y:number, shapeFlag:boolean|nil):boolean Evaluates the display object to see if it overlaps or intersects with the point specified by the x and y parameters.
+
+--- @class FlashInteractiveObject:FlashDisplayObject
+--- @field doubleClickEnabled boolean Specifies whether the object receives doubleClick events
+--- @field mouseEnabled boolean Specifies whether this object receives mouse, or other user input, messages
+--- @field tabEnabled boolean Specifies whether this object is in the tab order
+--- @field tabIndex integer Specifies the tab ordering of objects in a SWF file
+
+--- flash.text:TextFormat
+--- @class FlashTextFormat:FlashObject
+--- @field align FlashTextFormatAlign Indicates the alignment of the paragraph.
+--- @field blockIndent boolean|nil Indicates the block indentation in pixels.
+--- @field bold boolean|nil Specifies whether the text is boldface.
+--- @field bullet boolean|nil Indicates that the text is part of a bulleted list.
+--- @field color uint32|nil Indicates the color of the text.
+--- @field font string The name of the font for text in this text format, as a string.
+--- @field indent number|nil Indicates the indentation from the left margin to the first character in the paragraph.
+--- @field italic boolean|nil Indicates whether text in this text format is italicized.
+--- @field kerning number|nil A Boolean value that indicates whether kerning is enabled (true) or disabled (false).
+--- @field leading number|nil An integer representing the amount of vertical space (called leading) between lines.
+--- @field leftMargin number|nil The left margin of the paragraph, in pixels.
+--- @field letterSpacing number|nil A number representing the amount of space that is uniformly distributed between all characters.
+--- @field rightMargin number|nil The right margin of the paragraph, in pixels.
+--- @field size number|nil The size in pixels of text in this text format.
+--- @field tabStops FlashArray Specifies custom tab stops as an array of non-negative integers.
+--- @field target string Indicates the target window where the hyperlink is displayed.
+--- @field underline boolean|nil Indicates whether the text that uses this text format is underlined (true) or not (false).
+--- @field url string Indicates the target URL for the text in this text format.
+
+--- @class FlashTextField:FlashInteractiveObject
+--- @field alwaysShowSelection boolean When set to true and the text field is not in focus, Flash Player highlights the selection in the text field in gray.
+--- @field antiAliasType string The type of anti-aliasing used for this text field.
+--- @field autoSize string Controls automatic sizing and alignment of text fields.
+--- @field background boolean Specifies whether the text field has a background fill.
+--- @field backgroundColor uint32 The color of the text field background.
+--- @field border boolean Specifies whether the text field has a border.
+--- @field borderColor uint32 The color of the text field border.
+--- @field bottomScrollV integer [read-only] An integer (1-based index) that indicates the bottommost line that is currently visible in the specified text field.
+--- @field caretIndex integer [read-only] The index of the insertion point (caret) position.
+--- @field condenseWhite boolean A Boolean value that specifies whether extra white space (spaces, line breaks, and so on) in a text field with HTML text is removed.
+--- @field defaultTextFormat FlashTextFormat Specifies the format applied to newly inserted text, such as text entered by a user or text inserted with the replaceSelectedText() method.
+--- @field displayAsPassword boolean Specifies whether the text field is a password text field.
+--- @field embedFonts boolean Specifies whether to render by using embedded font outlines.
+--- @field gridFitType string The type of grid fitting used for this text field.
+--- @field htmlText string Contains the HTML representation of the text field contents.
+--- @field length integer [read-only] The number of characters in a text field.
+--- @field maxChars integer The maximum number of characters that the text field can contain, as entered by a user.
+--- @field maxScrollH integer [read-only] The maximum value of scrollH.
+--- @field maxScrollV integer [read-only] The maximum value of scrollV.
+--- @field mouseWheelEnabled boolean A Boolean value that indicates whether Flash Player automatically scrolls multiline text fields when the user clicks a text field and rolls the mouse wheel.
+--- @field multiline boolean Indicates whether field is a multiline text field.
+--- @field numLines integer [read-only] Defines the number of text lines in a multiline text field.
+--- @field restrict string Indicates the set of characters that a user can enter into the text field.
+--- @field scrollH integer The current horizontal scrolling position.
+--- @field scrollV integer The vertical position of text in a text field.
+--- @field selectable boolean A Boolean value that indicates whether the text field is selectable.
+--- @field selectionBeginIndex integer [read-only] The zero-based character index value of the first character in the current selection.
+--- @field selectionEndIndex integer [read-only] The zero-based character index value of the last character in the current selection.
+--- @field sharpness number The sharpness of the glyph edges in this text field.
+--- @field styleSheet StyleSheet Attaches a style sheet to the text field.
+--- @field text string A string that is the current text in the text field.
+--- @field textColor uint32 The color of the text in a text field, in hexadecimal format.
+--- @field textHeight number [read-only] The height of the text in pixels.
+--- @field textInteractionMode string [read-only] The interaction mode property, Default value is TextInteractionMode.NORMAL.
+--- @field textWidth number [read-only] The width of the text in pixels.
+--- @field thickness number The thickness of the glyph edges in this text field.
+--- @field type string The type of the text field.
+--- @field useRichTextClipboard boolean Specifies whether to copy and paste the text formatting along with the text.
+--- @field wordWrap boolean A Boolean value that indicates whether the text field has word wrap.
+--- @field appendText fun(newText:string) Appends the string specified by the newText parameter to the end of the text of the text field.
+--- @field getCharBoundaries fun(charIndex:integer):FlashRectangle Returns a rectangle that is the bounding box of the character.
+--- @field getCharIndexAtPoint fun(x:Number, y:Number):integer Returns the zero-based index value of the character at the point specified by the x and y parameters.
+--- @field getFirstCharInParagraph fun(charIndex:integer):integer Given a character index, returns the index of the first character in the same paragraph.
+--- @field getImageReference fun(id:string):FlashDisplayObject Returns a DisplayObject reference for the given id, for an image or SWF file that has been added to an HTML-formatted text field by using an <img> tag.
+--- @field getLineIndexAtPoint fun(x:Number, y:Number):integer Returns the zero-based index value of the line at the point specified by the x and y parameters.
+--- @field getLineIndexOfChar fun(charIndex:integer):integer Returns the zero-based index value of the line containing the character specified by the charIndex parameter.
+--- @field getLineLength fun(lineIndex:integer):integer Returns the number of characters in a specific text line.
+--- @field getLineMetrics fun(lineIndex:integer):flash.text:TextLineMetrics Returns metrics information about a given text line.
+--- @field getLineOffset fun(lineIndex:integer):integer Returns the character index of the first character in the line that the lineIndex parameter specifies.
+--- @field getLineText fun(lineIndex:integer):string Returns the text of the line specified by the lineIndex parameter.
+--- @field getParagraphLength fun(charIndex:integer):integer Given a character index, returns the length of the paragraph containing the given character.	
+--- @field getTextFormat fun(beginIndex:integer, endIndex:integer):flash.text:TextFormat Returns a TextFormat object that contains formatting information for the range of text that the beginIndex and endIndex parameters specify.
+--- @field isFontCompatible fun(fontName:string, fontStyle:string):boolean [static] Returns true if an embedded font is available with the specified fontName and fontStyle where Font.fontType is flash.text.FontType.EMBEDDED.
+--- @field replaceSelectedText fun(value:string) Replaces the current selection with the contents of the value parameter.	
+--- @field replaceText fun(beginIndex:integer, endIndex:integer, newText:string) Replaces the range of characters that the beginIndex and endIndex parameters specify with the contents of the newText parameter.	
+--- @field setSelection fun(beginIndex:integer, endIndex:integer) Sets as selected the text designated by the index values of the first and last characters, which are specified with the beginIndex and endIndex parameters.
+--- @field setTextFormat fun(FlashTextFormat, beginIndex:integer, endIndex:integer) Applies the text formatting that the format parameter specifies to the specified text in a text field.
+
+--- @class FlashBitmapData
+--- @class FlashMatrix
+--- @class FlashVector
+--- @class FlashTextSnapshot
+--- @class FlashPoint
+--- @class FlashEvent
+--- @class FlashMouseEvent
+
+--- @class FlashGraphics:FlashObject
+--- @field beginBitmapFill fun(bitmap:FlashBitmapData, matrix:FlashMatrix, repeat:boolean, smooth:boolean) Fills a drawing area with a bitmap image
+--- @field beginFill fun(color:integer, alpha:number) Specifies a simple one-color fill that subsequent calls to other Graphics methods (such as lineTo or drawCircle) use when drawing
+--- @field beginGradientFill fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number) Specifies a gradient fill used by subsequent calls to other Graphics methods (such as lineTo or drawCircle) for the object
+--- @field clear function Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings
+--- @field curveTo fun(controlX:number, controlY:number, anchorX:number, anchorY:number) Draws a quadratic Bezier curve using the current line style from the current drawing position to the control point specified
+--- @field drawCircle fun(x:number, y:number, radius:number) Draws a circle
+--- @field drawEllipse fun(x:number, y:number, width:number, height:number) Draws an ellipse
+--- @field drawPath fun(commands:FlashVector, data:FlashVector, winding:string) Submits a series of commands for drawing
+--- @field drawRect fun(x:number, y:number, width:number, height:number) Draws a rectangle
+--- @field drawRoundRect fun(x:number, y:number, width:number, height:number, ellipseWidth:number, ellipseHeight:number) Draws a rounded rectangle
+--- @field endFill function Applies a fill to the lines and curves that were added since the last call to beginFill, beginGradientFill, or beginBitmapFill methods
+--- @field lineGradientStyle fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number) Specifies a gradient to use for the stroke when drawing lines
+--- @field lineStyle fun(thickness:number, color:integer, alpha:number, pixelHinting:boolean, scaleMode:string, caps:string, joints:string, miterLimit:number) Specifies a line style used for subsequent calls to Graphics methods such as the lineTo method or the drawCircle method
+--- @field lineTo fun(x:number, y:number) Draws a line using the current line style from the current drawing position
+--- @field moveTo fun(x:number, y:number) Moves the current drawing position,
+
+--- @class FlashDisplayObjectContainer:FlashInteractiveObject
+--- @field mouseChildren boolean Determines whether or not the children of the object are mouse, or user input device, enabled
+--- @field numChildren integer Returns the number of children of this object. [read-only]
+--- @field tabChildren boolean Determines whether the children of the object are tab enabled
+--- @field textSnapshot FlashTextSnapshot Returns a TextSnapshot object for this DisplayObjectContainer instance. [read-only]
+--- @field addChild fun(child:FlashDisplayObject):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance
+--- @field addChildAt fun(child:FlashDisplayObject, index:integer):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance
+--- @field areInaccessibleObjectsUnderPoint fun(point:FlashPoint):boolean Indicates whether the security restrictions would cause any display objects to be omitted from the list returned by calling the DisplayObjectContainer.getObjectsUnderPoint() method with the specified point point
+--- @field contains fun(child:FlashDisplayObject):boolean Determines whether the specified display object is a child of the DisplayObjectContainer instance or the instance itself
+--- @field getChildAt fun(index:integer):FlashDisplayObject Returns the child display object instance that exists at the specified index
+--- @field getChildByName fun(name:string):FlashDisplayObject Returns the child display object that exists with the specified name
+--- @field getChildIndex fun(child:FlashDisplayObject):integer Returns the index position of a child DisplayObject instance
+--- @field getObjectsUnderPoint fun(point:FlashPoint):table Returns an array of objects that lie under the specified point and are children (or grandchildren, and so on) of this DisplayObjectContainer instance
+--- @field removeChild fun(child:FlashDisplayObject):FlashDisplayObject Removes the specified child DisplayObject instance from the child list of the DisplayObjectContainer instance
+--- @field removeChildAt fun(index:integer):FlashDisplayObject Removes a child DisplayObject from the specified index position in the child list of the DisplayObjectContainer
+--- @field removeChildren fun(beginIndex:integer, endIndex:integer) Removes all child DisplayObject instances from the child list of the DisplayObjectContainer instance
+--- @field setChildIndex fun(child:FlashDisplayObject, index:integer) Changes the position of an existing child in the display object container
+--- @field swapChildren fun(child1:FlashDisplayObject, child2:FlashDisplayObject) Swaps the z-order (front-to-back order) of the two specified child objects
+--- @field swapChildrenAt fun(index1:integer, index2:integer) Swaps the z-order (front-to-back order) of the child objects at the two specified index positions in the child list
+
+--- @class FlashRectangle:FlashObject
+--- @field x number
+--- @field y number
+--- @field top number
+--- @field bottom number
+--- @field left number
+--- @field right number
+
+--- @class FlashSprite:FlashDisplayObjectContainer
+--- @field buttonMode boolean Specifies the button mode of this sprite
+--- @field graphics FlashGraphics Specifies the Graphics object that belongs to this sprite where vector drawing commands can occur. [read-only]
+--- @field soundTransform number Controls sound within this sprite
+--- @field useHandCursor boolean A value that indicates whether the pointing hand (hand cursor) appears when the pointer rolls over a sprite in which the buttonMode property is set to true
+
+--- @class FlashMovieClip:FlashSprite
+--- @field currentFrame integer Specifies the number of the frame in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+--- @field currentFrameLabel string The label at the current frame in the timeline of the MovieClip instance. [read-only]
+--- @field currentLabel string The current label in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+--- @field currentLabels string[] Returns an array of FrameLabel objects from the current scene. [read-only]
+--- @field currentScene FlashObject The current scene in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+--- @field scenes FlashArray[] An array of Scene objects, each listing the name, the number of frames, and the frame labels for a scene in the MovieClip instance. [read-only]
+--- @field enabled boolean A Boolean value that indicates whether a movie clip is enabled
+--- @field framesLoaded integer The number of frames that are loaded from a streaming SWF file. [read-only]
+--- @field isPlaying boolean A Boolean value that indicates whether a movie clip is curently playing. [read-only]
+--- @field totalFrames integer The total number of frames in the MovieClip instance. [read-only]
+--- @field trackAsMenu boolean Indicates whether other display objects that are SimpleButton or MovieClip objects can receive mouse release events or other user input release events
+--- @field gotoAndPlay fun(frame:string|integer, scene:string|nil) Starts playing the SWF file at the specified frame
+--- @field gotoAndStop fun(frame:string|integer, scene:string|nil) Brings the playhead to the specified frame of the movie clip and stops it there
+--- @field nextFrame function Sends the playhead to the next frame and stops it
+--- @field nextScene function Moves the playhead to the next scene of the MovieClip instance
+--- @field play function Moves the playhead in the timeline of the movie clip
+--- @field prevFrame function Sends the playhead to the previous frame and stops it
+--- @field prevScene function Moves the playhead to the previous scene of the MovieClip instance
+--- @field stop function Stops the playhead in the movie clip
+--- @field hitTest fun(x:number, y:number, shapeFlag:boolean|nil):boolean
+
+--- @class FlashMainTimeline:FlashMovieClip
+--- @field events string[] An array of input keys this UI should listen for, in the form of 'IE Name', such as 'IE UICreationTabPrev'. The engine will invoke onEventDown/onEventUp when these keys are pressed, if they haven't been handled
+--- @field onEventDown fun(id:number):boolean Invoked by the engine when a valid input key in this.events is pressed. If true is returned, the key is"handled"and won't send events to other UI objects
+--- @field onEventUp fun(id:number):boolean Invoked by the engine when a valid input key in this.events is released. If true is returned, the key is"handled"and won't send events to other UI objects
+--- @field onEventResolution fun(width:number, height:number) Invoked by the engine when the screen is resized
+--- @field onEventInit function Invoked by the engine. Typically used to register the anchor id and layout with ExternalInterface.call
+
+--#endregion]]

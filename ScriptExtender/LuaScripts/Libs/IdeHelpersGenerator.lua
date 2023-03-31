@@ -4,15 +4,69 @@ local _format = string.format
 
 local NEWLINE = "\r\n"
 
----@type {Specific:table<string,string>, Misc:string[], Flash:string[]}
+---@type {Specific:table<string,string>, Misc:string[]}
 local _CustomEntries = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomEntries.lua")
+
 ---@type table<string,{Before:string|nil, After:string|nil}>
 local _CustomTypeEntries = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomTypeEntries.lua")
+
 ---@type table<string,{Before:string|nil, After:string|nil}>
+
 local _CustomFunctionExtras = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomFunctionExtras.lua")
+
+---@type table<string,table<string, string>>
+local _Aliases = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/Aliases.lua")
+
 ---@type string
 local _OsiLines = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/Osi.lua")
 
+---@type {Functions:string, BaseExtraData:string}
+local _Deprecated = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/Deprecated.lua")
+local _Flash = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/Flash.lua") --[[@as string]]
+
+---@type {Regular:table<string, table<string, {Params:{name:string, arg:string, description:string}, Return:{}}>>, Field:table<string, table<string, string>>}
+local _FuncData = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/FunctionFixes.lua")
+
+local _PreventableEvent = {
+    EclLuaUICallEventParams = true,
+    BeforeStatusDelete = true,
+}
+
+local _TypeAliasReplace = {
+    ComponentHandle = "userdata",
+    EntityHandle = "userdata",
+    int16 = "integer",
+    int32 = "integer",
+    int64 = "integer",
+    int8 = "integer",
+    uint16 = "integer",
+    uint32 = "integer",
+    uint64 = "integer",
+    uint8 = "integer",
+    UserId = "integer",
+    NetId = "integer",
+    IggyInvokeDataValue = "boolean|number|string",
+}
+
+local _TypeReplace = {
+    STDString = "string",
+    STDWString = "string",
+    CString = "string",
+    bool = "boolean",
+    double = "number",
+    float = "number",
+}
+
+local _TypeAliasRemove = {
+    STDString = true,
+    STDWString = true,
+    CString = true,
+    bool = true,
+    double = true,
+    float = true,
+}
+
+--- @class GenerateIdeHelpersGenerator
 local Generator = {}
 
 function Generator.Trim(s)
@@ -32,41 +86,81 @@ Generator.ValueKindToLua = {
     Any = "any"
 }
 
-local startingText = [[--- @diagnostic disable
+local startingText = [[--- @meta
+--- @diagnostic disable
+
+--- Table that contains every ModTable entry for active mods.
+Mods = {}
 
 --- Special global value that contains the current mod UUID during load
 --- @type FixedString
 ModuleUUID = "UUID"
 
+--- Table that gets stored in the save, unique for each ModTable entry.
+--- @type table
+PersistentVars = {}
+
+--- @alias OsirisValue number|string
+
 --- Using a DB like a function will allow inserting new values into the database (ex. `Osi.DB_IsPlayer("02a77f1f-872b-49ca-91ab-32098c443beb")`  
---- @overload fun(...:string|number|nil)
+--- @overload fun(...:OsirisValue|nil)
 --- @class OsiDatabase
 local OsiDatabase = {}
 --- Databases can be read using the Get method. The method checks its parameters against the database and only returns rows that match the query.  
 --- The number of parameters passed to Get must be equivalent to the number of columns in the target database.  
 --- Each parameter defines an (optional) filter on the corresponding column.  
 --- If the parameter is nil, the column is not filtered (equivalent to passing _ in Osiris). If the parameter is not nil, only rows with matching values will be returned.
---- @vararg string|number|nil
---- @return table<integer,table<integer,string|number>>
+--- @vararg OsirisValue|nil
+--- @return table<integer,table<integer,OsirisValue>>
 function OsiDatabase:Get(...) end
 --- The Delete method can be used to delete rows from databases.  
 --- The number of parameters passed to Delete must be equivalent to the number of columns in the target database.  
 --- Each parameter defines an (optional) filter on the corresponding column.  
 --- If the parameter is nil, the column is not filtered (equivalent to passing _ in Osiris). If the parameter is not nil, only rows with matching values will be deleted. 
---- @vararg string|number|nil
+--- @vararg OsirisValue|nil
 function OsiDatabase:Delete(...) end
 
---- @class Osi
---- @field DB_IsPlayer OsiDatabase|fun(GUID:string) All player characters
---- @field DB_Origins OsiDatabase|fun(GUID:string) All origin characters
---- @field DB_Avatars OsiDatabase|fun(GUID:string) All player characters that were created in character creation, or that have an `AVATAR` tag
---- @field DB_CombatObjects OsiDatabase|fun(GUID:string, combatID:integer) All objects in combat
---- @field DB_CombatCharacters OsiDatabase|fun(GUID:string, combatID:integer) All characters in combat
---- @field DB_Dialogs OsiDatabase|fun(GUID:string, dialog:string)|fun(GUID1:string, GUID2:string, dialog:string)|fun(GUID1:string, GUID2:string, GUID3:string, dialog:string)|fun(GUID1:string, GUID2:string, GUID3:string, GUID4:string, dialog:string) All registered dialogs for objects, the most common being the version with a single character
+--- @alias OsiFunction fun(...:OsirisValue):OsirisValue|nil
+--- @alias OsiDynamic table<string, OsiFunction|OsiDatabase>
+
+--- @class OsiCommonDatabases
+--- @field DB_IsPlayer OsiDatabase|fun(Guid:string) All player characters
+--- @field DB_Origins OsiDatabase|fun(Guid:string) All origin characters
+--- @field DB_Avatars OsiDatabase|fun(Guid:string) All player characters that were created in character creation, or that have an `AVATAR` tag
+--- @field DB_CombatObjects OsiDatabase|fun(Guid:string, combatID:integer) All objects in combat
+--- @field DB_CombatCharacters OsiDatabase|fun(Guid:string, combatID:integer) All characters in combat
+--- @field DB_Dialogs OsiDatabase|fun(Guid:string, dialog:string)|fun(GUID1:string, GUID2:string, dialog:string)|fun(GUID1:string, GUID2:string, GUID3:string, dialog:string)|fun(GUID1:string, GUID2:string, GUID3:string, GUID4:string, dialog:string) All registered dialogs for objects, the most common being the version with a single character
+
+--- The Osi table contains databases as well as calls, queries, events, and custom PROC / QRY defintions, as long as they are used in a script.  
+--- @type OsiCommonDatabases|OsiDynamic
 Osi = {}
+
+--- @alias OsirisEventType string|"before"|"after"|"beforeDelete"|"afterDelete"
+--- @alias i16vec2 int16[]
+
+--- @alias SkillAbility "None"|"Warrior"|"Ranger"|"Rogue"|"Source"|"Fire"|"Water"|"Air"|"Earth"|"Death"|"Summoning"|"Polymorph"
+--- @alias SkillElement SkillAbility
+--- @alias YesNo "Yes"|"No"
+
+--- @alias GameDifficultyValue uint32
+---|0 # Story
+---|1 # Explorer
+---|2 # Classic
+---|3 # Tactician
+---|4 # Honour
+
+--- @alias RTPCName "PlaybackSpeed"|"RTPC_Rumble"|"RTPC_Volume_Ambient"|"RTPC_Volume_Cinematic"|"RTPC_Volume_FX"|"RTPC_Volume_MAIN"|"RTPC_Volume_Music"|"RTPC_Volume_Music_Fight"|"RTPC_Volume_UI"|"RTPC_Volume_VO_Dialog"|"RTPC_Volume_VO_Master"|"RTPC_Volume_VO_Narrator"|"RTPC_Volume_VO_Overhead"
+--- @alias SoundObjectId "Global"|"Music"|"Ambient"|"HUD"|"GM"|"Player1"|"Player2"|"Player3"|"Player4"
+--- @alias StateGroupName "ARX_Dead"|"ARX_Krakenbattle"|"Amb_ARX_Frozen"|"Amb_Endgame_State"|"Amb_LV_State"|"Amb_Tuto_State"|"COS_OrcTemple"|"CoS_ElfTempleNuked"|"DLC_01_Amb_LV_State"|"DLC_01_Amb_WindBlender"|"GM_Theme"|"Items_Objects_MCH_Laboratory_Machines_Turbine_A"|"Menu_Themes"|"Music_Theme"|"Music_Type"|"Proj_Gren_ClusterBomb_Impact_Multi_VoiceLimitSwitch"|"Skill_NPC_VoidGlide"|"Soundvol_Arx_Sewers_DeathfogMachine_Active"|"State_Dialogue"
+--- @alias SwitchGroupName "Armor_Type"|"Bear"|"Boar"|"Burning_Witch"|"Cat"|"Chicken"|"Deer"|"Dog"|"Dragon"|"Drillworm_Hatchlings"|"Elemental_Ooze"|"Items_Material"|"Items_Objects_TOOL_Ladder_Material"|"Items_SurfaceType"|"Items_Weight"|"Movement_FX_Type"|"PlayerType"|"Raanaar_Automaton"|"Race"|"Sex"|"Skill_CharacterType"|"Spider"|"Steps_Speed"|"Steps_Terrain"|"Steps_Type"|"Steps_Weight"|"Tiger"|"Troll"|"Variation"|"Vocal_Combat_Type"|"WarOwl"|"Weapon_Action"|"Weapon_Hit_Armor_Type"|"Weapon_Hit_Bloodtype"|"Weapon_Hit_Material_Type"|"Weapon_Material"|"Weapon_Race"|"Weapon_Type"|"Whoosh_Magic"|"Whoosh_Type"|"Whoosh_Weight"|"Wolf"
+
+--- @alias LevelMapName "Armor ArmorValue"|"Armor ConstitutionBoost"|"Armor FinesseBoost"|"Armor HearingBoost"|"Armor IntelligenceBoost"|"Armor MagicArmorValue"|"Armor MagicPointsBoost"|"Armor MemoryBoost"|"Armor SightBoost"|"Armor StrengthBoost"|"Armor Value"|"Armor VitalityBoost"|"Armor WitsBoost"|"ArmorUsageSkill"|"Character Act Strength"|"Character AirSpecialist"|"Character Armor"|"Character Constitution"|"Character Critical Chance"|"Character DualWielding"|"Character EarthSpecialist"|"Character Finesse"|"Character FireSpecialist"|"Character Gain"|"Character Hearing"|"Character Intelligence"|"Character Leadership"|"Character MagicArmor"|"Character Memory"|"Character Necromancy"|"Character Polymorph"|"Character Ranged"|"Character RangerLore"|"Character RogueLore"|"Character Sight"|"Character SingleHanded"|"Character Sourcery"|"Character Strength"|"Character Summoning"|"Character Telekinesis"|"Character TwoHanded"|"Character WarriorLore"|"Character WaterSpecialist"|"Character Wits"|"EmbellishSkill"|"IdentifyRangeSkill"|"Object Armor"|"Object Constitution"|"Object MagicArmor"|"Object Value"|"ObjectDurabilitySkill"|"Potion Armor"|"Potion Constitution"|"Potion Damage"|"Potion Finesse"|"Potion Gain"|"Potion Hearing"|"Potion Intelligence"|"Potion MagicArmor"|"Potion Memory"|"Potion Strength"|"Potion Value"|"Potion Vitality"|"Potion Wits"|"RepairRangeSkill"|"RewardExperience"|"Shield ArmorValue"|"Shield Blocking"|"Shield ConstitutionBoost"|"Shield FinesseBoost"|"Shield HearingBoost"|"Shield IntelligenceBoost"|"Shield MagicArmorValue"|"Shield MagicPointsBoost"|"Shield MemoryBoost"|"Shield SightBoost"|"Shield StrengthBoost"|"Shield Value"|"Shield VitalityBoost"|"Shield WitsBoost"|"SkillData AreaRadius"|"SkillData BackStart"|"SkillData ChanceToPierce"|"SkillData Duration"|"SkillData EndPosRadius"|"SkillData ExplodeRadius"|"SkillData ForkChance"|"SkillData FrontOffset"|"SkillData GrowSpeed"|"SkillData GrowTimeout"|"SkillData HealAmount"|"SkillData Height"|"SkillData HitPointsPercent"|"SkillData HitRadius"|"SkillData Lifetime"|"SkillData MaxDistance"|"SkillData NextAttackChance"|"SkillData NextAttackChanceDivider"|"SkillData Offset"|"SkillData Radius"|"SkillData Range"|"SkillData StatusChance"|"SkillData StatusClearChance"|"SkillData StatusLifetime"|"SkillData SurfaceRadius"|"SkillData TargetRadius"|"SkillData TravelSpeed"|"StatusData Radius"|"Value"|"Weapon ConstitutionBoost"|"Weapon Damage"|"Weapon FinesseBoost"|"Weapon HearingBoost"|"Weapon IntelligenceBoost"|"Weapon MagicPointsBoost"|"Weapon MemoryBoost"|"Weapon SightBoost"|"Weapon StrengthBoost"|"Weapon Value"|"Weapon VitalityBoost"|"Weapon WitsBoost"|"WisdomSkill"
+
+--- @alias StatsHealValueType "FixedValue"|"Percentage"|"Qualifier"|"Shield"|"TargetDependent"|"DamagePercentage"
 
 ]]
 
+--- @return GenerateIdeHelpersGenerator
 function Generator:New()
     local o = {}
     setmetatable(o, self)
@@ -105,22 +199,168 @@ function Generator:LoadNativeData()
     end
 end
 
-function Generator:Build(addOsi)
+local _ModuleToClassField = {
+    ["Module_Stats.DeltaMod"] = "Module_Stats",
+    ["Module_Stats.EquipmentSet"] = "Module_Stats",
+    ["Module_Stats.ItemColor"] = "Module_Stats",
+    ["Module_Stats.ItemCombo"] = "Module_Stats",
+    ["Module_Stats.ItemComboPreview"] = "Module_Stats",
+    ["Module_Stats.ItemComboProperty"] = "Module_Stats",
+    ["Module_Stats.ItemGroup"] = "Module_Stats",
+    ["Module_Stats.ItemSet"] = "Module_Stats",
+    ["Module_Stats.NameGroup"] = "Module_Stats",
+    ["Module_Stats.SkillSet"] = "Module_Stats",
+    ["Module_Stats.TreasureCategory"] = "Module_Stats",
+    ["Module_Stats.TreasureTable"] = "Module_Stats",
+    ["Module_Stats.Math"] = "Module_Stats",
+    ["Module_ServerSurface.Action"] = "Module_ServerSurfaceAction",
+}
+
+--- @param opts GenerateIdeHelpersOptions
+function Generator:GenerateExtraData(opts)
+    self:EmitLine("--#region ExtraData")
+    self:EmitEmptyLine()
+
+    local baseKeys = {"AbilityBaseValue", "AbilityMagicArmorBonusBase", "AbilityMagicArmorBonusMax", "AbilityMagicArmorBonusPerPoint", "AbilityPerseveranceArmorPerPoint", "AbilityPersuasionBonusPerPoint", "AbilityPhysArmorBonusBase", "AbilityPhysArmorBonusMax", "AbilityPhysArmorBonusPerPoint", "AbilityVitalityBonusBase", "AbilityVitalityBonusMax", "AbilityVitalityBonusPerPoint", "AiCoverProjectileTurnMemory", "Ally Joins Ally SightRange Multiplier", "ArmorAfterHitCooldown", "ArmorAmuletPercentage", "ArmorBeltPercentage", "ArmorFeetPercentage", "ArmorHandsPercentage", "ArmorHeadPercentage", "ArmorLowerBodyPercentage", "ArmorRegenConstGrowth", "ArmorRegenPercentageGrowth", "ArmorRegenTimer", "ArmorRingPercentage", "ArmorShieldPercentage", "ArmorToVitalityRatio", "ArmorUpperBodyPercentage", "AttributeBaseValue", "AttributeBoostGrowth", "AttributeCharCreationBonus", "AttributeGrowthDamp", "AttributeLevelGrowth", "AttributeSoftCap", "BlindRangePenalty", "Burn Contact Status Duration", "CarryWeightBase", "CarryWeightPerStr", "ChanceToSetStatusOnContact", "CharacterAttributePointsPerMemoryCapacity", "CharacterBaseMemoryCapacity", "CharacterBaseMemoryCapacityGrowth", "CharacterWeightHeavy", "CharacterWeightLight", "CharacterWeightMedium", "Chill Contact Status Duration", "CivilAbilityCap", "CivilAbilityLevelGrowth", "CivilPointOffset", "CleaveRangeOverride", "CombatAbilityAccuracyBonus", "CombatAbilityCap", "CombatAbilityCritBonus", "CombatAbilityCritMultiplierBonus", "CombatAbilityDamageBonus", "CombatAbilityDodgingBonus", "CombatAbilityLevelGrowth", "CombatAbilityNpcGrowth", "CombatAbilityReflectionBonus", "CriticalBonusFromWits", "DamageBoostFromAttribute", "DamageToThrownWeightRatio", "Decaying Touch Damage Modifier", "DeflectProjectileRange", "DodgingBoostFromAttribute", "DualWieldingAPPenalty", "DualWieldingDamagePenalty", "End Of Combat SightRange Multiplier", "EntangledContactStatusDuration", "ExpectedConGrowthForArmorCalculation", "ExpectedDamageBoostFromAttributePerLevel", "ExpectedDamageBoostFromSkillAbilityPerLevel", "ExpectedDamageBoostFromWeaponAbilityPerLevel", "FirstItemTypeShift", "FirstPriceLeapGrowth", "FirstPriceLeapLevel", "FirstVitalityLeapGrowth", "FirstVitalityLeapLevel", "Flanked penalty", "FleeDistance", "FourthPriceLeapGrowth", "FourthPriceLeapLevel", "FourthVitalityLeapGrowth", "FourthVitalityLeapLevel", "FreeMovementDistanceWhenAttacking", "Freeze Contact Status Duration", "GhostLifeTime", "GlobalGoldValueMultiplier", "GMCharacterAPCap", "GMCharacterArmorCap", "GMCharacterAttributeCap", "GMCharacterResistanceMax", "GMCharacterResistanceMin", "GMCharacterSPCap", "GMItemArmorMax", "GMItemArmorMin", "GMItemAttributeCap", "GMItemLevelCap", "GMItemResistanceMax", "GMItemResistanceMin", "Haste Speed Modifier", "HealToDamageRatio", "HighGroundBaseDamageBonus", "HighGroundMeleeRange", "HighGroundRangeMultiplier", "HighGroundThreshold", "HintDuration", "IncarnateSummoningLevel", "Infectious Disease Depth", "Infectious Disease Radius", "InitiativeBonusFromWits", "LeadershipAllResBonus", "LeadershipDodgingBonus", "LeadershipRange", "LevelCap", "LifestealFromReflectionModifier", "LivingArmorHealPercentage", "LoneWolfAPBonus", "LoneWolfArmorBoostPercentage", "LoneWolfMagicArmorBoostPercentage", "LoneWolfMaxAPBonus", "LoneWolfVitalityBoostPercentage", "LoremasterBonusToMemory", "LowGroundBaseDamagePenalty", "MagicArmorAfterHitCooldown", "MagicArmorRegenConstGrowth", "MagicArmorRegenPercentageGrowth", "MagicArmorRegenTimer", "MagicArmourBoostFromAttribute", "Max Throw Distance", "MaximumSummonsInCombat", "Min Throw Distance", "MonsterDamageBoostPerLevel", "MoveToCarryWeightRatio", "NPC max combat turn time", "NumStartingCivilAbilityPoints", "NumStartingCombatAbilityPoints", "Offhand Attack Shield Block", "Oiled Chance to Burn Boost", "Once Per Combat Skill Realtime Cooldown", "Painted surface status chance", "PersuasionAttitudeBonusPerPoint", "PhysicalArmourBoostFromAttribute", "PickpocketExperienceLevelsPerPoint", "PickpocketGoldValuePerPoint", "PickpocketRequirementDecreaseFromFinesse", "PickpocketWeightPerPoint", "Poison Contact Status Duration", "PoisonedFoodDamage", "PoisonedFoodDamageMultiplier", "PoisonedFoodDamageRange", "PriceAttitudeCoefficient", "PriceBarterCoefficient", "PriceGrowth", "PriceModCasualDifficulty", "PriceModClassicDifficulty", "PriceModHardcoreDifficulty", "PriceRoundToFiveAfterAmount", "PriceRoundToTenAfterAmount", "Projectile Terrain Offset", "RangeBoostedGlobalCap", "SavethrowBelowLowPenalty", "SavethrowHighChance", "SavethrowLowChance", "SavethrowPenaltyCap", "SecondItemTypeShift", "SecondPriceLeapGrowth", "SecondPriceLeapLevel", "SecondVitalityLeapGrowth", "SecondVitalityLeapLevel", "Shackles Of Pain Damage Modifier", "ShieldAPCost", "Skill Range Per Ability", "SkillAbilityAirDamageBoostPerPoint", "SkillAbilityArmorRestoredPerPoint", "SkillAbilityCritMultiplierPerPoint", "SkillAbilityDamageToMagicArmorPerPoint", "SkillAbilityDamageToPhysicalArmorPerPoint", "SkillAbilityFireDamageBoostPerPoint", "SkillAbilityHighGroundBonusPerPoint", "SkillAbilityLifeStealPerPoint", "SkillAbilityMovementSpeedPerPoint", "SkillAbilityPhysicalDamageBoostPerPoint", "SkillAbilityPoisonAndEarthDamageBoostPerPoint", "SkillAbilitySummonsStatsPerPoint", "SkillAbilityVitalityRestoredPerPoint", "SkillAbilityWaterDamageBoostPerPoint", "SkillCombustionRadius", "SkillHeightRangeMultiplier", "SkillMemoryCostReductionFromAbility", "Slow Speed Modifier", "SmokeDurationAfterDecay", "Sneak Damage Multiplier", "SneakDefaultAPCost", "SneakingAbilityMovementSpeedPerPoint", "SneakSpeedBoost", "SoftLevelCap", "SpiritVisionFallbackRadius", "StatusDefaultDistancePerDamage", "Stun Contact Status Duration", "Summon Life Link Damage Modifier", "SummoningAbilityBonus", "Surface Clear Owner Time", "Surface Distance Evaluation", "SurfaceAbsorbBoostPerTilesCount", "SurfaceDurationAfterDecay", "SurfaceDurationBlessedCursed", "SurfaceDurationFireIgniteOverride", "SurfaceDurationFromCharacterBleeding", "SurfaceDurationFromHitFloorReaction", "TalentAttributePointsBonus", "TalentCivilAbilityPointsBonus", "TalentCombatAbilityPointsBonus", "TalentExecutionerActionPointBonus", "TalentHumanCriticalChance", "TalentHumanCriticalMultiplier", "TalentMemoryBonus", "TalentPerfectionistAccuracyBonus", "TalentPerfectionistCriticalChanceBonus", "TalentPointOffset", "TalentPointPerLevels", "TalentQuestRootedMemoryBonus", "TalentQuickStepPartialApBonus", "TalentRagerPercentage", "TalentResistDeathVitalityPercentage", "TalentResurrectExtraHealthPercent", "TalentSneakingAPCost", "TalentSneakingDamageBonus", "TalentViolentMagicCriticalChancePercent", "TalentWhatARushThreshold", "TargetCondition LowHP Percentage", "Telekinesis Range", "TeleportUnchainDistance", "ThirdPriceLeapGrowth", "ThirdPriceLeapLevel", "ThirdVitalityLeapGrowth", "ThirdVitalityLeapLevel", "TorturerDamageStatusTurnIncrease", "TraderDonationsRequiredAttitude", "TraderDroppedItemsCap", "TraderDroppedItemsPercentage", "UnstableDamagePercentage", "UnstableRadius", "VitalityBoostFromAttribute", "VitalityExponentialGrowth", "VitalityLinearGrowth", "VitalityStartingAmount", "VitalityToDamageRatio", "VitalityToDamageRatioGrowth", "WandUsesMax", "WeaponAccuracyPenaltyCap", "WeaponAccuracyPenaltyPerLevel", "WeaponWeightHeavy", "WeaponWeightLight", "WeaponWeightMedium", "WitsGrowthDamp"}
+    
+    local extraData = Ext.Stats.GetStatsManager().ExtraData
+    if opts.UseBaseExtraData then
+        if not opts.GenerateExtraDataAsClass then
+            self:EmitLine(_Deprecated.BaseExtraData)
+        else
+            self:EmitComment("@class BaseExtraData")
+
+            local keysWithWhitespace = {}
+
+            for _,k in ipairs(baseKeys) do
+                if string.find(k, "%s") then
+                    keysWithWhitespace[#keysWithWhitespace+1] = k
+                else
+                    self:EmitFieldComment(k .. " number")
+                end
+            end
+            if #keysWithWhitespace > 0 then
+                self:EmitLine("local BaseExtraData = {")
+                for _,k in ipairs(keysWithWhitespace) do
+                    self:EmitLine("\t[\"" .. k .. "\"] = " .. tostring(extraData[k] or 0) .. ",")
+                end
+                self:EmitLine("}")
+            else
+                self:EmitLine("local BaseExtraData = {}")
+            end
+            self:EmitEmptyLine()
+            self:EmitEmptyLine()
+            self:EmitComment("@class ExtraData:BaseExtraData")
+            self:EmitLine("Ext.ExtraData = {}")
+        end
+    else
+        local baseKeyDict = {}
+        for _,v in pairs(baseKeys) do
+            baseKeyDict[v] = true
+        end
+        local newKeys = {}
+
+        for k,v in pairs(extraData) do
+            if not baseKeyDict[k] then
+                newKeys[#newKeys+1] = k
+            end
+        end
+        table.sort(newKeys)
+
+        if not opts.GenerateExtraDataAsClass then
+            self:EmitLine("Ext.ExtraData = {")
+            for _,k in ipairs(baseKeys) do
+                self:EmitLine(string.format("\t[\"%s\"] = %s,", k, extraData[k]))
+            end
+    
+    
+            for _,k in ipairs(newKeys) do
+                self:EmitLine(string.format("\t[\"%s\"] = %s,", k, extraData[k]))
+            end
+    
+            self:EmitLine("}")
+        else
+            self:EmitComment("@class BaseExtraData")
+
+            local keysWithWhitespace = {}
+
+            for _,k in ipairs(baseKeys) do
+                if string.find(k, "%s") then
+                    keysWithWhitespace[#keysWithWhitespace+1] = k
+                else
+                    self:EmitFieldComment(k .. " number")
+                end
+            end
+            if #keysWithWhitespace > 0 then
+                self:EmitLine("local BaseExtraData = {")
+                for _,k in ipairs(keysWithWhitespace) do
+                    self:EmitLine("\t[\"" .. k .. "\"] = " .. tostring(extraData[k] or 0) .. ",")
+                end
+                self:EmitLine("}")
+            else
+                self:EmitLine("local BaseExtraData = {}")
+            end
+
+            self:EmitEmptyLine()
+            self:EmitEmptyLine()
+
+            keysWithWhitespace = {}
+
+            self:EmitComment("@class ExtraData:BaseExtraData")
+            for _,k in ipairs(newKeys) do
+                if string.find(k, "%s") then
+                    keysWithWhitespace[#keysWithWhitespace+1] = k
+                else
+                    self:EmitFieldComment(k .. " number")
+                end
+            end
+            if #keysWithWhitespace > 0 then
+                self:EmitLine("Ext.ExtraData = {")
+                for _,k in ipairs(keysWithWhitespace) do
+                    self:EmitLine("\t[\"" .. k .. "\"] = " .. tostring(extraData[k] or 0) .. ",")
+                end
+                self:EmitLine("}")
+            else
+                self:EmitLine("Ext.ExtraData = {}")
+            end
+            self:EmitEmptyLine()
+        end
+
+    end
+    self:EmitEmptyLine()
+    self:EmitLine("--#endregion")
+    self:EmitEmptyLine()
+end
+
+--- @param opts GenerateIdeHelpersOptions
+function Generator:Build(opts)
     local types = Ext.Types.GetAllTypes()
     local sortedTypes = {}
 
-    for i,typeName in ipairs(types) do 
+    for i,typeName in ipairs(types) do
         table.insert(sortedTypes, typeName)
     end
 
     table.sort(sortedTypes)
+
+    local moduleToClassField = {}
+    local removeModuleFromExt = {}
 
     for i,typeName in ipairs(sortedTypes) do
         local type = Ext.Types.GetTypeInfo(typeName)
         if type.Kind == "Object" then
             table.insert(self.Classes, type)
         elseif type.Kind == "Module" then
-            table.insert(self.Modules, type)
+            local index = #self.Modules+1
+            if _ModuleToClassField[typeName] then
+                local targetTypeName = _ModuleToClassField[typeName]
+                if moduleToClassField[targetTypeName] == nil then
+                    moduleToClassField[targetTypeName] = {}
+                end
+                removeModuleFromExt[typeName] = index
+                table.insert(moduleToClassField[targetTypeName], type)
+            end
+            self.Modules[index] = type
         elseif type.Kind == "Enumeration" then
             table.insert(self.Enumerations, type)
         elseif type.Kind == "Boolean" or type.Kind == "Integer" or type.Kind == "Float" or type.Kind == "String" or type.Kind == "Any" then
@@ -141,12 +381,16 @@ function Generator:Build(addOsi)
     self:EmitEmptyLine()
     self:EmitEmptyLine()
 
-    for i,type in ipairs(self.Enumerations) do
-        self:EmitEnumeration(type)
+    if opts.AddAliasEnums then
+        for i,type in ipairs(self.Enumerations) do
+            self:EmitEnumeration(type)
+        end
     end
 
     self:EmitEmptyLine()
     self:EmitEmptyLine()
+
+    self:EmitLine(_Flash)
 
     for i,type in ipairs(self.Classes) do
         self:EmitClass(type)
@@ -155,17 +399,34 @@ function Generator:Build(addOsi)
     end
 
     for i,type in ipairs(self.Modules) do
-        self:EmitModule(type)
+        self:EmitModule(type, moduleToClassField[type.TypeName])
         self:EmitEmptyLine()
         self:EmitEmptyLine()
     end
+
+    local modules = {}
+    for i,v in pairs(self.Modules) do
+        if not removeModuleFromExt[v.TypeName] then
+            modules[#modules+1] = v
+        end
+    end
+
+    self.Modules = modules
     
     self:EmitExt("Client")
+    self:EmitEmptyLine()
     self:EmitExt("Server")
+    self:EmitEmptyLine()
     self:EmitExt(nil, true)
-    if addOsi then
+    if opts.AddOsiris then
         self:EmitLine(_OsiLines)
     end
+
+    if opts.AddDeprecated then
+        self:EmitLine(_Deprecated.Functions)
+    end
+
+    self:GenerateExtraData(opts)
 end
 
 function Generator:MakeTypeName(type)
@@ -181,10 +442,20 @@ function Generator:MakeTypeName(type)
     type = string.gsub(type, "<[%a%d]+>", function (n)
         return "_" .. string.sub(n, 2, -2)
     end)
+    if _TypeReplace[type] then
+        return _TypeReplace[type]
+    end
     return type
 end
 
+local function _TableIsNullOrEmpty(tbl)
+    return tbl == nil or tbl[1] == nil
+end
+
 function Generator:MakeTypeSignature(cls, type, forceExpand, nativeDefn)
+    if _TypeReplace[type.TypeName] then
+        return _TypeReplace[type.TypeName]
+    end
     if type.IsBuiltin and forceExpand ~= true then
         return type.TypeName
     elseif type.Kind == "Any" then
@@ -203,20 +474,39 @@ function Generator:MakeTypeSignature(cls, type, forceExpand, nativeDefn)
         local args = {}
         local retval = {}
 
+        local clsName = ""
         if cls ~= nil then
-            table.insert(args, "self: " .. self:MakeTypeSignature(nil, cls))
+            clsName = self:MakeTypeSignature(nil, cls)
+            table.insert(args, "self:" .. clsName)
+        end
+
+        local missingFuncData = {}
+        if _FuncData.Regular[clsName] and _FuncData.Regular[clsName][type.TypeName] then
+            missingFuncData = _FuncData.Regular[clsName][type.TypeName]
         end
         
-        for i,arg in ipairs(type.Params) do
-            if nativeDefn ~= nil then
-                table.insert(args, nativeDefn.params[i].name .. ": " .. self:MakeTypeSignature(cls, arg))
-            else
-                table.insert(args, "a" .. i .. ": " .. self:MakeTypeSignature(cls, arg))
+        if _TableIsNullOrEmpty(type.Params) and missingFuncData.Params then
+            for i,data in ipairs(missingFuncData.Params) do
+                table.insert(args, data.name .. ":" .. data.arg)
+            end
+        else
+            for i,arg in ipairs(type.Params) do
+                if nativeDefn ~= nil then
+                    table.insert(args, nativeDefn.params[i].name .. ":" .. self:MakeTypeSignature(cls, arg))
+                else
+                    table.insert(args, "a" .. i .. ":" .. self:MakeTypeSignature(cls, arg))
+                end
             end
         end
 
-        for i,arg in ipairs(type.ReturnValues) do
-            table.insert(retval, self:MakeTypeSignature(cls, arg))
+        if not _TableIsNullOrEmpty(missingFuncData.Return) then
+            for i,arg in ipairs(missingFuncData.Return) do
+                table.insert(retval, arg)
+            end
+        else
+            for i,arg in ipairs(type.ReturnValues) do
+                table.insert(retval, self:MakeTypeSignature(cls, arg))
+            end
         end
 
         local fun = "fun(" .. table.concat(args, ", ") .. ")"
@@ -234,15 +524,19 @@ function Generator:EmitEmptyLine()
     self.Text = self.Text .. NEWLINE
 end
 
-function Generator:EmitLine(text, skipNewline)
+function Generator:EmitLine(text, addNewLine)
     self.Text = self.Text .. text .. NEWLINE
-    if not skipNewline then
+    if addNewLine then
         self.Text = self.Text .. NEWLINE
     end
 end
 
 function Generator:EmitComment(text)
     self.Text = self.Text .. "--- " .. text .. NEWLINE
+end
+
+function Generator:EmitFieldComment(text)
+    self.Text = self.Text .. "--- @field " .. text .. NEWLINE
 end
 
 function Generator:EmitMultiLineComment(text)
@@ -252,7 +546,10 @@ function Generator:EmitMultiLineComment(text)
 end
 
 function Generator:EmitAlias(name, definition)
-    self:EmitComment("@alias " .. self:MakeTypeName(name) .. " " .. definition)
+    if not _TypeAliasRemove[name] then
+        local def = _TypeAliasReplace[name] or definition
+        self:EmitComment("@alias " .. self:MakeTypeName(name) .. " " .. def)
+    end
 end
 
 function Generator:EmitIntrinsicType(type)
@@ -265,6 +562,7 @@ end
 
 function Generator:EmitEnumeration(type)
     local decl = "string"
+    
     for key,value in pairs(type.EnumValues) do
         decl = _format("%s|\"%s\"", decl, key)
     end
@@ -326,7 +624,13 @@ function Generator:EmitMethod(type, fname, nativeDefn)
     if self:MethodNeedsFullSignature(nativeMethod) then
         self:EmitFullMethodSignature(type, fname, type.Methods[fname], nativeMethod)
     else
-        self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(type, type.Methods[fname],  false, nativeMethod))
+        local clsName = self:MakeTypeSignature(nil, type)
+        local fieldOverride = _FuncData.Field[clsName] and _FuncData.Field[clsName][fname]
+        if fieldOverride then
+            self:EmitFieldComment(fname .. " " .. fieldOverride)
+        else
+            self:EmitFieldComment(fname .. " " .. self:MakeTypeSignature(type, type.Methods[fname],  false, nativeMethod))
+        end
     end
 end
 
@@ -334,7 +638,14 @@ function Generator:EmitModuleFunction(type, fname, nativeDefn, afterText)
     local nativeFunc = self:FindNativeFunction(fname, nativeDefn)
 
     if nativeFunc == nil then
-        self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(nil, type.Methods[fname]))
+        local typeSig = ""
+        local clsName = self:MakeModuleTypeName(type)
+        if _FuncData.Field[clsName] and _FuncData.Field[clsName][fname] then
+            typeSig = _FuncData.Field[clsName][fname]
+        else
+            typeSig = self:MakeTypeSignature(nil, type.Methods[fname])
+        end
+        self:EmitFieldComment(fname .. " " .. typeSig)
     else
         self:EmitFullMethodSignature(type, fname, type.Methods[fname], nativeFunc, afterText)
     end
@@ -343,6 +654,7 @@ end
 function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod, afterText)
     local argDescs = {}
     local args = {}
+    local overloads = {}
 
     local clsName
     if cls.Kind == "Module" then
@@ -353,16 +665,42 @@ function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod, aft
 
     local helpersClsName = clsName:gsub("%.", "")
 
-    for i,arg in ipairs(fun.Params) do
-        table.insert(argDescs, "--- @param " .. nativeMethod.params[i].name .. " " .. self:MakeTypeSignature(cls, arg) .. " " ..  self.Trim(nativeMethod.params[i].description))
-        table.insert(args, nativeMethod.params[i].name)
+    local missingFuncData = {}
+    if _FuncData.Regular[clsName] and _FuncData.Regular[clsName][funcName] then
+        missingFuncData = _FuncData.Regular[clsName][funcName]
     end
 
-    for i,arg in ipairs(fun.ReturnValues) do
-        table.insert(argDescs, "--- @return " .. self:MakeTypeSignature(cls, arg))
+    if missingFuncData.Params and (_TableIsNullOrEmpty(fun.Params) or missingFuncData.Override) then
+        if missingFuncData.Overload then
+            overloads = missingFuncData.Overload
+        end
+        for i,data in ipairs(missingFuncData.Params) do
+            if data.name == "..." then
+                table.insert(argDescs, "--- @vararg " .. data.arg or "any" .. " " ..  self.Trim(data.description or ""))
+            else
+                table.insert(argDescs, "--- @param " .. data.name .. " " .. data.arg .. " " ..  self.Trim(data.description or ""))
+            end
+            table.insert(args, data.name)
+        end
+    else
+        for i,arg in ipairs(fun.Params) do
+            table.insert(argDescs, "--- @param " .. nativeMethod.params[i].name .. " " .. self:MakeTypeSignature(cls, arg) .. " " ..  self.Trim(nativeMethod.params[i].description))
+            table.insert(args, nativeMethod.params[i].name)
+        end
+    end
+
+    if not _TableIsNullOrEmpty(missingFuncData.Return) then
+        for i,arg in ipairs(missingFuncData.Return) do
+            table.insert(argDescs, "--- @return " .. arg)
+        end
+    else
+        for i,arg in ipairs(fun.ReturnValues) do
+            table.insert(argDescs, "--- @return " .. self:MakeTypeSignature(cls, arg))
+        end
     end
 
     local fun = "function " .. helpersClsName
+
     if cls.Kind ~= "Module" then
         fun = fun .. ":"
     else
@@ -371,6 +709,22 @@ function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod, aft
 
     fun = fun .. funcName .. "(" .. table.concat(args, ", ") .. ") end"
     local desc = table.concat(argDescs, NEWLINE)
+
+    if missingFuncData.Description then
+        desc = missingFuncData.Description .. NEWLINE .. desc
+    end
+
+    local overloadsLen = #overloads
+    if overloadsLen > 0 then
+        local text = ""
+        for i=1,overloadsLen do
+            text = text .. overloads[i]
+        end
+
+        -- Put overloads above the params/return annotations
+        text = text .. "\n" .. desc
+        desc = text
+    end
 
     local funcDesc = self.Trim(nativeMethod.description)
     if nativeMethod.implementation_file ~= nil and #funcDesc > 0 then
@@ -392,15 +746,15 @@ function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod, aft
     self.Text = self.Text .. NEWLINE .. NEWLINE
 end
 
-local serverEventParamsPattern = "EsvLua(%a+)EventParams"
-local clientEventParamsPattern = "EclLua(%a+)EventParams"
-local bothContextEventParamsPattern = "(%a+)EventParams"
+local serverEventParamsPattern = "EsvLua(%a+)Event"
+local clientEventParamsPattern = "EclLua(%a+)Event"
+local bothContextEventParamsPattern = "(%a+)Event"
 
 ---@type table<integer, {Type:string, Event:string, Context:string|"server"|"client"|"any"}>
 local eventTypeGenerationData = {
     ---TODO Still uses the old callback, so Ext.Events.CalculateTurnOrder is never thrown.
     --CalculateTurnOrder = {Type="", Event="CalculateTurnOrder", Context="server"},
-    NetMessageReceived = {Type="LuaNetMessageEventParams", Event="NetMessageReceived", Context="any"},
+    --NetMessageReceived = {Type="LuaNetMessageEvent", Event="NetMessageReceived", Context="any"},
 }
 
 ---Event name to index in eventTypeGenerationData
@@ -415,19 +769,34 @@ local EVENT_NAME_SWAP = {
     ExecutePropertyDataOnTarget = "OnExecutePropertyDataOnTarget",
     ExecutePropertyDataOnPosition = "OnExecutePropertyDataOnPosition",
     ExecutePropertyDataOnGroundHit = "GroundHit",
-}
-local IGNORE_PARAMS = {
-    LuaEmptyEventParams = true
+    SkillGetDescription = "SkillGetDescriptionParam",
+    StatusGetDescription = "StatusGetDescriptionParam",
+    Input = "InputEvent",
+    LuaNetMessage = "NetMessageReceived",
 }
 
-function Generator:EmitClass(type)
+local IGNORE_PARAMS = {
+    LuaEmptyEvent = true
+}
+
+
+function Generator:EmitClass(type, moduleToClassField)
     local name = self:MakeTypeName(type.TypeName)
     local nameWithParent = name
+    -- if _PreventableEvent[name] then
+    --     nameWithParent = name .. ":PreventableSubscribableEventParams"
+    -- end
     if type.ParentType ~= nil then
-        nameWithParent = nameWithParent .. " : " .. self:MakeTypeName(type.ParentType.TypeName)
+        nameWithParent = nameWithParent .. ":" .. self:MakeTypeName(type.ParentType.TypeName)
     end
 
     local nativeDefn = self:FindNativeClass(type)
+
+    local customText = _CustomTypeEntries[name]
+    --TODO Hacky output fixes [_CustomTypeEntries.Before(EmitClass)]. May not be required later on.
+    if customText and customText.Before then
+        self:EmitLine(customText.Before)
+    end
 
     self:EmitComment("@class " .. nameWithParent)
 
@@ -436,7 +805,22 @@ function Generator:EmitClass(type)
     table.sort(sortedMembers)
 
     for i,fname in ipairs(sortedMembers) do
-        self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(type, type.Members[fname]))
+        local typeSig = self:MakeTypeSignature(type, type.Members[fname])
+        local fieldOverride = _FuncData.Field[name] and _FuncData.Field[name][fname]
+        if _Aliases[name] then
+            if _Aliases[name][fname] then
+                typeSig = _Aliases[name][fname]
+            end
+        elseif fieldOverride then
+            typeSig = fieldOverride
+        end
+        self:EmitFieldComment(fname .. " " .. typeSig)
+    end
+
+    if customText and customText.Fields then
+        for i,v in ipairs(customText.Fields) do
+            self:EmitFieldComment(v)
+        end
     end
 
     local sortedMethods = {}
@@ -467,8 +851,7 @@ function Generator:EmitClass(type)
             self:EmitMethod(type, fname, nativeDefn)
         end
     end
-
-    if not IGNORE_PARAMS[name] and string.find(name, "EventParams") then
+    if not IGNORE_PARAMS[name] and type.ParentType and type.ParentType.TypeName == "lua::EventBase" then
         local context = "any"
         local _,_,eventName = string.find(name, serverEventParamsPattern)
         if not eventName then
@@ -496,6 +879,19 @@ function Generator:EmitClass(type)
                 lastIndex = lastIndex+1
                 eventTypeGenerationData[lastIndex] = {Type = name, Event = "BeforeStatusDelete", Context = context}
                 eventTypeGenerationDataIndex["BeforeStatusDelete"] = lastIndex
+            elseif eventName == "UICall" then
+                local lastIndex = #eventTypeGenerationData+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "UICall", Context = context}
+                eventTypeGenerationDataIndex["UICall"] = lastIndex
+                lastIndex = lastIndex+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "UIInvoke", Context = context}
+                eventTypeGenerationDataIndex["UIInvoke"] = lastIndex
+                lastIndex = lastIndex+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "AfterUIInvoke", Context = context}
+                eventTypeGenerationDataIndex["AfterUIInvoke"] = lastIndex
+                lastIndex = lastIndex+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "AfterUICall", Context = context}
+                eventTypeGenerationDataIndex["AfterUICall"] = lastIndex
             else
                 if EVENT_NAME_SWAP[eventName] then
                     eventName = EVENT_NAME_SWAP[eventName]
@@ -515,6 +911,11 @@ function Generator:EmitClass(type)
             end
         end
     end
+
+     --TODO Hacky output fixes [_CustomTypeEntries.After(EmitClass)]. May not be required later on.
+    if customText and customText.After then
+        self:EmitLine(customText.After)
+    end
 end
 
 
@@ -527,15 +928,41 @@ function Generator:MakeModuleTypeName(type)
     return "Ext_" .. name
 end
 
-function Generator:EmitModule(type)
+---@param moduleToClassField table|nil
+function Generator:EmitModule(type, moduleToClassField)
     local helpersModuleName = self:MakeModuleTypeName(type)
     local nativeModuleName = type.NativeName
     if type.ModuleRole ~= "Both" then
         nativeModuleName = type.ModuleRole .. nativeModuleName
     end
 
+    --TODO Hacky output fixes [_CustomTypeEntries.Before(EmitModule)]. May not be required later on.
+    local customText = _CustomTypeEntries[helpersModuleName]
+    if customText and customText.Before then
+        self:EmitLine(customText.Before)
+    end
+
     self:EmitComment("@class " .. helpersModuleName)
     local nativeDefn = self.NativeModules[nativeModuleName]
+
+    if moduleToClassField then
+        table.sort(moduleToClassField, function(a,b) return a.TypeName < b.TypeName end)
+        for _,vType in pairs(moduleToClassField) do
+            local vName = string.gsub(vType.NativeName, type.NativeName .. ".", "")
+            local typeSig = self:MakeModuleTypeName(vType)
+            local fieldOverride = _FuncData.Field[helpersModuleName] and _FuncData.Field[helpersModuleName][vName]
+            if fieldOverride then
+                typeSig = fieldOverride
+            end
+            self:EmitFieldComment(vName .. " " .. typeSig)
+        end
+    end
+
+    if customText and customText.Fields then
+        for i,v in ipairs(customText.Fields) do
+            self:EmitFieldComment(v)
+        end
+    end
 
     local sortedFuncs = {}
     for fname,ftype in pairs(type.Methods) do table.insert(sortedFuncs, fname) end
@@ -555,18 +982,17 @@ function Generator:EmitModule(type)
     for i,fname in ipairs(basicFuncSigs) do
         self:EmitModuleFunction(type, fname, nativeDefn)
     end
-    local customText = _CustomTypeEntries[helpersModuleName]
-    if customText and customText.Before then
-        self:EmitLine(customText.Before)
-    end
 
     self:EmitLine('local ' .. helpersModuleName .. ' = {}')
+    --TODO Hacky output fixes [_CustomTypeEntries.After(EmitModule)]. May not be required later on.
     if customText and customText.After then
         self:EmitLine(customText.After)
     end
     self:EmitEmptyLine()
     
     for i,fname in ipairs(extendedFuncSigs) do
+        --TODO Hacky output fixes [_CustomFunctionExtras(EmitModule)]. May not be required later on.
+        local replaceText = nil
         local afterText = nil
         if nativeDefn ~= nil then
             local functionAdditions = _CustomFunctionExtras[helpersModuleName.."."..fname]
@@ -575,9 +1001,17 @@ function Generator:EmitModule(type)
                     self:EmitLine(functionAdditions.Before, true)
                 end
                 afterText = functionAdditions.After
+                replaceText = functionAdditions.Replace
             end
         end
-        self:EmitModuleFunction(type, fname, nativeDefn, afterText)
+        if replaceText then
+            self:EmitLine(replaceText, true)
+            if afterText then
+                self:EmitLine(afterText, true)
+            end
+        else
+            self:EmitModuleFunction(type, fname, nativeDefn, afterText)
+        end
     end
 end
 
@@ -587,7 +1021,7 @@ local function GenerateSubscriptionEvents(self)
             if _DEBUG then
                 Ext.Utils.PrintWarning("Found unregistered event", k)
             end
-            eventTypeGenerationData[#eventTypeGenerationData+1] = {Type="LuaEmptyEventParams", Event = k, Context = "any"}
+            eventTypeGenerationData[#eventTypeGenerationData+1] = {Type="LuaEmptyEvent", Event = k, Context = "any"}
         end
     end
     table.sort(eventTypeGenerationData, function(a,b) return a.Event < b.Event end)
@@ -604,7 +1038,64 @@ local function GenerateSubscriptionEvents(self)
     end
 end
 
+local _enumNamePattern = ".-%((.+)%).-"
+local _restrictedKeys = {
+    ["end"] = true,
+}
+
+function Generator:GenerateEnums()
+    self:EmitLine("--#region Generated Enums")
+    self:EmitEmptyLine()
+    self:EmitComment("@class Ext_Enums")
+    self:EmitLine("local Ext_Enums = {}", true)
+
+    local enumNames = {}
+    for k,enum in pairs(Ext.Enums) do
+        enumNames[#enumNames+1] = tostring(k)
+    end
+    table.sort(enumNames)
+
+    for _,enumName in ipairs(enumNames) do
+        self:EmitEmptyLine()
+        self:EmitComment("@enum " .. enumName)
+        self:EmitLine("Ext_Enums." .. enumName .. " = {")
+
+        local enum = Ext.Enums[enumName]
+
+        local valueToName = {}
+
+        for i,label in ipairs(enum) do
+            local name = tostring(label)
+            local _,_,actualName = string.find(name, _enumNamePattern)
+            if actualName then
+                name = actualName
+            end
+
+            valueToName[i] = name
+            
+            if string.find(name, "%s") or _restrictedKeys[name] then
+                self:EmitLine(string.format("\t[\"%s\"] = %s,", name, i))
+            else
+                self:EmitLine(string.format("\t%s = %s,", name, i))
+            end
+        end
+
+        for i,v in ipairs(valueToName) do
+            self:EmitLine(string.format("\t[%s] = \"%s\",", i, v))
+        end
+
+        self:EmitLine("}")
+    end
+    self:EmitEmptyLine()
+    self:EmitLine("--#endregion")
+    self:EmitEmptyLine()
+end
+
 function Generator:EmitExt(role, declareGlobal)
+    if declareGlobal then
+        self:GenerateEnums()
+    end
+
     self:EmitComment("@class Ext" .. (role or ""))
 
     local aliases = {}
@@ -624,16 +1115,17 @@ function Generator:EmitExt(role, declareGlobal)
         if role == nil or mod.ModuleRole == "Both" or mod.ModuleRole == role then
             local helpersModuleName = self:MakeModuleTypeName(mod)
             if emitted[mod.NativeName] == nil then
-                self:EmitComment("@field " .. mod.NativeName .. " " .. (aliases[mod.NativeName] or helpersModuleName))
+                self:EmitFieldComment(mod.NativeName .. " " .. (aliases[mod.NativeName] or helpersModuleName))
                 emitted[mod.NativeName] = true
             end
             if mod.ModuleRole ~= "Both" then
-                self:EmitComment("@field " .. mod.ModuleRole .. mod.NativeName .. " " .. helpersModuleName)
+                self:EmitFieldComment(mod.ModuleRole .. mod.NativeName .. " " .. helpersModuleName)
             end
         end
     end
 
     if declareGlobal then
+        self:EmitFieldComment("Enums Ext_Enums")
         self:EmitLine("Ext = {Events = {}}")
         self:EmitEmptyLine()
         self:EmitEmptyLine()
@@ -653,27 +1145,41 @@ function Generator:EmitExt(role, declareGlobal)
             for _,v in ipairs(_CustomEntries.Misc) do
                 self:EmitLine(v)
             end
-            self:EmitEmptyLine()
-        end
-        if _CustomEntries.Flash then
-            for _,v in ipairs(_CustomEntries.Flash) do
-                self:EmitLine(v)
-            end
         end
     end
-    self:EmitEmptyLine()
 end
 
----@param outputPath string|nil
----@param addOsi boolean|nil
-Ext.Types.GenerateIdeHelpers = function (outputPath, addOsi)
+--Ext.Types.GenerateIdeHelpers("ExtIdeHelpers_New.lua")
+--Ext.Types.GenerateIdeHelpers("ExtIdeHelpers_New.lua", {UseBaseExtraData=true,AddDeprecated=true})
+
+--- @class GenerateIdeHelpersOptions
+local _DefaultOpts = {
+    AddOsiris = false,
+    AddDeprecated = false,
+    AddAliasEnums = true,
+    UseBaseExtraData = false,
+    GenerateExtraDataAsClass = false
+}
+
+--- @param outputPath? string
+--- @param opts? GenerateIdeHelpersOptions
+Ext.Types.GenerateIdeHelpers = function (outputPath, opts)
+    local options = {}
+    if type(opts) == "table" then
+        options = opts
+    end
+    setmetatable(options, {__index = _DefaultOpts})
     eventTypeGenerationData = {}
     eventTypeGenerationDataIndex = {}
     local gen = Generator:New()
     gen:LoadNativeData()
-    gen:Build(addOsi)
+    gen:Build(options)
     if outputPath then
         Ext.IO.SaveFile(outputPath, gen.Text)
     end
+
     return gen.Text
 end
+
+--TODO Ext.Visual.CreateOnCharacter is missing optional params
+--TODO Ext_ServerServer.GetGameState() / Ext_ClientClient.GetGameState() ReturnValues[1] is nil 
