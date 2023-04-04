@@ -187,6 +187,7 @@ public:
 	UserVariable* Get(FixedString const& key);
 	VariableMap& GetAll();
 	UserVariable* Set(FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value);
+	void ClearVars();
 	UserVariablePrototype const* GetPrototype(FixedString const& key) const;
 	void RegisterPrototype(FixedString const& key, UserVariablePrototype const& proto);
 	void SavegameVisit(ObjectVisitor* visitor);

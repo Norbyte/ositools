@@ -379,10 +379,13 @@ void UserVariableManager::RegisterPrototype(FixedString const& key, UserVariable
 
 void UserVariableManager::SavegameVisit(ObjectVisitor* visitor)
 {
+	if (visitor->IsReading()) {
+		vars_.clear();
+	}
+
 	STDString nullStr;
 	if (visitor->EnterNode(GFS.strUserVariables, GFS.strEmpty)) {
 		if (visitor->IsReading()) {
-			vars_.clear();
 			uint32_t numVars;
 			visitor->VisitCount(GFS.strGameObjectVariables, &numVars);
 
@@ -552,6 +555,11 @@ UserVariable* ModVariableMap::Get(FixedString const& key)
 ModVariableMap::VariableMap& ModVariableMap::GetAll()
 {
 	return vars_;
+}
+
+void ModVariableMap::ClearVars()
+{
+	vars_.clear();
 }
 
 UserVariable* ModVariableMap::Set(FixedString const& key, UserVariablePrototype const& proto, UserVariable&& value)
@@ -740,10 +748,15 @@ void ModVariableManager::RegisterPrototype(FixedString const& modUuid, FixedStri
 
 void ModVariableManager::SavegameVisit(ObjectVisitor* visitor)
 {
+	if (visitor->IsReading()) {
+		for (auto& mod : vars_) {
+			mod.Value.ClearVars();
+		}
+	}
+
 	STDString nullStr;
 	if (visitor->EnterNode(GFS.strModVariables, GFS.strEmpty)) {
 		if (visitor->IsReading()) {
-			vars_.clear();
 			uint32_t numVars;
 			visitor->VisitCount(GFS.strGameObjectVariables, &numVars);
 
