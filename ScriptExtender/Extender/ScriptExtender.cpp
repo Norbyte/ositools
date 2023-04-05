@@ -15,6 +15,7 @@
 #include <Extender/Shared/SavegameSerializer.inl>
 #include <Extender/Shared/CustomDamageTypes.inl>
 #include <Extender/Shared/CustomRequirements.inl>
+#include <Extender/Shared/CustomConditions.inl>
 #include <Extender/Shared/UserVariables.inl>
 
 #undef DEBUG_SERVER_CLIENT

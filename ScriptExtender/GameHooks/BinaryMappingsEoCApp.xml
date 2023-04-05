@@ -1227,6 +1227,59 @@
       <Target Type="Absolute" Offset="-0x18" Symbol="esv__ExecuteCharacterSetExtraProperties" /> <!-- esv::ExecuteCharacterExtraProperties -->
     </Mapping>
 
+    <Mapping Name="ecl::ClientConditionCheck::ProcessCondition" Scope="Custom">
+      40 53 // push    rbx
+      55 // push    rbp
+      57 // push    rdi
+      48 81 ec b0 00 00 00 // sub     rsp, 0B0h
+      65 48 8b 04 25 58 00 00 00 // mov     rax, gs:58h
+      48 8b e9 // mov     rbp, rcx
+      b9 30 00 00 00 // mov     ecx, 30h ; '0'
+      49 8b d8 // mov     rbx, r8
+      <Target Type="Absolute" Offset="0" Symbol="ecl__ClientConditionCheck__ProcessCondition" />
+    </Mapping>
+
+    <Mapping Name="ecl::ClientConditionCheck::ProcessCondition Init">
+      49 8b 8a 08 01 00 00 // mov     rcx, [r10+108h]
+      48 85 c9 // test    rcx, rcx
+      74 44 // jz      short loc_14170F63D
+      48 8b 81 30 01 00 00 // mov     rax, [rcx+130h]
+      8b 91 3c 01 00 00 // mov     edx, [rcx+13Ch]
+      48 8d 0c d0 // lea     rcx, [rax+rdx*8]
+      48 3b c8 // cmp     rcx, rax
+      74 2e // jz      short loc_14170F63D
+      @str1 48 8b 15 ?? ?? ?? ?? // mov     rdx, cs:fs_GROUNDED
+      <Condition Type="FixedString" Offset="@str1" Value="GROUNDED" />
+      <Target Type="Absolute" Offset="-0x900" NextSymbol="ecl::ClientConditionCheck::ProcessCondition" NextSymbolSeekSize="0x100" />
+    </Mapping>
+
+    <Mapping Name="esv::ServerConditionCheck::ProcessCondition" Scope="Custom">
+      40 55 // push    rbp
+      53 // push    rbx
+      56 // push    rsi
+      57 // push    rdi
+      41 56 // push    r14
+      48 8d 6c 24 f0 // lea     rbp, [rsp-10h]
+      48 81 ec 10 01 00 00 // sub     rsp, 110h
+      @ref1 65 48 8b 04 25 58 00 00 00 // mov     rax, gs:58h
+      33 db // xor     ebx, ebx
+      <Target Type="Absolute" Offset="0" Symbol="esv__ServerConditionCheck__ProcessCondition" />
+    </Mapping>
+
+    <Mapping Name="esv::ServerConditionCheck::ProcessCondition Init">
+      48 8b 88 b0 01 00 00 // mov     rcx, [rax+1B0h]
+      48 85 c9 // test    rcx, rcx
+      74 14 // jz      short loc_141A3DD4F
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_GROUNDED
+      e8 ?? ?? ?? ?? // call    sub_141899780
+      84 c0 // test    al, al
+      0f 85 ?? ?? ?? ?? // jnz     loc_141A3D129
+      49 8b 46 18 // mov     rax, [r14+18h]
+      48 8b 88 48 01 00 00 // mov     rcx, [rax+148h]
+      <Condition Type="FixedString" Offset="@str1" Value="GROUNDED" />
+      <Target Type="Absolute" Offset="-0xD00" NextSymbol="esv::ServerConditionCheck::ProcessCondition" NextSymbolSeekSize="0x100" />
+    </Mapping>
+
     <Mapping Name="CheckRequirement1">
       c6 44 24 30 00 // mov     [rsp+0A8h+excludeBoosts], 0; excludeBoosts
       48 8d 44 24 40 // lea     rax, [rsp+0A8h+var_68]

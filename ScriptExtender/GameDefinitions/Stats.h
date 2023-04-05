@@ -1535,6 +1535,33 @@ using ExecutePropertyDataOnPositionOnlyProc = void(stats::PropertyList* properti
 	glm::vec3 const* position, float areaRadius, stats::PropertyContext propertyContext, bool isFromItem,
 	stats::SkillPrototype* skillPrototype, stats::HitDamageInfo* damageInfo, float unkn);
 
+
+struct ServerConditionCheck
+{
+	using ProcessConditionProc = bool (ServerConditionCheck* self, uint32_t conditionId, FixedString const& stringParam);
+
+	void* VMT;
+	Character* Caster;
+	Character* TargetCharacter;
+	Item* TargetItem;
+	glm::vec3 Position;
+};
+
+END_NS()
+
+BEGIN_NS(ecl)
+
+struct ClientConditionCheck
+{
+	using ProcessConditionProc = bool (ClientConditionCheck* self, uint32_t conditionId, FixedString const& stringParam);
+
+	void* VMT;
+	Character* Caster;
+	Character* TargetCharacter;
+	Item* TargetItem;
+	glm::vec3 Position;
+};
+
 END_NS()
 
 BEGIN_SE()

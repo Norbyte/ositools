@@ -37,6 +37,7 @@ CustomRequirementDescriptor* CustomRequirementRegistry::RegisterNewRequirement(F
 	if (requirementType) {
 		if (*requirementType <= stats::RequirementType::TALENT_MagicCycles) {
 			OsiError("Tried to register requirement type '" << name << "' multiple times!");
+			return nullptr;
 		}
 
 		auto it = requirements_.find((uint32_t)*requirementType);

@@ -1368,6 +1368,22 @@ CustomRequirementDescriptor* AddRequirement(FixedString const& requirementName, 
 	return descriptor;
 }
 
+CustomConditionDescriptor* AddCondition(FixedString const& conditionName, std::optional<bool> overwrite)
+{
+	CustomConditionDescriptor* descriptor;
+	if (overwrite && *overwrite) {
+		descriptor = gExtender->GetCustomConditionRegistry().AssignCondition(conditionName);
+	} else {
+		descriptor = gExtender->GetCustomConditionRegistry().RegisterNewCondition(conditionName);
+	}
+
+	if (descriptor) {
+		gExtender->GetCurrentExtensionState()->GetLua()->GetCustomConditionCallbacks().GetOrRegister(descriptor->ConditionId);
+	}
+
+	return descriptor;
+}
+
 
 int32_t GetResistance(ProxyParam<Character> self, DamageType damageType, std::optional<bool> baseValues)
 {
@@ -1413,6 +1429,7 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(AddEnumerationValue)
 	MODULE_FUNCTION(AddDamageType)
 	MODULE_FUNCTION(AddRequirement)
+	MODULE_FUNCTION(AddCondition)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, DeltaMod, Both)

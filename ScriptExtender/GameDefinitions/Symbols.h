@@ -195,6 +195,9 @@ namespace dse
 		stats::GetColorCodeDmgProc* fmt__GetColorCodeDmg{ nullptr };
 		stats::ColorCodeAndTypeDmgProc* fmt__ColorCodeAndTypeDmg{ nullptr };
 
+		esv::ServerConditionCheck::ProcessConditionProc* esv__ServerConditionCheck__ProcessCondition{ nullptr };
+		ecl::ClientConditionCheck::ProcessConditionProc* ecl__ClientConditionCheck__ProcessCondition{ nullptr };
+
 		stats::CheckRequirementProc* CheckRequirement1{ nullptr };
 		stats::CheckRequirementProc* CheckRequirement2{ nullptr };
 		stats::RequirementToTranslatedStringProc* RequirementToTranslatedString{ nullptr };

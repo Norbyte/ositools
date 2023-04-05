@@ -20,6 +20,7 @@
 #include <GameDefinitions/GameObjects/Status.h>
 #include <Extender/Shared/CustomDamageTypes.h>
 #include <Extender/Shared/CustomRequirements.h>
+#include <Extender/Shared/CustomConditions.h>
 #include <Extender/Shared/UserVariables.h>
 
 #include <mutex>
@@ -232,6 +233,11 @@ namespace dse::lua
 			return customRequirementCallbacks_;
 		}
 
+		inline CustomConditionCallbackManager& GetCustomConditionCallbacks()
+		{
+			return customConditionCallbacks_;
+		}
+
 		inline CachedUserVariableManager& GetVariableManager()
 		{
 			return variableManager_;
@@ -295,6 +301,7 @@ namespace dse::lua
 
 		CustomDamageTypeCallbackManager customDamageTypes_;
 		CustomRequirementCallbackManager customRequirementCallbacks_;
+		CustomConditionCallbackManager customConditionCallbacks_;
 		CachedUserVariableManager variableManager_;
 		CachedModVariableManager modVariableManager_;
 

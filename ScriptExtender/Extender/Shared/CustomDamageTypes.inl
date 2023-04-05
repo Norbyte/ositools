@@ -38,6 +38,7 @@ CustomDamageTypeDescriptor* CustomDamageTypeHelpers::RegisterNewType(FixedString
 	if (damageType) {
 		if (*damageType <= DamageType::Sentinel) {
 			OsiError("Tried to register damage type '" << name << "' multiple times!");
+			return nullptr;
 		}
 
 		auto it = types_.find((uint32_t)*damageType);

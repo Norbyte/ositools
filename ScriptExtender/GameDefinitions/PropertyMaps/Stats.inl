@@ -884,6 +884,32 @@ P_RO(ExcludeBoosts)
 END_CLS()
 
 
+BEGIN_CLS(CustomConditionDescriptor)
+P_RO(ConditionId)
+P_RO(EnumLabel)
+P_GETTER(Callbacks, GetCallbacks)
+END_CLS()
+
+BEGIN_CLS(CustomConditionCallbacks)
+P_RO(ConditionId)
+P(EvaluateCallback)
+END_CLS()
+
+BEGIN_CLS(esv::ServerConditionCheck)
+P_REF(Caster)
+P_REF(TargetCharacter)
+P_REF(TargetItem)
+P(Position)
+END_CLS()
+
+BEGIN_CLS(ecl::ClientConditionCheck)
+P_REF(Caster)
+P_REF(TargetCharacter)
+P_REF(TargetItem)
+P(Position)
+END_CLS()
+
+
 BEGIN_CLS(stats::Modifier)
 P_RO(ValueListIndex)
 P_RO(LevelMapIndex)

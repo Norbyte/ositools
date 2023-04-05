@@ -32,6 +32,9 @@ HOOK_DEFN(eoc__DamageTypeToTranslateStringExtended, eoc__DamageTypeToTranslateSt
 HOOK_DEFN(fmt__GetColorCodeDmg, fmt__GetColorCodeDmg, stats::GetColorCodeDmgProc, WrappableFunction)
 HOOK_DEFN(fmt__ColorCodeAndTypeDmg, fmt__ColorCodeAndTypeDmg, stats::ColorCodeAndTypeDmgProc, WrappableFunction)
 
+HOOK_DEFN(esv__ServerConditionCheck__ProcessCondition, esv__ServerConditionCheck__ProcessCondition, esv::ServerConditionCheck::ProcessConditionProc, WrappableFunction)
+HOOK_DEFN(ecl__ClientConditionCheck__ProcessCondition, ecl__ClientConditionCheck__ProcessCondition, ecl::ClientConditionCheck::ProcessConditionProc, WrappableFunction)
+
 HOOK_DEFN(CheckRequirement1, CheckRequirement1, stats::CheckRequirementProc, WrappableFunction)
 HOOK_DEFN(CheckRequirement2, CheckRequirement2, stats::CheckRequirementProc, WrappableFunction)
 HOOK_DEFN(RequirementToTranslatedString, RequirementToTranslatedString, stats::RequirementToTranslatedStringProc, WrappableFunction)

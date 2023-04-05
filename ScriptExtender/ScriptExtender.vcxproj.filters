@@ -486,6 +486,9 @@
     <ClInclude Include="GameDefinitions\CommonTypes.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Shared\CustomConditions.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -1012,6 +1015,9 @@
     </None>
     <None Include="Lua\Libs\Vars.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Extender\Shared\CustomConditions.inl">
+      <Filter>Extender\Shared</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

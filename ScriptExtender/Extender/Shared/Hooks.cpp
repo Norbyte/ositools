@@ -153,6 +153,14 @@ void Hooks::Startup()
 		std::bind(&Hooks::OnSkillManagerCheckSkillRequirements, this, _1, _2, _3)
 	);
 
+	auto ccr = &gExtender->GetCustomConditionRegistry();
+	lib.esv__ServerConditionCheck__ProcessCondition.SetWrapper(
+		std::bind(&CustomConditionRegistry::ServerConditionCheckProcess, ccr, _1, _2, _3, _4)
+	);
+	lib.ecl__ClientConditionCheck__ProcessCondition.SetWrapper(
+		std::bind(&CustomConditionRegistry::ClientConditionCheckProcess, ccr, _1, _2, _3, _4)
+	);
+
 	auto cdt = &gExtender->GetCustomDamageTypes();
 	lib.eoc__GetDamageType.SetWrapper(
 		std::bind(&CustomDamageTypeHelpers::GetDamageType, cdt, _1, _2)

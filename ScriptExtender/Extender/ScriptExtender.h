@@ -6,6 +6,7 @@
 #include <Extender/Shared/ModuleHasher.h>
 #include <Extender/Shared/CustomDamageTypes.h>
 #include <Extender/Shared/CustomRequirements.h>
+#include <Extender/Shared/CustomConditions.h>
 #include <Extender/Shared/Hooks.h>
 
 #include <Extender/Client/ExtensionStateClient.h>
@@ -133,6 +134,11 @@ public:
 		return customRequirementRegistry_;
 	}
 
+	inline CustomConditionRegistry& GetCustomConditionRegistry()
+	{
+		return customConditionRegistry_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 	std::optional<STDString> GetPathOverride(STDString const& path);
@@ -156,6 +162,7 @@ private:
 	lua::CppPropertyMapManager propertyMapManager_;
 	CustomDamageTypeHelpers customDamageTypes_;
 	CustomRequirementRegistry customRequirementRegistry_;
+	CustomConditionRegistry customConditionRegistry_;
 
 	ExtenderConfig config_;
 	bool extensionsEnabled_{ false };

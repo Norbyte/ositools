@@ -154,6 +154,9 @@ namespace dse
 		SYM_OFF(fmt__GetColorCodeDmg);
 		SYM_OFF(fmt__ColorCodeAndTypeDmg);
 
+		SYM_OFF(esv__ServerConditionCheck__ProcessCondition);
+		SYM_OFF(ecl__ClientConditionCheck__ProcessCondition);
+
 		SYM_OFF(CheckRequirement1);
 		SYM_OFF(CheckRequirement2);
 		SYM_OFF(RequirementToTranslatedString);
