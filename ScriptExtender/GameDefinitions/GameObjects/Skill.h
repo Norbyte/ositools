@@ -80,36 +80,36 @@ struct SkillState : public ProtectedGameObject<SkillState>
 
 struct SkillStateDome : public SkillState
 {
-	float AnimationDurationRemaining;
+	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
-	float SelfCastTextEventTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	glm::vec3 Position;
 };
 
 struct SkillStateHeal : public SkillState
 {
 	ComponentHandle TargetHandle;
-	float AnimationDuration;
-	float FirstCastTextEventTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
 };
 
 struct SkillStateJump : public SkillState
 {
-  float NextTextKeyTimeRemaining;
-  ObjectSet<float> TextKeys;
-  float SelfCastTextEventTimeRemaining;
-  float TextKeyTimeRemaining;
-  float AnimationDuration;
-  bool CastEventThrown;
-  glm::vec3 Position;
+	float NextTextKeyTimeRemaining;
+	ObjectSet<float> TextKeys;
+	float SelfCastTextKeyTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float AnimationTimeRemaining;
+	bool CastEventThrown;
+	glm::vec3 Position;
 };
 
 struct SkillStateMultiStrike : public SkillState
 {
 	ComponentHandle TargetHandle;
-	float AnimationDuration;
+	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
-	float SelfCastTextEventTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	float JumpDelay;
 	glm::vec3 CasterPosition;
 	glm::vec3 EndPosition;
@@ -122,11 +122,9 @@ struct SkillStateMultiStrike : public SkillState
 struct SkillStatePath : public SkillState
 {
 	float CastTextKeyTimeRemaining;
-	float AnimationDuration;
+	float AnimationTimeRemaining;
 	glm::vec3 StartPosition;
-	int field_6C;
-	int field_70;
-	int field_74;
+	glm::vec3 UnknPosition;
 	ObjectSet<glm::vec3> Path;
 };
 
@@ -156,19 +154,17 @@ struct SkillStateProjectile : public SkillState
 
 
 	ObjectSet<TargetData> Targets;
-	float CastDelayAndDuration;
+	float AnimationTimeRemaining;
 	FixedString CastAnimation;
-	float BaseDelay;
-	float SelfCastTextEventDelay;
-	float ProjectileDelayTimer;
+	float CastTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
+	float ProjectileTimeRemaining;
 	float ProjectileDelay;
 	uint64_t ProjectileCount;
 	bool HasAngle;
 	bool MovingObjectIsCaster;
 	bool ThrowOnSkillCastEvent;
 	int NumTotalCasts;
-	int field_A8;
-	int SomeSteeringValue;
 };
 
 struct SkillStateProjectileStrike : public SkillState
@@ -176,13 +172,13 @@ struct SkillStateProjectileStrike : public SkillState
 	ComponentHandle NextTargetHandle;
 	glm::vec3 NextTargetPosition;
 	glm::vec3 SteeringTargetPosition;
-	float AnimationDuration;
+	float AnimationTimeRemaining;
 	glm::vec3 NextTargetPosition2;
-	float NextProjectileTime;
-	float NextPropertyDataTime;
+	float CastTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	uint64_t ShotProjectileCount;
 	uint64_t CurrentHitNum;
-	float NextDamageTime;
+	float NextProjectileTimeRemaining;
 	float ProjectileDelay;
 	uint64_t ProjectileCount;
 	ObjectSet<NumberDivider> DamageDividers;
@@ -194,15 +190,15 @@ struct SkillStateProjectileStrike : public SkillState
 struct SkillStateQuake : public SkillState
 {
 	float CastTextKeyTimeRemaining;
-	float SelfCastTextEventTimeRemaining;
-	float AnimationDuration;
+	float SelfCastTextKeyTimeRemaining;
+	float AnimationTimeRemaining;
 };
 
 struct SkillStateRain : public SkillState
 {
-	float AnimationDuration;
-	float FirstCastTextEventTime;
-	float FirstSelfCastTextEventTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	glm::vec3 TargetPosition;
 };
 
@@ -211,15 +207,15 @@ struct SkillStateRush : public SkillState
 {
 	ComponentHandle TargetHandle;
 	glm::vec3 TargetPosition;
-	float AnimationDurationRemaining;
+	float AnimationTimeRemaining;
 	glm::vec3 DamageAreaCenter;
 	float DamageAreaRadius;
 	float CastTextKeyTimeRemaining;
-	float SelfCastTextEventTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	glm::vec3 StartPosition;
 	float StartTextKeyTimeRemaining;
 	float StepSize;
-	float StepSize2;
+	float StepTimeRemaining;
 	float HitRadius;
 	float StartTextKeyTime;
 	float StopTextKeyTime;
@@ -230,27 +226,27 @@ struct SkillStateRush : public SkillState
 
 struct SkillStateShout : public SkillState
 {
-	float CastDelayRemaining;
-	float SelfCastTextEventTimeRemaining;
-	float DurationRemaining;
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
+	float AnimationTimeRemaining;
 	glm::vec3 Position;
 	ObjectSet<ComponentHandle> ObjectHandleSet;
 };
 
 struct SkillStateStorm : public SkillState
 {
-	float AnimationDuration;
+	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	glm::vec3 Position;
 };
 
 struct SkillStateSummon : public SkillState
 {
-	float AnimationDuration;
-	float FirstCastTextEventTime;
-	float FirstSelfCastTextEvent;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	bool HasHighLevelSummoning;
-	uint64_t SomeMaxSummonCount;
+	uint64_t SummonCount;
 	ObjectSet<glm::vec3> SummonPositions;
 };
 
@@ -258,10 +254,10 @@ struct SkillStateTarget : public SkillState
 {
 	ComponentHandle TargetHandle;
 	glm::vec3 TargetPosition;
-	float AnimationDurationRemaining;
-	float FirstCastTextEventTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
 	ObjectSet<float> TextEventTimers;
-	float SelfCastTextEventTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	bool NeedsToThrowCastEvent;
 	ComponentHandle IncreasedDelayDeathCountHandle;
 };
@@ -272,23 +268,23 @@ struct SkillStateTeleportation : public SkillState
 	ComponentHandle SourceHandle;
 	glm::vec3 TargetPosition;
 	ComponentHandle TargetHandle;
-	float AnimationDuration;
+	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	bool TeleportSurface;
 };
 
 struct SkillStateTornado : public SkillState
 {
-	float AnimationDuration;
+	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	glm::vec3 Position;
 };
 
 struct SkillStateWall : public SkillState
 {
-	float AnimationDuration;
-	float CastFirstTextKeyTime;
-	float SelfCastTextEventTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float SelfCastTextKeyTimeRemaining;
 	glm::vec3 StartPosition;
 	glm::vec3 EndPosition;
 };
@@ -296,12 +292,11 @@ struct SkillStateWall : public SkillState
 struct SkillStateZone : public SkillState
 {
 	glm::vec3 TargetPosition;
-	float AnimationDuration;
-	float FirstCastTextEventTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
 	ObjectSet<IEoCServerObject*> Targets;
 	ObjectSet<ComponentHandle> GameActions;
 };
-
 
 END_NS()
 
@@ -380,7 +375,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	MultiEffectHandler* SkillEffect;
 	ObjectSet<MultiEffectHandler*> EffectHandlers;
 	ObjectSet<BeamEffectHandler*> BeamEffects;
-	ObjectSet<WeaponAnimData> TWeaponAnimData;
+	ObjectSet<WeaponAnimData> WeaponAnimData;
 	uint64_t NextWeaponAnimationIndex;
 	float TimeElapsed;
 	eoc::SkillStateType State;
@@ -390,26 +385,26 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	bool IsFromItem;
 	uint32_t ActionMachineTransactionId;
 	float ChargeDuration;
-	bool ActionStateEntered_M;
-	bool field_E5;
+	bool OwnsActionState;
+	bool CastingFinished;
 };
 
 
 struct SkillStatePath : public SkillState
 {
-	bool IsFinished_M;
+	uint8_t TargetSelectionState;
 	glm::vec3 TargetPosition;
-	glm::vec3 Position2;
-	__int64 field_108;
-	ObjectSet<ComponentHandle> EffectHandles;
-	ObjectSet<ComponentHandle> EffectHandles2;
+	glm::vec3 SelectedPosition;
+	glm::vec3 CastEffectPosition;
+	ObjectSet<ComponentHandle> WaypointEffectHandles;
+	ObjectSet<ComponentHandle> WaypointEffectHandles2;
 	ObjectSet<float> TextKeys;
 	Effect* TargetingEffect;
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
 	float CastEffectTextKeyTimeRemaining;
 	float MaxDistance2;
-	int field_188;
+	float PickingDistance;
 	float MaxDistance;
 };
 
@@ -419,7 +414,7 @@ struct SkillStateTarget : public SkillState
 	bool CanTargetCharacters;
 	bool CanTargetItems;
 	bool CanTargetTerrain;
-	bool HasVisuals_M;
+	bool IsTargeting;
 	glm::vec3 Position;
 	ComponentHandle Target;
 	ComponentHandle InfluenceRadiusEffect;
@@ -427,10 +422,10 @@ struct SkillStateTarget : public SkillState
 	float CastSelfAnimationDuration;
 	float TargetRadius;
 	float AreaRadius;
-	float NextTextKeyOffset;
-	float NextTextKeyEnd;
-	float CastAnimationDuration;
-	ObjectSet<float> TextKeyOffsets;
+	float CastTextKeyTimeRemaining;
+	float CastEndTextKeyTimeRemaining;
+	float AnimationTimeRemaining;
+	ObjectSet<float> CastTextKeyOffsets;
 	stats::Condition* TargetConditions;
 	stats::Condition* AoEConditions;
 	ObjectSet<SurfaceTransformActionType> SurfaceTransformActions;
@@ -492,7 +487,7 @@ struct SkillStateProjectileStrike : public SkillState
 	bool CanTargetTerrain;
 	glm::vec3 TargetPosition;
 	ComponentHandle Target;
-	bool IsFinished;
+	bool IsTargeting;
 	ComponentHandle TargetingPreviewEffect;
 	ComponentHandle InfluenceRadiusEffect;
 	float HighlightRadius;
@@ -506,7 +501,7 @@ struct SkillStateProjectileStrike : public SkillState
 	float Height2;
 	float ZWithHeight;
 	glm::vec3 Position2;
-	ObjectSet<glm::vec3> OS_Vec3;
+	ObjectSet<glm::vec3> PathPreview;
 	uint32_t field_1C0;
 	uint32_t ProjectileCount;
 	float PathSpeed;
@@ -514,12 +509,12 @@ struct SkillStateProjectileStrike : public SkillState
 	uint8_t field_1D0;
 	ObjectSet<ComponentHandle> Targets;
 	int TargetRadiusSquare;
-	float AnimationDuration;
+	float AnimationTimeRemaining;
 	float TargetRadius;
 	float ExplodeRadius;
 	float AreaRadius;
 	float Angle;
-	float field_210;
+	float CastTextKeyTimeRemaining;
 	stats::Condition* TargetConditions;
 	int StrikeCount;
 	ObjectSet<float> TextKeys;
@@ -545,13 +540,12 @@ struct SkillStateSummon : public SkillState
 	bool IsAdvancedSummon;
 	uint64_t SummonCount;
 	uint64_t NextSummonIndex;
-	bool UseHighlight_M;
-	float CastTextKeyTime;
-	float CastEffectTextEventTime;
-	float AnimationDuration;
+	bool IsTargeting;
+	float CastTextKeyTimeRemaining;
+	float CastEffectTextKeyTimeRemaining;
+	float AnimationTimeRemaining;
 	stats::Condition* AoEConditions;
 	float AreaRadius;
-	int field_13C;
 	ComponentHandle EffectHandle;
 	float TargetRadius;
 	uint32_t TargetValidityFlags;
@@ -564,9 +558,9 @@ struct SkillStateRain : public SkillState
 	bool HasTargetingEffect;
 	glm::vec3 Position;
 	Effect* InfluenceRadiusEffect;
-	float AnimationDuration;
-	float CastTextKeyTime;
-	float CastEffectTextKeyTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float CastEffectTextKeyTimeRemaining;
 	stats::Condition* TargetConditions;
 	Effect* TargetingEffect;
 	float TargetRadius;
@@ -577,10 +571,10 @@ struct SkillStateRain : public SkillState
 struct SkillStateZone : public SkillState
 {
 	glm::vec3 Position;
-	char field_F4;
-	float AnimationDuration;
-	float CastTextKeyTime;
-	float CastEffectTextKeyTime;
+	bool IsTargeting;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float CastEffectTextKeyTimeRemaining;
 	ZoneActionInfo ActionInfo;
 	PrimitiveSmallSet<SurfaceCell> SurfaceCells;
 	bool CanTargetCharacters;
@@ -594,11 +588,11 @@ struct SkillStateZone : public SkillState
 struct SkillStateHeal : public SkillState
 {
 	ComponentHandle Highlight;
-	bool IsFinished_M;
+	bool IsTargeting;
 	uint8_t field_F1;
-	float AnimationDuration;
-	float CastTextKeyTime;
-	float CastEffectTextKeyTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float CastEffectTextKeyTimeRemaining;
 	float TargetRadius;
 	stats::Condition* TargetConditions;
 };
@@ -638,22 +632,22 @@ struct SkillStateProjectile : public SkillState
 	bool CanTargetItems;
 	bool CanTargetTerrain;
 	bool MovingCaster;
-	uint8_t field_EC;
-	uint8_t field_ED;
+	bool TargetingObject;
+	bool IsTargeting;
 	bool CasterMovingObject;
 	bool AutoAim;
 	FixedString CastAnimation;
 	int32_t AmountOfTargets;
 	int32_t NextProjectileTargetIndex;
-	int field_100;
+	int32_t ProjectileCount;
 	float ProjectileTerrainOffset;
 	float TargetRadiusSquare;
-	float TimeUntilCastEnd;
+	float AnimationTimeRemaining;
 	float TargetRadius;
 	float ExplodeRadius;
 	float AreaRadius;
 	int32_t Angle;
-	float TimeUntilNextProjectile;
+	float NextProjectileTimeRemaining;
 	stats::Condition* TargetConditions;
 	uint8_t field_130;
 	eoc::Text AimStatusText;
@@ -666,9 +660,9 @@ struct SkillStateWall : public SkillState
 	uint32_t TargetingState;
 	glm::vec3 Position;
 	glm::vec3 EndPosition;
-	float AnimationDuration;
-	float CastTextKeyTime;
-	float CastEffectTextKeyTime;
+	float AnimationTimeRemaining;
+	float CastTextKeyTimeRemaining;
+	float CastEffectTextKeyTimeRemaining;
 	float EffectDistance;
 	int NumEffects;
 	Effect* SourceTargetEffect;
@@ -685,11 +679,10 @@ struct SkillStateJump : public SkillState
 	bool IsFinished;
 	ComponentHandle TargetingShapeEffect;
 	glm::vec3 Position;
-	float TimeUntilAnimationEnd;
-	float TimeUntilTeleportFirstTextKey;
-	float TimeUntilTeleportTextKey;
-	PrimitiveSmallSet<float> TeleportTextKeys;
-	__int64 field_128;
+	float AnimationTimeRemaining;
+	float TeleportFirstTextKeyTimeRemaining;
+	float TeleportTextKeyTimeRemaining;
+	ObjectSet<float> TeleportTextKeys;
 	FixedString field_130;
 	stats::Condition* TargetConditions;
 	ComponentHandle InfluenceRadiusEffectTarget;
@@ -717,14 +710,14 @@ struct SkillStateMultiStrike : public SkillState
 {
 	ComponentHandle HoverCharacter;
 	uint32_t TargetValidationResult;
-	uint8_t field_F4;
+	bool IsTargeting;
 	float CastTextKeyTimeRemaining;
-	float FirstTextEventTimeRemaining;
 	float CastEffectTextKeyTimeRemaining;
+	float ReappearTextKeyTimeRemaining;
 	glm::vec3 EndPosition;
 	glm::vec3 StartPosition;
 	stats::Condition* TargetConditions;
-	char field_128;
+	bool ActionExited;
 	char field_129;
 	ObjectSet<STDString> Effects;
 	int NextEffectTextIndex;
@@ -738,7 +731,7 @@ struct SkillStateMultiStrike : public SkillState
 
 struct SkillStateStorm : public SkillState
 {
-	uint8_t field_E8;
+	bool IsTargeting;
 	glm::vec3 Position;
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
@@ -754,7 +747,7 @@ struct SkillStateStorm : public SkillState
 
 struct SkillStateTornado : public SkillState
 {
-	uint8_t field_E8;
+	bool IsTargeting;
 	glm::vec3 Position;
 	float AnimationTimeRemaining;
 	float CastTextKeyTimeRemaining;
@@ -794,7 +787,7 @@ struct SkillStateRush : public SkillState
 	glm::vec3 Position;
 	glm::vec3 TargetPosition;
 	ComponentHandle TargetHandle;
-	bool IsTargeting_M;
+	bool IsTargeting;
 	Effect* TargetingShape;
 	Effect* TargetingCircle;
 	Effect* TargetingCross;
