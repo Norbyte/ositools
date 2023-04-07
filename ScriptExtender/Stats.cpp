@@ -1385,11 +1385,11 @@ bool Character::IsBoostActive(uint32_t conditionMask)
 		|| (conditionMask & 0x80) && ActiveBoostConditions[8] > 0
 		|| (conditionMask & 0x100) && ActiveBoostConditions[9] > 0
 		|| (conditionMask & 0x200) && ActiveBoostConditions[10] > 0
-		|| (conditionMask & 0x300) && ActiveBoostConditions[11] > 0
-		|| (conditionMask & 0x400) && ActiveBoostConditions[12] > 0
-		|| (conditionMask & 0x500) && ActiveBoostConditions[13] > 0
-		|| (conditionMask & 0x600) && ActiveBoostConditions[14] > 0
-		|| (conditionMask & 0x700) && ActiveBoostConditions[15] > 0;
+		|| (conditionMask & 0x400) && ActiveBoostConditions[11] > 0
+		|| (conditionMask & 0x800) && ActiveBoostConditions[12] > 0
+		|| (conditionMask & 0x1000) && ActiveBoostConditions[13] > 0
+		|| (conditionMask & 0x2000) && ActiveBoostConditions[14] > 0
+		|| (conditionMask & 0x4000) && ActiveBoostConditions[15] > 0;
 }
 
 bool Character::ComputeScaledDamage(Item* weapon, DamageDescList& damages, bool keepCurrentDamages)
