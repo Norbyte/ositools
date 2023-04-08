@@ -28,10 +28,12 @@ struct MovementState : public ProtectedGameObject<MovementState>
 
 struct MSMovement : public MovementState
 {
-  __int64 field_18;
-  int field_20;
-  uint32_t field_24;
-  int field_28;
+	glm::vec3 Velocity;
+	bool IsMoving;
+	bool FitToGrid;
+	bool IsRunning;
+	bool MoveTo;
+	float TimeRemaining;
 };
 
 

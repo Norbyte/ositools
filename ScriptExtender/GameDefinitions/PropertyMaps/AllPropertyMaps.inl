@@ -23,7 +23,8 @@
 #include <GameDefinitions/PropertyMaps/Physics.inl>
 #include <GameDefinitions/PropertyMaps/Trigger.inl>
 #include <GameDefinitions/PropertyMaps/GameAction.inl>
-#include <GameDefinitions/PropertyMaps/States.inl>
+#include <GameDefinitions/PropertyMaps/MovementStates.inl>
+#include <GameDefinitions/PropertyMaps/ActionStates.inl>
 #include <GameDefinitions/PropertyMaps/Controllers.inl>
 #include <GameDefinitions/PropertyMaps/Player.inl>
 #include <GameDefinitions/PropertyMaps/Camera.inl>

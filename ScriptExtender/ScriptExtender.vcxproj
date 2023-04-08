@@ -305,6 +305,7 @@
     <None Include="GameDefinitions\PropertyMaps\Level.inl" />
     <None Include="GameDefinitions\PropertyMaps\Material.inl" />
     <None Include="GameDefinitions\PropertyMaps\Mod.inl" />
+    <None Include="GameDefinitions\PropertyMaps\MovementStates.inl" />
     <None Include="GameDefinitions\PropertyMaps\Physics.inl" />
     <None Include="GameDefinitions\PropertyMaps\Player.inl" />
     <None Include="GameDefinitions\PropertyMaps\Projectile.inl" />
@@ -312,7 +313,7 @@
     <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl" />
     <None Include="GameDefinitions\PropertyMaps\Scenery.inl" />
     <None Include="GameDefinitions\PropertyMaps\Skill.inl" />
-    <None Include="GameDefinitions\PropertyMaps\States.inl" />
+    <None Include="GameDefinitions\PropertyMaps\ActionStates.inl" />
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
     <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />
     <None Include="GameDefinitions\PropertyMaps\Surface.inl" />

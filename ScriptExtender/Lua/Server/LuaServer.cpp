@@ -424,16 +424,40 @@ void LuaPolymorphic<ecl::MovementState>::MakeRef(lua_State* L, ecl::MovementStat
 	}
 }
 
+#define MAKE_REF(ty) case ActionStateType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<esv::AS##ty*>(o));
+
 void LuaPolymorphic<esv::ActionState>::MakeRef(lua_State* L, esv::ActionState* o, LifetimeHandle const & lifetime)
 {
 	switch (o->GetType()) {
-	case ActionStateType::Attack: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASAttack*>(o));
-	case ActionStateType::PrepareSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASPrepareSkill*>(o));
-	case ActionStateType::UseSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASUseSkill*>(o));
-	// TODO - map others
+	MAKE_REF(Attack)
+	MAKE_REF(Die)
+	MAKE_REF(Hit)
+	MAKE_REF(Idle)
+	MAKE_REF(Animation)
+	MAKE_REF(PrepareSkill)
+	MAKE_REF(UseSkill)
+	MAKE_REF(PickUp)
+	MAKE_REF(Drop)
+	MAKE_REF(MoveItem)
+	MAKE_REF(KnockedDown)
+	MAKE_REF(Summoning)
+	MAKE_REF(Polymorphing)
+	MAKE_REF(UseItem)
+	MAKE_REF(CombineItem)
+	MAKE_REF(TeleportFall)
+	MAKE_REF(Sheath)
+	MAKE_REF(Unsheath)
+	MAKE_REF(Identify)
+	MAKE_REF(Repair)
+	MAKE_REF(Lockpick)
+	MAKE_REF(DisarmTrap)
+	MAKE_REF(Incapacitated)
+	MAKE_REF(JumpFlight)
 	default: return MakeDirectObjectRef(L, lifetime, o);
 	}
 }
+
+#undef MAKE_REF
 
 void LuaPolymorphic<ecl::ActionState>::MakeRef(lua_State* L, ecl::ActionState* o, LifetimeHandle const & lifetime)
 {

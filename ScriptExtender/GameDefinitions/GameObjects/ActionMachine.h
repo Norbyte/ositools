@@ -68,7 +68,7 @@ struct ASAttack : public ActionState
 	ObjectSet<ComponentHandle> CleaveTargets;
 	bool IsFinished;
 	bool AlwaysHit;
-	__int64 AttackAnimation;
+	FixedString AttackAnimation;
 	float TimeRemaining;
 	bool AnimationFinished;
 	int TotalHits;
@@ -156,7 +156,7 @@ struct ASPickUp : public ActionStateRequest
 	int32_t Flags;
 	NetId NetID;
 	int32_t SplitAmount;
-	bool field_40;
+	bool ShouldGenerateTreasure;
 	bool MovedItem;
 	glm::vec3 StartPosition;
 	glm::vec3 TargetPosition;
@@ -183,7 +183,7 @@ struct ASMoveItem : public ActionStateRequest
 	ObjectSet<ComponentHandle> Items;
 	ObjectSet<glm::vec3> Positions;
 	ObjectSet<glm::mat3> Rotations;
-	ObjectSet<float> OS_float;
+	ObjectSet<float> Timers;
 	int32_t Amount;
 	bool IsFinished;
 	bool ItemMoveFinished;
@@ -197,7 +197,7 @@ struct ASPrepareSkill : public ActionState
 	FixedString PrepareAnimationLoop;
 	bool IsFinished;
 	bool IsEntered;
-	bool Unknown;
+	bool AnimApplyPending;
 };
 
 struct ASUseSkill : public ActionState
@@ -207,6 +207,116 @@ struct ASUseSkill : public ActionState
 	SkillState* Skill;
 	bool OwnsSkillState;
 };
+
+struct ASKnockedDown : public ActionState
+{
+	int KnockedDownState;
+	bool AnimationApplied;
+};
+
+struct ASSummoning : public ActionState
+{
+	FixedString field_18;
+	bool IsFinished;
+};
+
+struct ASPolymorphing : public ActionState
+{
+	FixedString field_18;
+	bool IsFinished;
+};
+
+struct ASUseItem : public ActionStateRequest
+{
+	ComponentHandle ItemHandle;
+	float ActionTimeRemaining;
+	float UseTimeRemaining;
+	bool UseCompleted;
+	bool IgnoreAP;
+	bool RequestStarted;
+	int32_t Slot;
+};
+
+struct ASCombineItem : public ActionStateRequest
+{
+	int CraftingStation;
+	ObjectSet<ComponentHandle> Ingredients;
+	FixedString Recipe;
+	float AnimationTime;
+	bool ConsumeAP;
+	bool OpenUI;
+	bool IsFinished;
+};
+
+struct ASTeleportFall : public ActionState
+{
+	float HitTimeRemaining;
+	float AnimationTimeRemaining;
+	bool IsFinished;
+	bool IsFromItem;
+	float Height;
+	float Acceleration;
+	bool HitApplied;
+	FixedString SkillId;
+	ComponentHandle OH;
+};
+
+struct ASSheath : public ActionState
+{
+	bool IsFinished;
+};
+
+struct ASUnsheath : public ActionState
+{
+	bool IsFinished;
+};
+
+struct ASIdentify : public ActionState
+{
+	ComponentHandle TargetItem;
+	ComponentHandle SourceItem;
+	float AnimationTimeRemaining;
+	bool IsFinished;
+};
+
+struct ASRepair : public ActionState
+{
+	ComponentHandle TargetItem;
+	ComponentHandle SourceItem;
+	float AnimationTimeRemaining;
+	bool IsFinished;
+};
+
+struct ASLockpick : public ActionStateRequest
+{
+	ComponentHandle TargetItem;
+	ComponentHandle SourceItem;
+	float AnimationTimeRemaining;
+	bool IsFinished;
+};
+
+struct ASDisarmTrap : public ActionState
+{
+	ComponentHandle TargetItem;
+	ComponentHandle SourceItem;
+	bool IsFinished;
+	float AnimationTimeRemaining;
+};
+
+struct ASIncapacitated : public ActionState
+{
+};
+
+struct ASJumpFlight : public ActionState
+{
+	float field_18;
+	float Animation1Duration;
+	float Animation2Duration;
+	bool Animation1Started;
+	bool Animation2Started;
+	bool IsFinished;
+};
+
 
 struct ActionMachine : public ActionMachineBase<esv::ActionState>
 {};

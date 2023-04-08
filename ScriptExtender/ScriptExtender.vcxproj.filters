@@ -962,7 +962,7 @@
     <None Include="GameDefinitions\PropertyMaps\GameAction.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
-    <None Include="GameDefinitions\PropertyMaps\States.inl">
+    <None Include="GameDefinitions\PropertyMaps\ActionStates.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
     <None Include="GameDefinitions\PropertyMaps\Controllers.inl">
@@ -1018,6 +1018,9 @@
     </None>
     <None Include="Extender\Shared\CustomConditions.inl">
       <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\MovementStates.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
