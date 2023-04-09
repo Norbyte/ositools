@@ -471,6 +471,35 @@
       <Target Type="Indirect" Offset="@handle" Symbol="ecl__EoCClient__HandleError" /> <!-- ecl::EoCClient::HandleError -->
     </Mapping>
 
+    <Mapping Name="ecl::SkillStateFactory::Init">
+      48 8b 07 // mov     rax, [rdi]
+      @str1 4c 8d 05 ?? ?? ?? ?? // lea     r8, aSkillStates; "Skill States"
+      8d 56 01 // lea     edx, [rsi+1]
+      48 8b cf // mov     rcx, rdi
+      ff 90 80 00 00 00 // call    qword ptr [rax+80h]
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ecl__gSkillStateFactory
+      e8 ?? ?? ?? ?? // call    ecl__SkillStateFactory__Init
+      48 8b 07 // mov     rax, [rdi]
+      <Condition Type="String" Offset="@str1" Value="Skill States" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__SkillStateFactory" />
+    </Mapping>
+
+    <Mapping Name="esv::SkillStateFactory::Init">
+      80 b9 c0 00 00 00 00 // cmp     byte ptr [rcx+0C0h], 0
+      48 8b f1 // mov     rsi, rcx
+      0f 85 55 02 00 00 // jnz     loc_14196F3FB
+      48 8b 41 20 // mov     rax, [rcx+20h]
+      83 b8 80 00 00 00 01 // cmp     dword ptr [rax+80h], 1
+      0f 84 44 02 00 00 // jz      loc_14196F3FB
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:esv__gSkillStateFactory
+      48 89 5c 24 50 // mov     [rsp+48h+arg_0], rbx
+      48 89 6c 24 58 // mov     [rsp+48h+arg_8], rbp
+      48 89 7c 24 60 // mov     [rsp+48h+arg_10], rdi
+      4c 89 6c 24 68 // mov     [rsp+48h+arg_18], r13
+      4c 89 74 24 38 // mov     [rsp+48h+var_10], r14
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__SkillStateFactory" />
+    </Mapping>
+
     <Mapping Name="eoc::SkillPrototypeManager::Init">
       @str 4C 8D 05 ?? ?? ?? ??  // lea     r8, str_Skills     ; "Skills"
       BA 01 00 00 00  // mov     edx, 1

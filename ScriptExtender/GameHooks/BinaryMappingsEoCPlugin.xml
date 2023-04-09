@@ -433,6 +433,30 @@
       <Target Type="Indirect" Offset="43" Symbol="ecl__EoCClient__HandleError" />
     </Mapping>
 
+    <Mapping Name="ecl::SkillStateFactory::Init">
+      48 8b 07 // mov     rax, [rdi]
+      @str1 4c 8d 05 ?? ?? ?? ?? // lea     r8, aSkillStates; "Skill States"
+      ba 01 00 00 00 // mov     edx, 1
+      48 8b cf // mov     rcx, rdi
+      ff 90 80 00 00 00 // call    qword ptr [rax+80h]
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ecl__gSkillStateFactory
+      e8 ?? ?? ?? ?? // call    ecl__SkillStateFactory__Init
+      <Condition Type="String" Offset="@str1" Value="Skill States" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__SkillStateFactory" />
+    </Mapping>
+
+    <Mapping Name="esv::SkillStateFactory::Init">
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, aEsvGamestatein; "esv::GameStateInit"
+      48 8d 8c 24 90 00 00 00 // lea     rcx, [rsp+78h+arg_10]; _QWORD
+      ff 15 ?? ?? ?? ?? // call    cs:...
+      48 8b d3 // mov     rdx, rbx; _QWORD
+      48 8d 8c 24 80 00 00 00 // lea     rcx, [rsp+78h+arg_0]; _QWORD
+      ff 15 ?? ?? ?? ?? // call    cs:...
+      @ref3 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:esv__SkillStateFactory
+      <Condition Type="String" Offset="@str1" Value="esv::GameStateInit" />
+      <Target Type="Indirect" Offset="@ref3" Symbol="esv__SkillStateFactory" />
+    </Mapping>
+
     <Mapping Name="eoc::SkillPrototypeManager::Init">
       4C 8D 05 ?? ?? ?? ??  // lea     r8, aSkills     ; "Skills"
       BA 01 00 00 00  // mov     edx, 1

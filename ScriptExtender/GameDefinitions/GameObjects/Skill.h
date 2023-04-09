@@ -78,6 +78,19 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	bool CharacterHasSkill;
 };
 
+struct SkillStatePool
+{
+	SkillState* Prototype;
+	int32_t PoolSize;
+	Queue<SkillState*> Pool;
+	ObjectSet<SkillState*> Set_pSkillState;
+};
+
+struct SkillStateFactory
+{
+	Array<SkillStatePool*> Pools;
+};
+
 struct SkillStateDome : public SkillState
 {
 	float AnimationTimeRemaining;
@@ -387,6 +400,21 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	float ChargeDuration;
 	bool OwnsActionState;
 	bool CastingFinished;
+};
+
+struct SkillStatePool
+{
+	SkillState* Prototype;
+	int32_t Size;
+	Queue<SkillState*> Pool;
+	ObjectSet<SkillState*> OS_pSkillState;
+};
+
+struct SkillStateFactory
+{
+	void* VMT;
+	CRITICAL_SECTION CriticalSection;
+	Array<SkillStatePool*> Pools;
 };
 
 

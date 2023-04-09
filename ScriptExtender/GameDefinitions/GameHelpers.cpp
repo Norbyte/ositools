@@ -6,6 +6,8 @@
 #include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/Movement.h>
 #include <GameDefinitions/GameObjects/Skill.h>
+#include <GameDefinitions/GameObjects/Render.h>
+#include <GameDefinitions/Alignment.h>
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
 #include <GameDefinitions/Base/HalfHelpers.h>

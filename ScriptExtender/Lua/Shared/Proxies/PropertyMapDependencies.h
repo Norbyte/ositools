@@ -11,8 +11,10 @@
 #include <Lua/Server/LuaBindingServer.h>
 #include <Lua/Client/LuaBindingClient.h>
 
+#include <GameDefinitions/Alignment.h>
 #include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/AiHelpers.h>
+#include <GameDefinitions/GameObjects/CharacterCreation.h>
 #include <GameDefinitions/GameObjects/Material.h>
 #include <GameDefinitions/GameObjects/Visuals.h>
 #include <GameDefinitions/GameObjects/Surface.h>

@@ -144,7 +144,7 @@ struct CharacterBody
 	bool ForceStartAnimation;
 	ActionState* ActionState;
 	Timeline* Timeline;
-	void* UpperAnimationResource;
+	AnimationResource* UpperAnimationResource;
 };
 
 

@@ -144,6 +144,8 @@ namespace dse
 		SYM_OFF(RPGStats__GetItemLeveledBaseStat);
 		SYM_OFF(eoc__SkillPrototypeManager);
 		SYM_OFF(eoc__StatusPrototypeManager);
+		SYM_OFF(ecl__SkillStateFactory);
+		SYM_OFF(esv__SkillStateFactory);
 
 		SYM_OFF(eoc__ScaledDamageFromPrimaryAttribute);
 		SYM_OFF(eoc__GetDamageType);

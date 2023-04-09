@@ -13,7 +13,7 @@ namespace dse
 		{
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerInventory;
 
-			typedef void (* Equip)(esv::Inventory * self, uint64_t itemHandle, bool consumeAP, 
+			typedef void EquipProc(esv::Inventory * self, uint64_t itemHandle, bool consumeAP, 
 				int16_t requestedItemSlot, bool updateInventoryViews, bool checkRequirements, 
 				bool updateCurrentVitality, bool useWeaponAnimTypeAndSkills);
 

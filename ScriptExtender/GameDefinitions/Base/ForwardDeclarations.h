@@ -105,6 +105,11 @@ namespace eoc
 	struct PathMover;
 }
 
+namespace character_creation
+{
+	struct CharacterCreationManager;
+}
+
 namespace esv
 {
 	struct MovementMachine;
@@ -143,6 +148,8 @@ namespace esv
 	struct ShroudManager;
 	struct EntityManager;
 	struct CombineManager;
+	struct LevelManager;
+	struct AlignmentContainer;
 
 	struct ItemFactory;
 	struct CharacterFactory;
@@ -151,6 +158,7 @@ namespace esv
 	struct EntityWorld;
 
 	struct SkillState;
+	struct SkillStateFactory;
 	struct PendingHit;
 	class ExtensionState;
 
@@ -180,6 +188,7 @@ namespace ecl
 	struct PickingHelper;
 	struct PickingHelperManager;
 	struct TurnManager;
+	struct LevelManager;
 
 	struct ProjectileFactory;
 
@@ -189,6 +198,7 @@ namespace ecl
 
 	struct PathPreviewer;
 	struct SkillState;
+	struct SkillStateFactory;
 	struct MultiEffectHandler;
 	struct BeamEffectHandler;
 

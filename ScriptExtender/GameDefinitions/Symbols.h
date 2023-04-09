@@ -1,31 +1,20 @@
 #pragma once
 
-#include <GameDefinitions/GameObjects/Ai.h>
-#include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/Components/Character.h>
-#include <GameDefinitions/CustomStats.h>
+#include <GameDefinitions/Components/Projectile.h>
 #include <GameDefinitions/GameObjects/GameAction.h>
-#include <GameDefinitions/Components/Item.h>
 #include <GameDefinitions/Components/Inventory.h>
 #include <GameDefinitions/GameObjects/Level.h>
+#include <GameDefinitions/CustomStats.h>
 #include <GameDefinitions/Input.h>
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/Osiris.h>
-#include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/GameObjects/ActionMachine.h>
-#include <GameDefinitions/TurnManager.h>
 #include <GameDefinitions/UI.h>
 #include <GameDefinitions/GameObjects/Surface.h>
-#include <GameDefinitions/GameObjects/RootTemplates.h>
-#include <GameDefinitions/Sound.h>
-#include <GameDefinitions/Resource.h>
-#include <GameDefinitions/GameObjects/Effect.h>
-#include <GameDefinitions/GameObjects/CharacterCreation.h>
-#include <GameDefinitions/Alignment.h>
 #include <GameDefinitions/GameObjects/AiHelpers.h>
 #include <GameDefinitions/GameObjects/Controllers.h>
 #include <GameDefinitions/GameObjects/Camera.h>
-#include <GameDefinitions/GameObjects/Render.h>
 #include <GameDefinitions/GameObjects/Material.h>
 #include <GameDefinitions/GameObjects/Vision.h>
 
@@ -167,7 +156,7 @@ namespace dse
 
 		esv::ParseItem esv__ParseItem{ nullptr };
 		esv::CreateItemFromParsed esv__CreateItemFromParsed{ nullptr };
-		esv::Inventory::Equip esv__Inventory__Equip{ nullptr };
+		esv::Inventory::EquipProc* esv__Inventory__Equip{ nullptr };
 		esv::ItemHelpers__GenerateTreasureItem* esv__ItemHelpers__GenerateTreasureItem{ nullptr };
 		esv::CombineManager::ExecuteCombinationProc* esv__CombineManager__ExecuteCombination{ nullptr };
 
@@ -185,6 +174,8 @@ namespace dse
 		stats::RPGStats::GetItemLeveledBaseStatProc* RPGStats__GetItemLeveledBaseStat{ nullptr };
 		stats::SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		stats::StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
+		ecl::SkillStateFactory** ecl__SkillStateFactory{ nullptr };
+		esv::SkillStateFactory** esv__SkillStateFactory{ nullptr };
 
 		stats::ScaledDamageFromPrimaryAttributeProc* eoc__ScaledDamageFromPrimaryAttribute{ nullptr };
 		stats::GetDamageTypeProc* eoc__GetDamageType{ nullptr };

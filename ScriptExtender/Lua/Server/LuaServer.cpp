@@ -13,6 +13,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
+#include <GameDefinitions/GameObjects/CharacterCreation.h>
 #include <ScriptHelpers.h>
 #include "resource.h"
 
