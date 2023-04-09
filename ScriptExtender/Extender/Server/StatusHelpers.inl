@@ -4,33 +4,16 @@ BEGIN_NS(esv)
 
 void StatusHelpers::PostStartup()
 {
-	using namespace std::placeholders;
 	auto& lib = gExtender->GetEngineHooks();
 
-	lib.esv__StatusMachine__EnterStatus.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusMachineEnter, this, _1, _2, _3)
-	);
-	lib.esv__StatusMachine__Update.SetPreHook(
-		std::bind(&StatusHelpers::OnStatusMachineUpdate, this, _1, _2)
-	);
-	lib.esv__StatusMachine__DeleteStatusByHandle.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusMachineDeleteStatusByHandle, this, _1, _2, _3)
-	);
-	lib.esv__StatusMachine__ExitStatus.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusMachineExit, this, _1, _2, _3)
-	);
-	lib.esv__Status__GetEnterChanceHook.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusGetEnterChance, this, _1, _2, _3)
-	);
-	lib.esv__StatusHeal__Enter.SetPreHook(
-		std::bind(&StatusHelpers::OnStatusHealEnter, this, _1)
-	);
-	lib.esv__StatusConsume__Enter.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusConsumeEnter, this, _1, _2)
-	);
-	lib.esv__StatusConsume__Exit.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusConsumeExit, this, _1, _2)
-	);
+	lib.esv__StatusMachine__EnterStatus.SetWrapper(&StatusHelpers::OnStatusMachineEnter, this);
+	lib.esv__StatusMachine__Update.SetWrapper(&StatusHelpers::OnStatusMachineUpdate, this);
+	lib.esv__StatusMachine__DeleteStatusByHandle.SetWrapper(&StatusHelpers::OnStatusMachineDeleteStatusByHandle, this);
+	lib.esv__StatusMachine__ExitStatus.SetWrapper(&StatusHelpers::OnStatusMachineExit, this);
+	lib.esv__Status__GetEnterChanceHook.SetWrapper(&StatusHelpers::OnStatusGetEnterChance, this);
+	lib.esv__StatusHeal__Enter.SetPreHook(&StatusHelpers::OnStatusHealEnter, this);
+	lib.esv__StatusConsume__Enter.SetWrapper(&StatusHelpers::OnStatusConsumeEnter, this);
+	lib.esv__StatusConsume__Exit.SetWrapper(&StatusHelpers::OnStatusConsumeExit, this);
 }
 
 bool StatusHelpers::OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped,
@@ -58,7 +41,7 @@ bool StatusHelpers::OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped
 	return done;
 }
 
-void StatusHelpers::OnStatusMachineUpdate(StatusMachine* self, GameTime* time)
+void StatusHelpers::OnStatusMachineUpdate(StatusMachine::UpdateProc* wrapped, StatusMachine* self, GameTime* time)
 {
 	auto shouldDelete = GetStaticSymbols().esv__Status__ShouldDelete;
 	for (auto status : self->Statuses) {
@@ -69,6 +52,8 @@ void StatusHelpers::OnStatusMachineUpdate(StatusMachine* self, GameTime* time)
 			}
 		}
 	}
+
+	wrapped(self, time);
 }
 
 bool StatusHelpers::OnStatusMachineDeleteStatusByHandle(StatusMachine::DeleteStatusByHandleProc* wrapped,

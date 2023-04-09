@@ -65,11 +65,9 @@ void ScriptExtender::Initialize()
 
 		DetourTransactionCommit();
 
-		using namespace std::placeholders;
-		gameStateChangedEvent_.SetPostHook(std::bind(&ScriptExtender::OnGameStateChanged, this, _1, _2, _3));
-		gameStateWorkerStart_.AddPreHook(std::bind(&ScriptExtender::OnGameStateWorkerStart, this, _1));
-		gameStateWorkerStart_.AddPostHook(std::bind(&ScriptExtender::OnGameStateWorkerExit, this, _1));
-		gameStateMachineUpdate_.AddPostHook(std::bind(&ScriptExtender::OnUpdate, this, _1, _2));
+		gameStateChangedEvent_.SetPostHook(&ScriptExtender::OnGameStateChanged, this);
+		gameStateWorkerStart_.SetWrapper(&ScriptExtender::OnGameStateWorkerRun, this);
+		gameStateMachineUpdate_.SetPostHook(&ScriptExtender::OnUpdate, this);
 	}
 }
 
@@ -187,13 +185,10 @@ void ScriptExtender::OnGameStateChanged(void * self, GameState fromState, GameSt
 	}
 }
 
-void ScriptExtender::OnGameStateWorkerStart(void * self)
+void ScriptExtender::OnGameStateWorkerRun(void (*wrapped)(void*), void* self)
 {
 	AddThread(GetCurrentThreadId());
-}
-
-void ScriptExtender::OnGameStateWorkerExit(void* self)
-{
+	wrapped(self);
 	RemoveThread(GetCurrentThreadId());
 }
 

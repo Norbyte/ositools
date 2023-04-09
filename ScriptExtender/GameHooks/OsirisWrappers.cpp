@@ -36,10 +36,7 @@ STATIC_HOOK(TranslatedStringRepository__UnloadOverrides)
 
 
 OsirisWrappers::OsirisWrappers()
-{
-	using namespace std::placeholders;
-	RegisterDivFunctions.AddPreHook(std::bind(&OsirisWrappers::RegisterDIVFunctionsPreHook, this, _1, _2));
-}
+{}
 
 void OsirisWrappers::RegisterDIVFunctionsPreHook(void * Osiris, DivFunctions * Functions)
 {

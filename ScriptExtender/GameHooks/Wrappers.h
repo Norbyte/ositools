@@ -83,30 +83,176 @@ namespace dse {
 		FuncType FuncTrampoline{ nullptr };
 	};
 
-	template <typename R, typename... Params>
-	struct GetHookSignature
-	{
-		using Type = void(Params..., R);
-	};
+	template <class TObject, class TFunc>
+	struct MethodPtrHelpers;
 
-	template <typename... Params>
-	struct GetHookSignature<void, Params...>
+	template <class TObject, class R, class... Params>
+	struct MethodPtrHelpers<TObject, R (Params...)>
 	{
-		using Type = void(Params...);
+		using MethodType = R (TObject::*)(Params...);
+		using FunctionType = R (*)(TObject*, Params...);
+		using BaseFunctionType = R (*)(Params...);
+		
+		static_assert(sizeof(MethodType) == sizeof(FunctionType));
+
+		inline static FunctionType ToFunction(MethodType fun)
+		{
+			return *reinterpret_cast<FunctionType*>(&fun);
+		}
+
+		inline static MethodType ToMethod(FunctionType fun)
+		{
+			return *reinterpret_cast<MethodType*>(&fun);
+		}
 	};
 
 	template <class Tag, class T>
-	class BaseWrappableFunction;
+	class WrappableFunction;
 
 	template <class Tag, class R, class... Params>
-	class BaseWrappableFunction<Tag, R(Params...)>
+	class WrappableFunction<Tag, R(Params...)>
 	{
 	public:
-		using FuncType = R(Params...);
+		template <class TReturn, class... TParams>
+		struct PostHookSignature
+		{
+			using Type = void (void*, Params..., R);
+		};
+		
+		template <class... TParams>
+		struct PostHookSignature<void, TParams...>
+		{
+			using Type = void (void*, Params...);
+		};
+		
+		template <class TContext, class TReturn, class... TParams>
+		struct PostHookCallbackSignature
+		{
+			using Type = void (TContext::*)(Params..., TReturn);
+		};
+		
+		template <class TContext, class... TParams>
+		struct PostHookCallbackSignature<TContext, void, TParams...>
+		{
+			using Type = void (TContext::*)(Params...);
+		};
+
+		using BaseFuncType = R (Params...);
+		using HookFuncType = R (void*, BaseFuncType*, Params...);
+		using PreHookFuncType = void (void*, Params...);
+		using PostHookFuncType = PostHookSignature<R, Params...>::Type;
+		using NoContextHookFuncType = R (BaseFuncType*, Params...);
+
+		void Wrap(HMODULE Module, char const * ProcName)
+		{
+			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Wrap(void * Function)
+		{
+			this->wrapped_.Wrap(Function, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Unwrap()
+		{
+			this->wrapped_.Unwrap();
+			gHook = nullptr;
+		}
 
 		bool IsWrapped() const
 		{
 			return wrapped_.IsWrapped();
+		}
+
+		void SetWrapper(NoContextHookFuncType* wrapper)
+		{
+			if (hook_ != nullptr) {
+				throw std::runtime_error("Function already wrapped");
+			}
+
+			gRegisteredTrampolines.insert(&NoContextHook);
+			hook_ = &NoContextHook;
+			func_ = wrapper;
+			context_ = nullptr;
+		}
+
+		template <class TContext>
+		void SetWrapper(R (* wrapper)(TContext*, BaseFuncType*, Params...), TContext* context)
+		{
+			if (hook_ != nullptr) {
+				throw std::runtime_error("Function already wrapped");
+			}
+
+			hook_ = reinterpret_cast<HookFuncType*>(wrapper);
+			func_ = nullptr;
+			context_ = context;
+		}
+
+		template <class TContext>
+		void SetWrapper(R (TContext::* wrapper)(BaseFuncType*, Params...), TContext* context)
+		{
+			if (hook_ != nullptr) {
+				throw std::runtime_error("Function already wrapped");
+			}
+
+			auto fun = MethodPtrHelpers<TContext, R (BaseFuncType*, Params...)>::ToFunction(wrapper);
+			hook_ = reinterpret_cast<HookFuncType*>(fun);
+			func_ = nullptr;
+			context_ = context;
+		}
+
+		template <class TContext>
+		void SetPreHook(void (TContext::* wrapper)(Params...), TContext* context)
+		{
+			if (hook_ != nullptr) {
+				throw std::runtime_error("Function already wrapped");
+			}
+
+			gRegisteredTrampolines.insert(&StaticPreHook);
+			hook_ = &StaticPreHook;
+			func_ = MethodPtrHelpers<TContext, void (Params...)>::ToFunction(wrapper);
+			context_ = context;
+		}
+
+		template <class TContext>
+		void SetPostHook(PostHookCallbackSignature<TContext, R, Params...>::Type wrapper, TContext* context)
+		{
+			if (hook_ != nullptr) {
+				throw std::runtime_error("Function already wrapped");
+			}
+
+			gRegisteredTrampolines.insert(&StaticPostHook);
+			hook_ = &StaticPostHook;
+			if constexpr (std::is_same_v<R, void>) {
+				func_ = MethodPtrHelpers<TContext, void(Params...)>::ToFunction(wrapper);
+			} else {
+				func_ = MethodPtrHelpers<TContext, void(Params..., R)>::ToFunction(wrapper);
+			}
+			context_ = context;
+		}
+
+		void ClearHook()
+		{
+			hook_ = nullptr;
+			func_ = nullptr;
+			context_ = nullptr;
+		}
+
+		inline bool IsHooked() const
+		{
+			return hook_ != nullptr;
 		}
 
 		inline R CallOriginal(Params... Args) const
@@ -114,486 +260,52 @@ namespace dse {
 			return wrapped_(std::forward<Params>(Args)...);
 		}
 
-	protected:
+		inline R CallWithHooks(Params... Args) const
+		{
+			if (hook_) {
+				return hook_(context_, this->wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
+			} else {
+				return this->CallOriginal(std::forward<Params>(Args)...);
+			}
+		}
+
+	private:
 		WrappedFunction<R(Params...)> wrapped_;
-	};
-
-	template <class Tag, class T>
-	class PreHookableFunction;
-
-	template <class Tag, class R, class... Params>
-	class PreHookableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
-	{
-	public:
-		using PreHookType = void(Params...);
-		using PreHookFuncType = std::function<PreHookType>;
-
-		void Wrap(HMODULE Module, char const * ProcName)
-		{
-			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Wrap(void * Function)
-		{
-			this->wrapped_.Wrap(Function, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Unwrap()
-		{
-			this->wrapped_.Unwrap();
-			gHook = nullptr;
-		}
-
-		void ClearHooks()
-		{
-			preHook_ = PreHookFuncType();
-		}
-
-		void SetPreHook(PreHookFuncType hook)
-		{
-			preHook_ = hook;
-		}
-
-		inline R CallWithHooks(Params... Args) const
-		{
-			if (preHook_) {
-				preHook_(std::forward<Params>(Args)...);
-			}
-
-			return this->CallOriginal(std::forward<Params>(Args)...);
-		}
+		HookFuncType* hook_;
+		void* func_;
+		void* context_;
 
 		static R CallToTrampoline(Params... Args)
 		{
 			return gHook->CallWithHooks(std::forward<Params>(Args)...);
 		}
 
-	private:
-		PreHookFuncType preHook_;
-
-		static PreHookableFunction<Tag, R(Params...)> * gHook;
-	};
-
-	template <class Tag, class T>
-	class PostHookableFunction;
-
-	template <class Tag, class R, class... Params>
-	class PostHookableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
-	{
-	public:
-		using PostHookType = typename GetHookSignature<R, Params...>::Type;
-		using PostHookFuncType = std::function<PostHookType>;
-
-		void Wrap(HMODULE Module, char const * ProcName)
+		static R NoContextHook(void* ctx, BaseFuncType* fun, Params... args)
 		{
-			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
+			auto hook = reinterpret_cast<NoContextHookFuncType*>(gHook->func_);
+			return hook(fun, std::forward<Params>(args)...);
 		}
 
-		void Wrap(void * Function)
+		static R StaticPreHook(void* ctx, BaseFuncType* fun, Params... args)
 		{
-			this->wrapped_.Wrap(Function, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
+			auto hook = reinterpret_cast<PreHookFuncType*>(gHook->func_);
+			hook(ctx, std::forward<Params>(args)...);
+			return gHook->CallOriginal(std::forward<Params>(args)...);
 		}
 
-		void Unwrap()
+		static R StaticPostHook(void* ctx, BaseFuncType* fun, Params... args)
 		{
-			this->wrapped_.Unwrap();
-			gHook = nullptr;
-		}
-
-		void ClearHooks()
-		{
-			postHook_ = PostHookFuncType();
-		}
-
-		void SetPostHook(PostHookFuncType hook)
-		{
-			postHook_ = hook;
-		}
-
-		inline R CallWithHooks(Params... Args) const
-		{
-			if constexpr (std::is_same<void, R>::value) {
-				this->CallOriginal(std::forward<Params>(Args)...);
-
-				if (postHook_) {
-					postHook_(std::forward<Params>(Args)...);
-				}
+			auto hook = reinterpret_cast<PostHookFuncType*>(gHook->func_);
+			if constexpr (std::is_same_v<R, void>) {
+				gHook->CallOriginal(std::forward<Params>(args)...);
+				hook(ctx, std::forward<Params>(args)...);
 			} else {
-				auto retval = this->CallOriginal(std::forward<Params>(Args)...);
-
-				if (postHook_) {
-					postHook_(std::forward<Params>(Args)..., std::forward<decltype(retval)>(retval));
-				}
-
+				auto retval = gHook->CallOriginal(std::forward<Params>(args)...);
+				hook(ctx, std::forward<Params>(args)..., retval);
 				return retval;
 			}
 		}
-
-		static R CallToTrampoline(Params... Args)
-		{
-			return gHook->CallWithHooks(std::forward<Params>(Args)...);
-		}
-
-	private:
-		PostHookFuncType postHook_;
-
-		static PostHookableFunction<Tag, R(Params...)> * gHook;
-	};
-
-	template <class Tag, class T>
-	class HookableFunction;
-
-	template <class Tag, class R, class... Params>
-	class HookableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
-	{
-	public:
-		using PreHookType = void(Params...);
-		using PreHookFuncType = std::function<PreHookType>;
-
-		using PostHookType = typename GetHookSignature<R, Params...>::Type;
-		using PostHookFuncType = std::function<PostHookType>;
-
-		void Wrap(HMODULE Module, char const * ProcName)
-		{
-			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Wrap(void * Function)
-		{
-			this->wrapped_.Wrap(Function, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Unwrap()
-		{
-			this->wrapped_.Unwrap();
-			gHook = nullptr;
-		}
-
-		void ClearHooks()
-		{
-			preHooks_.clear();
-			postHooks_.clear();
-		}
-
-		void AddPreHook(PreHookFuncType hook)
-		{
-			preHooks_.push_back(hook);
-		}
-
-		void AddPostHook(PostHookFuncType hook)
-		{
-			postHooks_.push_back(hook);
-		}
-
-		inline R CallWithHooks(Params... Args) const
-		{
-			for (auto const & hook : preHooks_) {
-				hook(std::forward<Params>(Args)...);
-			}
-
-			if constexpr (std::is_same<void, R>::value) {
-				this->CallOriginal(std::forward<Params>(Args)...);
-
-				for (auto const & hook : postHooks_) {
-					hook(std::forward<Params>(Args)...);
-				}
-			}
-			else {
-				auto retval = this->CallOriginal(std::forward<Params>(Args)...);
-
-				for (auto const & hook : postHooks_) {
-					hook(std::forward<Params>(Args)..., std::forward<decltype(retval)>(retval));
-				}
-
-				return retval;
-			}
-		}
-
-		static R CallToTrampoline(Params... Args)
-		{
-			return gHook->CallWithHooks(std::forward<Params>(Args)...);
-		}
-
-	private:
-		std::vector<PreHookFuncType> preHooks_;
-		std::vector<PostHookFuncType> postHooks_;
-
-		static HookableFunction<Tag, R(Params...)> * gHook;
-	};
-
-	template <class Tag, class T>
-	class FastWrappableFunction;
-
-	template <class Tag, class R, class... Params>
-	class FastWrappableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
-	{
-	public:
-		using WrapperHookType = R(BaseWrappableFunction<Tag, R(Params...)>::FuncType *, Params...);
-		using WrapperHookFuncType = WrapperHookType*;
-
-		void Wrap(HMODULE Module, char const * ProcName)
-		{
-			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Wrap(void * Function)
-		{
-			this->wrapped_.Wrap(Function, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Unwrap()
-		{
-			this->wrapped_.Unwrap();
-			gHook = nullptr;
-		}
-
-		void SetWrapper(WrapperHookFuncType wrapper)
-		{
-			if (wrapperHook_ != nullptr) {
-				throw std::runtime_error("Function already wrapped");
-			}
-
-			wrapperHook_ = wrapper;
-		}
-
-		void ClearHook()
-		{
-			wrapperHook_ = nullptr;
-		}
-
-		inline bool IsHooked() const
-		{
-			return wrapperHook_ != nullptr;
-		}
-
-		inline R CallWithHooks(Params... Args) const
-		{
-			if (wrapperHook_) {
-				return wrapperHook_(this->wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
-			} else {
-				return this->CallOriginal(std::forward<Params>(Args)...);
-			}
-		}
-
-		static R CallToTrampoline(Params... Args)
-		{
-			return gHook->CallWithHooks(std::forward<Params>(Args)...);
-		}
-
-	private:
-		WrapperHookFuncType wrapperHook_;
-
-		static FastWrappableFunction<Tag, R(Params...)> * gHook;
-	};
-
-	template <class Tag, class T>
-	class WrappableFunction;
-
-	template <class Tag, class R, class... Params>
-	class WrappableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
-	{
-	public:
-		using WrapperHookType = R(BaseWrappableFunction<Tag, R(Params...)>::FuncType *, Params...);
-		using WrapperHookFuncType = std::function<WrapperHookType>;
-
-		void Wrap(HMODULE Module, char const * ProcName)
-		{
-			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Wrap(void * Function)
-		{
-			this->wrapped_.Wrap(Function, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Unwrap()
-		{
-			this->wrapped_.Unwrap();
-			gHook = nullptr;
-		}
-
-		void SetWrapper(WrapperHookFuncType wrapper)
-		{
-			if (wrapperHook_ != nullptr) {
-				throw std::runtime_error("Function already wrapped");
-			}
-
-			wrapperHook_ = wrapper;
-		}
-
-		void ClearHook()
-		{
-			wrapperHook_ = decltype(wrapperHook_)();
-		}
-
-		inline bool IsHooked() const
-		{
-			return (bool)wrapperHook_;
-		}
-
-		inline R CallWithHooks(Params... Args) const
-		{
-			if (wrapperHook_) {
-				return wrapperHook_(this->wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
-			} else {
-				return this->CallOriginal(std::forward<Params>(Args)...);
-			}
-		}
-
-		static R CallToTrampoline(Params... Args)
-		{
-			return gHook->CallWithHooks(std::forward<Params>(Args)...);
-		}
-
-	private:
-		WrapperHookFuncType wrapperHook_;
 
 		static WrappableFunction<Tag, R(Params...)> * gHook;
-	};
-
-	template <class Tag, class T>
-	class MultiWrappableFunction;
-
-	template <class Tag, class R, class... Params>
-	class MultiWrappableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
-	{
-	public:
-		using WrapperHookType = R(std::function<typename BaseWrappableFunction<Tag, R(Params...)>::FuncType> const &, Params...);
-		using WrapperHookFuncType = std::function<WrapperHookType>;
-
-		void Wrap(HMODULE Module, char const * ProcName)
-		{
-			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Wrap(void * Function)
-		{
-			this->wrapped_.Wrap(Function, &CallToTrampoline);
-
-			if (gHook != nullptr) {
-				Fail("Hook already registered");
-			}
-
-			gHook = this;
-		}
-
-		void Unwrap()
-		{
-			this->wrapped_.Unwrap();
-			gHook = nullptr;
-		}
-
-		void AddWrapper(WrapperHookFuncType wrapper)
-		{
-			auto nextHookIndex = (unsigned)wrapperHooks_.size() + 1;
-			wrapperHooks_.push_back({
-				wrapper,
-				[=](Params... Args) {
-					return this->CallWrapper(nextHookIndex, std::forward<Params>(Args)...);
-				}
-			});
-		}
-
-		inline R CallWithHooks(Params... Args) const
-		{
-			return CallWrapper(0, std::forward<Params>(Args)...);
-		}
-
-		inline R CallOriginal(Params... Args) const
-		{
-			return this->wrapped_(std::forward<Params>(Args)...);
-		}
-
-	private:
-		struct WrapperHookInfo
-		{
-			WrapperHookFuncType hook;
-			std::function<typename BaseWrappableFunction<Tag, R(Params...)>::FuncType> forwarder;
-		};
-
-		std::vector<WrapperHookInfo> wrapperHooks_;
-
-		static MultiWrappableFunction<Tag, R(Params...)> * gHook;
-
-		inline R CallWrapper(unsigned WrapperHookNum, Params... Args) const
-		{
-			if (WrapperHookNum < wrapperHooks_.size()) {
-				auto const & hook = wrapperHooks_[WrapperHookNum];
-				return hook.hook(std::ref(hook.forwarder), std::forward<Params>(Args)...);
-			} else {
-				return this->wrapped_(std::forward<Params>(Args)...);
-			}
-		}
-
-		static R CallToTrampoline(Params... Args)
-		{
-			return gHook->CallWithHooks(std::forward<Params>(Args)...);
-		}
 	};
 }

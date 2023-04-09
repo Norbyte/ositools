@@ -4,12 +4,9 @@ BEGIN_NS(ecl)
 
 void StatusHelpers::PostStartup()
 {
-	using namespace std::placeholders;
 	auto& lib = gExtender->GetEngineHooks();
 
-	lib.ecl__StatusMachine__ExitStatus.SetWrapper(
-		std::bind(&StatusHelpers::OnStatusMachineExit, this, _1, _2, _3)
-	);
+	lib.ecl__StatusMachine__ExitStatus.SetWrapper(&StatusHelpers::OnStatusMachineExit, this);
 }
 
 void StatusHelpers::OnStatusMachineExit(StatusMachine::ExitStatusProc* wrapped,

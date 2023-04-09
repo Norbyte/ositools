@@ -58,7 +58,7 @@ private:
 
 	bool OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped, StatusMachine* self, 
 		Status* status);
-	void OnStatusMachineUpdate(StatusMachine* self, GameTime* time);
+	void OnStatusMachineUpdate(StatusMachine::UpdateProc* wrapped, StatusMachine* self, GameTime* time);
 	bool OnStatusMachineDeleteStatusByHandle(StatusMachine::DeleteStatusByHandleProc* wrapped, StatusMachine* self,
 		ComponentHandle const& handle);
 	void OnStatusMachineExit(StatusMachine::ExitStatusProc* wrapped, StatusMachine* self, 

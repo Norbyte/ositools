@@ -25,7 +25,7 @@ public:
 
 	bool OnOsiShowNotification(osi::OsirisCallHandlerProc* wrappedHandler, void* proc, osi::ExecutionContext* ctx);
 
-	static esv::Projectile* OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, esv::ShootProjectileHelper* helper);
+	esv::Projectile* OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, esv::ShootProjectileHelper* helper);
 	void OnProjectileExplode(esv::Projectile* projectile);
 	void OnActionMachineSetState(ActionMachineBase<esv::ActionState>* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer, bool succeeded);
 	void OnBeforeActionMachineSetState(ActionMachineBase<esv::ActionState>* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);

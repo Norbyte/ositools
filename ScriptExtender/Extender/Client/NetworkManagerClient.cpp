@@ -140,17 +140,16 @@ void NetworkManager::ExtendNetworking()
 
 void NetworkManager::HookMessages(net::MessageFactory * messageFactory)
 {
-	using namespace std::placeholders;
+	if (wasHooked_) return;
 
 	// FIXME - should separate from Osi!
 	gExtender->GetServer().Osiris().GetWrappers().InitializeNetworking(messageFactory);
 
 	auto& connectMsg = gExtender->GetServer().Osiris().GetWrappers().eocnet__ClientConnectMessage__Serialize;
 	auto& acceptMsg = gExtender->GetServer().Osiris().GetWrappers().eocnet__ClientAcceptMessage__Serialize;
-	connectMsg.ClearHooks();
-	connectMsg.SetPostHook(std::bind(&NetworkManager::OnConnectMessage, this, _1, _2));
-	acceptMsg.ClearHooks();
-	acceptMsg.SetPostHook(std::bind(&NetworkManager::OnAcceptMessage, this, _1, _2));
+	connectMsg.SetPostHook(&NetworkManager::OnConnectMessage, this);
+	acceptMsg.SetPostHook(&NetworkManager::OnAcceptMessage, this);
+	wasHooked_ = true;
 }
 
 net::Client * NetworkManager::GetClient() const

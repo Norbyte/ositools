@@ -32,17 +32,16 @@ void OsirisExtender::Initialize()
 
 	wrappers_.Initialize();
 
-	using namespace std::placeholders;
-	wrappers_.RegisterDivFunctions.AddPreHook(std::bind(&OsirisExtender::OnRegisterDIVFunctions, this, _1, _2));
-	wrappers_.InitGame.SetPreHook(std::bind(&OsirisExtender::OnInitGame, this, _1));
-	wrappers_.DeleteAllData.SetPreHook(std::bind(&OsirisExtender::OnDeleteAllData, this, _1, _2));
-	wrappers_.Error.SetPreHook(std::bind(&OsirisExtender::OnError, this, _1));
-	wrappers_.Assert.SetPreHook(std::bind(&OsirisExtender::OnAssert, this, _1, _2, _3));
-	wrappers_.Compile.SetWrapper(std::bind(&OsirisExtender::CompileWrapper, this, _1, _2, _3, _4));
-	wrappers_.Load.AddPostHook(std::bind(&OsirisExtender::OnAfterOsirisLoad, this, _1, _2, _3));
-	wrappers_.Merge.SetWrapper(std::bind(&OsirisExtender::MergeWrapper, this, _1, _2, _3));
+	wrappers_.RegisterDivFunctions.SetPreHook(&OsirisExtender::OnRegisterDIVFunctions, this);
+	wrappers_.InitGame.SetPreHook(&OsirisExtender::OnInitGame, this);
+	wrappers_.DeleteAllData.SetPreHook(&OsirisExtender::OnDeleteAllData, this);
+	wrappers_.Error.SetPreHook(&OsirisExtender::OnError, this);
+	wrappers_.Assert.SetPreHook(&OsirisExtender::OnAssert, this);
+	wrappers_.Compile.SetWrapper(&OsirisExtender::CompileWrapper, this);
+	wrappers_.Load.SetPostHook(&OsirisExtender::OnAfterOsirisLoad, this);
+	wrappers_.Merge.SetWrapper(&OsirisExtender::MergeWrapper, this);
 #if !defined(OSI_NO_DEBUGGER)
-	wrappers_.RuleActionCall.SetWrapper(std::bind(&OsirisExtender::RuleActionCall, this, _1, _2, _3, _4, _5, _6));
+	wrappers_.RuleActionCall.SetWrapper(&OsirisExtender::RuleActionCall, this);
 #endif
 
 	injector_.Initialize();
@@ -134,6 +133,8 @@ void OsirisExtender::RestartLogging(std::wstring const & Type)
 
 void OsirisExtender::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions)
 {
+	wrappers_.RegisterDIVFunctionsPreHook(Osiris, Functions);
+
 	storyLoaded_ = false;
 	dynamicGlobals_.OsirisObject = Osiris;
 	uint8_t * interfaceLoadPtr = nullptr;
@@ -224,7 +225,7 @@ void OsirisExtender::OnAssert(bool Successful, char const * Message, bool Unknow
 	}
 }
 
-bool OsirisExtender::CompileWrapper(std::function<bool(void *, wchar_t const *, wchar_t const *)> const & Next, void * Osiris, wchar_t const * Path, wchar_t const * Mode)
+bool OsirisExtender::CompileWrapper(bool (* next)(void *, wchar_t const *, wchar_t const *), void * Osiris, wchar_t const * Path, wchar_t const * Mode)
 {
 	DEBUG(L"OsirisExtender::CompileWrapper: Starting compilation of '%s'", Path);
 	auto OriginalFlags = *wrappers_.Globals.DebugFlags;
@@ -247,7 +248,7 @@ bool OsirisExtender::CompileWrapper(std::function<bool(void *, wchar_t const *, 
 	}
 
 	gExtender->GetClient().UpdateServerProgress(L"Compile Story");
-	auto ret = Next(Osiris, Path, Mode);
+	auto ret = next(Osiris, Path, Mode);
 
 	if (ret) {
 		DEBUG("ScriptExtender::CompileWrapper: Success.");
@@ -297,7 +298,7 @@ void OsirisExtender::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 	}
 }
 
-bool OsirisExtender::MergeWrapper(std::function<bool (void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src)
+bool OsirisExtender::MergeWrapper(bool (*next)(void*, wchar_t*), void * Osiris, wchar_t * Src)
 {
 	DEBUG("ScriptExtender::MergeWrapper() - Started merge");
 
@@ -316,7 +317,7 @@ bool OsirisExtender::MergeWrapper(std::function<bool (void *, wchar_t *)> const 
 	}
 #endif
 
-	bool retval = Next(Osiris, Src);
+	bool retval = next(Osiris, Src);
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
@@ -332,7 +333,7 @@ bool OsirisExtender::MergeWrapper(std::function<bool (void *, wchar_t *)> const 
 	return retval;
 }
 
-void OsirisExtender::RuleActionCall(std::function<void (RuleActionNode *, void *, void *, void *, void *)> const & Next, RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
+void OsirisExtender::RuleActionCall(void (*next)(RuleActionNode*, void*, void*, void*, void*), RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
 {
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
@@ -340,7 +341,7 @@ void OsirisExtender::RuleActionCall(std::function<void (RuleActionNode *, void *
 	}
 #endif
 
-	Next(Action, a1, a2, a3, a4);
+	next(Action, a1, a2, a3, a4);
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {

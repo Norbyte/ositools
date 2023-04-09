@@ -71,9 +71,9 @@ public:
 	enum class GameStateWorkerStartTag {};
 	enum class GameStateMachineUpdateTag {};
 	enum class GameStateChangedEventTag {};
-	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
-	HookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
-	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
+	WrappableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
+	WrappableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
+	WrappableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
 
 private:
 	OsirisExtender osiris_;
@@ -88,8 +88,7 @@ private:
 
 	void OnBaseModuleLoaded(void * self);
 	void OnGameStateChanged(void * self, GameState fromState, GameState toState);
-	void OnGameStateWorkerStart(void * self);
-	void OnGameStateWorkerExit(void* self);
+	void OnGameStateWorkerRun(void (*wrapped)(void*), void* self);
 	void OnUpdate(void* self, GameTime* time);
 };
 

@@ -209,30 +209,14 @@ namespace dse::esv
 			return;
 		}
 
-		using namespace std::placeholders;
-
 		auto& hooks = osiris_.GetEngineHooks();
-		hooks.esv__StatusHit__Setup.SetPreHook(
-			std::bind(&HitProxy::OnStatusHitSetup, this, _1, _2)
-		);
-		hooks.esv__StatusHit__Enter.SetPreHook(
-			std::bind(&HitProxy::OnStatusHitEnter, this, _1)
-		);
-		hooks.esv__Character_Hit.SetWrapper(
-			std::bind(&HitProxy::OnCharacterHit, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
-		);
-		hooks.CDivinityStats_Character__HitInternal.SetWrapper(
-			std::bind(&HitProxy::OnCharacterHitInternal, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
-		);
-		hooks.esv__Character_ApplyDamageHook.SetWrapper(
-			std::bind(&HitProxy::OnCharacterApplyDamage, this, _1, _2, _3, _4, _5, _6)
-		);
-		hooks.esv__StatusMachine__ApplyStatus.SetWrapper(
-			std::bind(&HitProxy::OnApplyStatus, this, _1, _2, _3)
-		);
-		hooks.SkillPrototype__GetSkillDamage.SetWrapper(
-			std::bind(&HitProxy::OnGetSkillDamage, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
-		);
+		hooks.esv__StatusHit__Setup.SetPreHook(&HitProxy::OnStatusHitSetup, this);
+		hooks.esv__StatusHit__Enter.SetPreHook(&HitProxy::OnStatusHitEnter, this);
+		hooks.esv__Character_Hit.SetWrapper(&HitProxy::OnCharacterHit, this);
+		hooks.CDivinityStats_Character__HitInternal.SetWrapper(&HitProxy::OnCharacterHitInternal, this);
+		hooks.esv__Character_ApplyDamageHook.SetWrapper(&HitProxy::OnCharacterApplyDamage, this);
+		hooks.esv__StatusMachine__ApplyStatus.SetWrapper(&HitProxy::OnApplyStatus, this);
+		hooks.SkillPrototype__GetSkillDamage.SetWrapper(&HitProxy::OnGetSkillDamage, this);
 
 		PostLoaded = true;
 	}

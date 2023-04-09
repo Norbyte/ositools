@@ -10,8 +10,8 @@ BEGIN_SE()
 class EngineHooks
 {
 public:
-#define HOOK_DEFN(name, sym, defn, hookType) enum class name##Tag {}; \
-hookType<name##Tag, defn> name;
+#define HOOK_DEFN(name, sym, defn) enum class name##Tag {}; \
+	WrappableFunction<name##Tag, defn> name;
 #include <GameHooks/EngineHooks.inl>
 #undef HOOK_DEFN
 

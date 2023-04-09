@@ -86,14 +86,12 @@ void ScriptExtender::Initialize()
 
 	// FIXME - SEPARATE FROM OSI!
 	auto& Wrappers = gExtender->GetServer().Osiris().GetWrappers();
-	using namespace std::placeholders;
 	// Wrap state change functions even if extension startup failed, otherwise
 	// we won't be able to show any startup errors
 	Wrappers.InitializeExtensions();
-	Wrappers.InitNetworkFixedStrings.SetPostHook(std::bind(&ScriptExtender::OnInitNetworkFixedStrings, this, _1, _2));
-	Wrappers.SkillPrototypeManagerInit.SetPreHook(std::bind(&ScriptExtender::OnSkillPrototypeManagerInit, this, _1));
-	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(std::bind(&ScriptExtender::OnSavegameVisit, this, _1, _2));
-	//Wrappers.TranslatedStringRepository__UnloadOverrides.SetPreHook(std::bind(&ScriptExtender::OnModuleLoadStarted, this, _1));
+	Wrappers.InitNetworkFixedStrings.SetPostHook(&ScriptExtender::OnInitNetworkFixedStrings, this);
+	Wrappers.SkillPrototypeManagerInit.SetPreHook(&ScriptExtender::OnSkillPrototypeManagerInit, this);
+	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(&ScriptExtender::OnSavegameVisit, this);
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (config_.EnableLuaDebugger && luaDebuggerThread_ == nullptr) {
@@ -236,7 +234,7 @@ void ScriptExtender::OnInitNetworkFixedStrings(eoc::NetworkFixedStrings * self, 
 	}
 }
 
-void ScriptExtender::OnStatsLoadStarted(stats::RPGStats* mgr)
+void ScriptExtender::OnStatsLoad(stats::RPGStats::LoadProc* wrapped, stats::RPGStats* mgr, ObjectSet<STDString>* paths)
 {
 	statLoadOrderHelper_.OnLoadStarted();
 
@@ -245,10 +243,9 @@ void ScriptExtender::OnStatsLoadStarted(stats::RPGStats* mgr)
 	} else if (server_.IsInServerThread()) {
 		server_.LoadExtensionState(ExtensionStateContext::Load);
 	}
-}
 
-void ScriptExtender::OnStatsLoadFinished(stats::RPGStats* mgr)
-{
+	wrapped(mgr, paths);
+
 	statLoadOrderHelper_.OnLoadFinished();
 	if (client_.IsInClientThread()) {
 		client_.LoadExtensionState(ExtensionStateContext::Game);
@@ -416,11 +413,8 @@ void ScriptExtender::PostStartup()
 			ERR("Failed to load Lua builtin resource bundle!");
 		}
 
-		using namespace std::placeholders;
-		engineHooks_.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
-
-		engineHooks_.RPGStats__Load.AddPreHook(std::bind(&ScriptExtender::OnStatsLoadStarted, this, _1));
-		engineHooks_.RPGStats__Load.AddPostHook(std::bind(&ScriptExtender::OnStatsLoadFinished, this, _1));
+		engineHooks_.FileReader__ctor.SetWrapper(&ScriptExtender::OnFileReaderCreate, this);
+		engineHooks_.RPGStats__Load.SetWrapper(&ScriptExtender::OnStatsLoad, this);
 	}
 
 	GameVersionInfo gameVersion;

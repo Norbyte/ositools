@@ -6,10 +6,7 @@ __declspec(thread) unsigned ModuleHasher::hashDepth_{ 0 };
 
 void ModuleHasher::PostStartup()
 {
-	using namespace std::placeholders;
-	gExtender->GetEngineHooks().Module__Hash.SetWrapper(
-		std::bind(&ModuleHasher::OnModuleHash, this, _1, _2)
-	);
+	gExtender->GetEngineHooks().Module__Hash.SetWrapper(&ModuleHasher::OnModuleHash, this);
 }
 
 void ModuleHasher::ClearCaches()

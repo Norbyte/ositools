@@ -33,6 +33,7 @@ private:
 	// Indicates that the client can support extender messages to the server
 	// (i.e. the server supports the message ID and won't crash)
 	bool extenderSupport_{ false };
+	bool wasHooked_{ false };
 
 	net::Client* GetClient() const;
 

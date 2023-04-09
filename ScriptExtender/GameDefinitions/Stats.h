@@ -1325,10 +1325,10 @@ struct ItemColorDefinition
 
 struct RPGStats : public ProtectedGameObject<RPGStats>
 {
-	typedef void (LoadProc)(RPGStats* self, ObjectSet<STDString>* paths);
-	typedef PropertyData* (ParsePropertiesProc)(RPGStats* self, STDString* str);
-	typedef void (ParseStructureFolderProc)(RPGStats* self, ObjectSet<STDString>* paths);
-	typedef Item* (GetItemLeveledBaseStatProc)(RPGStats* self, int level, FixedString const& statsId);
+	using LoadProc = void (RPGStats* self, ObjectSet<STDString>* paths);
+	using ParsePropertiesProc = PropertyData* (RPGStats* self, STDString* str);
+	using ParseStructureFolderProc = void (RPGStats* self, ObjectSet<STDString>* paths);
+	using GetItemLeveledBaseStatProc = Item* (RPGStats* self, int level, FixedString const& statsId);
 
 	NamedElementManager<ValueList> ModifierValueLists;
 	NamedElementManager<ModifierList> ModifierLists;

@@ -18,196 +18,82 @@ void Hooks::Startup()
 		return;
 	}
 
-	using namespace std::placeholders;
 	auto& lib = gExtender->GetEngineHooks();
 	// CreateUIObject always enabled for main menu version display
-	lib.UIObjectManager__CreateUIObject.SetPostHook(
-		std::bind(&Hooks::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)
-	);
+	lib.UIObjectManager__CreateUIObject.SetPostHook(&Hooks::OnCreateUIObject, this);
 
-	lib.esv__ActionMachine__SetState.AddPreHook(
-		std::bind(&Hooks::OnBeforeActionMachineSetState, this, _1, _2, _3, _4, _5, _6)
-	);
-	lib.esv__ActionMachine__SetState.AddPostHook(
-		std::bind(&Hooks::OnActionMachineSetState, this, _1, _2, _3, _4, _5, _6, _7)
-	);
-	lib.esv__ActionMachine__ResetState.SetPreHook(
-		std::bind(&Hooks::OnActionMachineResetState, this, _1, _2)
-	);
-	lib.esv__ProjectileHelpers__ShootProjectile.SetWrapper(
-		std::bind(&Hooks::OnShootProjectile, _1, _2)
-	);
-	lib.esv__Projectile__Explode.SetPreHook(
-		std::bind(&Hooks::OnProjectileExplode, this, _1)
-	);
+	lib.esv__ActionMachine__SetState.SetPostHook(&Hooks::OnActionMachineSetState, this);
+	lib.esv__ActionMachine__ResetState.SetPreHook(&Hooks::OnActionMachineResetState, this);
+	lib.esv__ProjectileHelpers__ShootProjectile.SetWrapper(&Hooks::OnShootProjectile, this);
+	lib.esv__Projectile__Explode.SetPreHook(&Hooks::OnProjectileExplode, this);
 
-	lib.RPGStats__ParseStructureFolder.SetPostHook(
-		std::bind(&Hooks::OnParseStructureFolder, this, _1, _2)
-	);
-	lib.RPGStats__ParseProperties.SetWrapper(
-		std::bind(&Hooks::OnParseSkillProperties, this, _1, _2, _3)
-	);
-	lib.SkillPrototype__FormatDescriptionParam.SetWrapper(
-		std::bind(&Hooks::OnSkillFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
-	);
+	lib.RPGStats__ParseStructureFolder.SetPostHook(&Hooks::OnParseStructureFolder, this);
+	lib.RPGStats__ParseProperties.SetWrapper(&Hooks::OnParseSkillProperties, this);
+	lib.SkillPrototype__FormatDescriptionParam.SetWrapper(&Hooks::OnSkillFormatDescriptionParam, this);
 #if defined(OSI_EOCAPP)
-	lib.SkillPrototype__GetAttackAPCost.SetWrapper(
-		std::bind(&Hooks::OnGetSkillAPCost, this, _1, _2, _3, _4, _5, _6, _7)
-	);
+	lib.SkillPrototype__GetAttackAPCost.SetWrapper(&Hooks::OnGetSkillAPCost, this);
 #else
-	lib.SkillPrototype__GetAttackAPCost.SetWrapper(
-		std::bind(&Hooks::OnGetSkillAPCost, this, _1, _2, _3, _4, _5, _6, _7, _8)
-	);
+	lib.SkillPrototype__GetAttackAPCost.SetWrapper(&Hooks::OnGetSkillAPCost, this);
 #endif
-	lib.StatusPrototype__FormatDescriptionParam.SetWrapper(
-		std::bind(&Hooks::OnStatusFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
-	);
-	lib.esv__TurnManager__UpdateTurnOrder.SetPostHook(
-		std::bind(&Hooks::OnUpdateTurnOrder, this, _1, _2)
-	);
-	lib.esv__ItemHelpers__GenerateTreasureItem.SetWrapper(
-		std::bind(&Hooks::OnGenerateTreasureItem, this, _1, _2, _3)
-	);
-	lib.esv__CombineManager__ExecuteCombination.SetWrapper(
-		std::bind(&Hooks::OnCraftingExecuteCombination, this, _1, _2, _3, _4, _5, _6, _7, _8)
-	);
-	lib.esv__ExecutePropertyDataOnGroundHit.SetPostHook(
-		std::bind(&Hooks::OnExecutePropertyDataOnGroundHit, this, _1, _2, _3, _4, _5)
-	);
-	lib.esv__ExecutePropertyDataOnPositionOnly.SetPostHook(
-		std::bind(&Hooks::OnExecutePropertyDataOnPositionOnly, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
-	);
-	lib.esv__ExecuteCharacterSetExtraProperties.SetPostHook(
-		std::bind(&Hooks::OnExecuteCharacterSetExtraProperties, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
-	);
-	lib.esv__AiHelpers__SortActions.SetWrapper(
-		std::bind(&Hooks::OnSortAiActions, this, _1, _2)
-	);
-	lib.esv__AiHelpers__PeekAction.SetPreHook(
-		std::bind(&Hooks::OnPeekAiAction, this, _1, _2, _3, _4)
-	);
-	GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
-		std::bind(&Hooks::OnGetHitChance, this, _1, _2, _3)
-	);
-	lib.esv__LoadProtocol__HandleModuleLoaded.SetWrapper(
-		std::bind(&Hooks::OnPeerModuleLoaded, this, _1, _2, _3, _4)
-	);
-	lib.App__OnInputEvent.SetPreHook(
-		std::bind(&Hooks::OnAppInputEvent, this, _1, _2, _3)
-	);
-	lib.ecl__InventoryProtocol__PostUpdate.SetWrapper(
-		std::bind(&Hooks::OnInventoryProtocolPostUpdate, this, _1, _2)
-	);
-	lib.ls__InputManager__InjectInput.SetPreHook(
-		std::bind(&Hooks::OnInjectInput, this, _1, _2)
-	);
-	lib.ecl__EquipmentVisualsSystem__CreateVisuals.SetWrapper(
-		std::bind(&Hooks::OnCreateEquipmentVisuals, this, _1, _2, _3, _4)
-	);
+	lib.StatusPrototype__FormatDescriptionParam.SetWrapper(&Hooks::OnStatusFormatDescriptionParam, this);
+	lib.esv__TurnManager__UpdateTurnOrder.SetPostHook(&Hooks::OnUpdateTurnOrder, this);
+	lib.esv__ItemHelpers__GenerateTreasureItem.SetWrapper(&Hooks::OnGenerateTreasureItem, this);
+	lib.esv__CombineManager__ExecuteCombination.SetWrapper(&Hooks::OnCraftingExecuteCombination, this);
+	lib.esv__ExecutePropertyDataOnGroundHit.SetPostHook(&Hooks::OnExecutePropertyDataOnGroundHit, this);
+	lib.esv__ExecutePropertyDataOnPositionOnly.SetPostHook(&Hooks::OnExecutePropertyDataOnPositionOnly, this);
+	lib.esv__ExecuteCharacterSetExtraProperties.SetPostHook(&Hooks::OnExecuteCharacterSetExtraProperties, this);
+	lib.esv__AiHelpers__SortActions.SetWrapper(&Hooks::OnSortAiActions, this);
+	lib.esv__AiHelpers__PeekAction.SetPreHook(&Hooks::OnPeekAiAction, this);
+	GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(&Hooks::OnGetHitChance, this);
+	lib.esv__LoadProtocol__HandleModuleLoaded.SetWrapper(&Hooks::OnPeerModuleLoaded, this);
+	lib.App__OnInputEvent.SetPreHook(&Hooks::OnAppInputEvent, this);
+	lib.ecl__InventoryProtocol__PostUpdate.SetWrapper(&Hooks::OnInventoryProtocolPostUpdate, this);
+	lib.ls__InputManager__InjectInput.SetPreHook(&Hooks::OnInjectInput, this);
+	lib.ecl__EquipmentVisualsSystem__CreateVisuals.SetWrapper(&Hooks::OnCreateEquipmentVisuals, this);
 #if defined(OSI_EOCAPP)
-	lib.osi__ShowNotification.SetWrapper(
-		std::bind(&Hooks::OnOsiShowNotification, this, _1, _2, _3)
-	);
+	lib.osi__ShowNotification.SetWrapper(&Hooks::OnOsiShowNotification, this);
 #endif
-	lib.CDivinityStats_Character__GetAttackAPCost.SetWrapper(
-		std::bind(&Hooks::OnGetAttackAPCost, this, _1, _2)
-	);
+	lib.CDivinityStats_Character__GetAttackAPCost.SetWrapper(&Hooks::OnGetAttackAPCost, this);
 
-	lib.CheckRequirement1.SetWrapper(
-		std::bind(&Hooks::OnCheckRequirement, this, _1, _2, _3, _4, _5, _6, _7, _8)
-	);
-	lib.CheckRequirement2.SetWrapper(
-		std::bind(&Hooks::OnCheckRequirement, this, _1, _2, _3, _4, _5, _6, _7, _8)
-	);
-	lib.RequirementToTranslatedString.SetWrapper(
-		std::bind(&Hooks::OnRequirementToTranslatedString, this, _1, _2, _3, _4)
-	);
-	lib.StringToRequirement.SetWrapper(
-		std::bind(&Hooks::OnStringToRequirement, this, _1, _2)
-	);
+	lib.CheckRequirement1.SetWrapper(&Hooks::OnCheckRequirement, this);
+	lib.CheckRequirement2.SetWrapper(&Hooks::OnCheckRequirement, this);
+	lib.RequirementToTranslatedString.SetWrapper(&Hooks::OnRequirementToTranslatedString, this);
+	lib.StringToRequirement.SetWrapper(&Hooks::OnStringToRequirement, this);
 #if defined(OSI_EOCAPP)
-	lib.CDivinityStats_Character__ReevaluateRequirements.SetWrapper(
-		std::bind(&Hooks::OnReevaluateRequirements, this, _1, _2, _3, _4)
-	);
+	lib.CDivinityStats_Character__ReevaluateRequirements.SetWrapper(&Hooks::OnReevaluateRequirements, this);
 #else
-	lib.CDivinityStats_Character__ReevaluateRequirements.SetWrapper(
-		std::bind(&Hooks::OnReevaluateRequirements, this, _1, _2, _3, _4, _5)
-	);
+	lib.CDivinityStats_Character__ReevaluateRequirements.SetWrapper(&Hooks::OnReevaluateRequirements, this);
 #endif
-	lib.ecl__Item__SetupDescriptionToFlash.SetWrapper(
-		std::bind(&Hooks::OnItemSetupDescriptionToFlash, this, _1, _2, _3, _4, _5, _6, _7, _8)
-	);
-	lib.esv__Character__CheckSkillRequirements.SetWrapper(
-		std::bind(&Hooks::OnServerCharacterCheckSkillRequirements, this, _1, _2, _3, _4, _5, _6)
-	);
-	lib.ecl__Character__CheckSkillRequirements.SetWrapper(
-		std::bind(&Hooks::OnClientCharacterCheckSkillRequirements, this, _1, _2, _3, _4)
-	);
-	lib.GetSkillRequirements.SetWrapper(
-		std::bind(&Hooks::OnGetSkillRequirements, this, _1, _2, _3, _4, _5, _6)
-	);
-	lib.esv__SkillManager__CanMemorize.SetWrapper(
-		std::bind(&Hooks::OnSkillManagerCanMemorize, this, _1, _2, _3, _4)
-	);
-	lib.ecl__SkillManager__CheckSkillRequirements.SetWrapper(
-		std::bind(&Hooks::OnSkillManagerCheckSkillRequirements, this, _1, _2, _3)
-	);
+	lib.ecl__Item__SetupDescriptionToFlash.SetWrapper(&Hooks::OnItemSetupDescriptionToFlash, this);
+	lib.esv__Character__CheckSkillRequirements.SetWrapper(&Hooks::OnServerCharacterCheckSkillRequirements, this);
+	lib.ecl__Character__CheckSkillRequirements.SetWrapper(&Hooks::OnClientCharacterCheckSkillRequirements, this);
+	lib.GetSkillRequirements.SetWrapper(&Hooks::OnGetSkillRequirements, this);
+	lib.esv__SkillManager__CanMemorize.SetWrapper(&Hooks::OnSkillManagerCanMemorize, this);
+	lib.ecl__SkillManager__CheckSkillRequirements.SetWrapper(&Hooks::OnSkillManagerCheckSkillRequirements, this);
 
 	auto ccr = &gExtender->GetCustomConditionRegistry();
-	lib.esv__ServerConditionCheck__ProcessCondition.SetWrapper(
-		std::bind(&CustomConditionRegistry::ServerConditionCheckProcess, ccr, _1, _2, _3, _4)
-	);
-	lib.ecl__ClientConditionCheck__ProcessCondition.SetWrapper(
-		std::bind(&CustomConditionRegistry::ClientConditionCheckProcess, ccr, _1, _2, _3, _4)
-	);
+	lib.esv__ServerConditionCheck__ProcessCondition.SetWrapper(&CustomConditionRegistry::ServerConditionCheckProcess, ccr);
+	lib.ecl__ClientConditionCheck__ProcessCondition.SetWrapper(&CustomConditionRegistry::ClientConditionCheckProcess, ccr);
 
 	auto cdt = &gExtender->GetCustomDamageTypes();
-	lib.eoc__GetDamageType.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetDamageType, cdt, _1, _2)
-	);
-	lib.eoc__GetDamageTypeString.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetDamageTypeString, cdt, _1, _2)
-	);
-	lib.eoc__DamageTypeToTranslateString.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::DamageTypeToTranslateString, cdt, _1, _2, _3)
-	);
-	lib.eoc__DamageDescriptionToTranslateString.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::DamageDescriptionToTranslateString, cdt, _1, _2, _3)
-	);
-	lib.eoc__DamageTypeToTranslateStringExtended.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::DamageTypeToTranslateStringExtended, cdt, _1, _2, _3)
-	);
-	lib.fmt__GetColorCodeDmg.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetColorCodeDmg, cdt, _1, _2)
-	);
-	lib.fmt__ColorCodeAndTypeDmg.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetColorCodeAndTypeDmg, cdt, _1, _2, _3, _4, _5)
-	);
+	lib.eoc__GetDamageType.SetWrapper(&CustomDamageTypeHelpers::GetDamageType, cdt);
+	lib.eoc__GetDamageTypeString.SetWrapper(&CustomDamageTypeHelpers::GetDamageTypeString, cdt);
+	lib.eoc__DamageTypeToTranslateString.SetWrapper(&CustomDamageTypeHelpers::DamageTypeToTranslateString, cdt);
+	lib.eoc__DamageDescriptionToTranslateString.SetWrapper(&CustomDamageTypeHelpers::DamageDescriptionToTranslateString, cdt);
+	lib.eoc__DamageTypeToTranslateStringExtended.SetWrapper(&CustomDamageTypeHelpers::DamageTypeToTranslateStringExtended, cdt);
+	lib.fmt__GetColorCodeDmg.SetWrapper(&CustomDamageTypeHelpers::GetColorCodeDmg, cdt);
+	lib.fmt__ColorCodeAndTypeDmg.SetWrapper(&CustomDamageTypeHelpers::GetColorCodeAndTypeDmg, cdt);
 #if defined(OSI_EOCAPP)
-	lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt, _1, _2, _3, _4, _5)
-	);
-	lib.CDivinityStats_Character__GetResistance.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetResistance, cdt, _1, _2, _3, _4)
-	);
-	lib.CDivinityStats_Character__GetDamageBoostByType.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetDamageBoostByType, cdt, _1, _2, _3)
-	);
+	lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt);
+	lib.CDivinityStats_Character__GetResistance.SetWrapper(&CustomDamageTypeHelpers::GetResistance, cdt);
+	lib.CDivinityStats_Character__GetDamageBoostByType.SetWrapper(&CustomDamageTypeHelpers::GetDamageBoostByType, cdt);
 #else
-	lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt, _1, _2, _3, _4, _5, _6)
-	);
-	lib.CDivinityStats_Character__GetResistance.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetResistance, cdt, _1, _2, _3, _4, _5)
-	);
-	lib.CDivinityStats_Character__GetDamageBoostByType.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::GetDamageBoostByType, cdt, _1, _2, _3, _4)
-	);
+	lib.CDivinityStats_Character__ComputeScaledDamage.SetWrapper(&CustomDamageTypeHelpers::ComputeScaledDamage, cdt);
+	lib.CDivinityStats_Character__GetResistance.SetWrapper(&CustomDamageTypeHelpers::GetResistance, cdt);
+	lib.CDivinityStats_Character__GetDamageBoostByType.SetWrapper(&CustomDamageTypeHelpers::GetDamageBoostByType, cdt);
 #endif
 
-	lib.CDivinityStats_Item__ComputeDamage.SetWrapper(
-		std::bind(&CustomDamageTypeHelpers::ComputeItemDamage, cdt, _1, _2, _3, _4)
-	);
+	lib.CDivinityStats_Item__ComputeDamage.SetWrapper(&CustomDamageTypeHelpers::ComputeItemDamage, cdt);
 
 	loaded_ = true;
 }

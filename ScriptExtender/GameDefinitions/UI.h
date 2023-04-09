@@ -575,7 +575,7 @@ namespace dse
 		};
 
 		using RegisterUIObjectCreatorProc = void (UIObjectManager * self, unsigned int index, UIObjectFunctor * creator);
-		using CreateUIObjectProc = ComponentHandle * (UIObjectManager * self, ComponentHandle * handle, unsigned int layerIndex, unsigned int creatorId, UIObjectFlags flags, uint64_t resourceFlags, uint16_t playerId);
+		using CreateUIObjectProc = ComponentHandle * (UIObjectManager * self, ComponentHandle * handle, unsigned int layerIndex, unsigned int creatorId, UIObjectFlags flags, uint64_t resourceFlags, PlayerId playerId);
 		using DestroyUIObjectProc = void (UIObjectManager * self, ComponentHandle * handle);
 		using GetInstanceProc = UIObjectManager * ();
 

@@ -94,12 +94,10 @@ void ScriptExtender::Initialize()
 
 	DetourTransactionCommit();
 
-	using namespace std::placeholders;
-	gameStateChangedEvent_.SetPostHook(std::bind(&ScriptExtender::OnGameStateChanged, this, _1, _2, _3));
-	gameStateWorkerStart_.AddPreHook(std::bind(&ScriptExtender::OnGameStateWorkerStart, this, _1));
-	gameStateWorkerStart_.AddPostHook(std::bind(&ScriptExtender::OnGameStateWorkerExit, this, _1));
-	gameStateMachineUpdate_.SetPostHook(std::bind(&ScriptExtender::OnUpdate, this, _1, _2));
-	gameStateLoadIncLocalProgress_.SetPostHook(std::bind(&ScriptExtender::OnIncLocalProgress, this, _1, _2, _3));
+	gameStateChangedEvent_.SetPostHook(&ScriptExtender::OnGameStateChanged, this);
+	gameStateWorkerStart_.SetWrapper(&ScriptExtender::OnGameStateWorkerRun, this);
+	gameStateMachineUpdate_.SetPostHook(&ScriptExtender::OnUpdate, this);
+	gameStateLoadIncLocalProgress_.SetPostHook(&ScriptExtender::OnIncLocalProgress, this);
 }
 
 void ScriptExtender::Shutdown()
@@ -277,15 +275,11 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 	}
 }
 
-
-void ScriptExtender::OnGameStateWorkerStart(void* self)
+void ScriptExtender::OnGameStateWorkerRun(void (*wrapped)(void*), void* self)
 {
 	AddThread(GetCurrentThreadId());
-}
-
-void ScriptExtender::OnGameStateWorkerExit(void* self)
-{
-	AddThread(GetCurrentThreadId());
+	wrapped(self);
+	RemoveThread(GetCurrentThreadId());
 }
 
 void ScriptExtender::OnUpdate(void* self, GameTime* time)
