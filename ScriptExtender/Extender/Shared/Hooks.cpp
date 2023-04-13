@@ -590,6 +590,11 @@ Visual* Hooks::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisua
 	ecl::EquipmentVisualsSystem* self, EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params)
 {
 #if defined(OSI_EOCAPP)
+	ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+	if (lua) {
+		lua->OnCreateEquipmentVisuals(entityHandle, params);
+	}
+
 	// Fix game crash when calling CreateEquipmentVisuals) with an invalid resource UUID
 	if (params.VisualResourceID && params.VisualResourceID != GFS.strEmpty) {
 		auto bank = GetStaticSymbols().GetResourceBank();
@@ -598,11 +603,6 @@ Visual* Hooks::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisua
 			ERR("Tried to instantiate nonexistent visual '%s'!", params.VisualResourceID.GetStringOrDefault());
 			return nullptr;
 		}
-	}
-
-	ecl::LuaClientPin lua(ecl::ExtensionState::Get());
-	if (lua) {
-		lua->OnCreateEquipmentVisuals(entityHandle, params);
 	}
 #endif
 
