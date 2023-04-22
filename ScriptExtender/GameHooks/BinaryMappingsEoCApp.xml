@@ -342,7 +342,7 @@
       74 0b // jz      short loc_141613406
       48 8b d7 // mov     rdx, rdi; status
       48 8b cb // mov     rcx, rbx; this
-      @ref1 e8 5a f6 ff ff // call    ecl__StatusMachine__ExitStatus
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__StatusMachine__ExitStatus
       <Target Type="Indirect" Offset="@ref1" Symbol="ecl__StatusMachine__ExitStatus" />
     </Mapping>
 
@@ -1180,7 +1180,7 @@
       48 89 7c 24 28 // mov     [rsp+0F0h+var_C8], rdi
       48 8d 55 67 // lea     rdx, [rbp+57h+arg_0]
       66 89 74 24 20 // mov     word ptr [rsp+0F0h+var_D0], si
-      @ref1 e8 6d 7a 57 01 // call    eoc__VisionGrid__Raycast
+      @ref1 e8 ?? ?? ?? ?? // call    eoc__VisionGrid__Raycast
       66 39 38 // cmp     [rax], di
       75 74 // jnz     short loc_1407980DC
       48 8b 4b 48 // mov     rcx, [rbx+48h]
