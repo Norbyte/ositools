@@ -14,7 +14,7 @@ void StatusHelpers::OnStatusMachineExit(StatusMachine::ExitStatusProc* wrapped,
 {
 	// Work around crash when the character no longer has any stats but a sneak check is
 	// being performed on it when exiting statuses
-	auto character = GetEntityWorld()->GetComponent<Character>(status->OwnerHandle);
+	auto character = GetEntityWorld()->GetComponent<Character>(status->OwnerHandle, false);
 	if (character && character->Stats == nullptr) {
 		status->Exit();
 		if ((status->Flags & StatusFlags::HasVisuals) == StatusFlags::HasVisuals) {
