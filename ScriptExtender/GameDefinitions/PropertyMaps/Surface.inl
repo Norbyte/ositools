@@ -2,15 +2,19 @@ BEGIN_CLS(esv::Surface)
 P_RO(NetID)
 P_RO(MyHandle)
 P_RO(SurfaceType)
-P_RO(Flags)
+P(VisionFlags)
 P_REF(TeamId)
-P_RO(OwnerHandle)
+P(OwnerHandle)
 P(LifeTime)
-P_RO(LifeTimeFromTemplate)
+P_RO(NeedsNetworkSync)
 P(StatusChance)
+P_REF(GrowCells)
+P_REF(TransformActionHandles)
 P_RO(Index)
-P_RO(NeedsSplitEvaluation)
-P_RO(OwnershipTimer)
+P(NeedsSplitEvaluation)
+P(OwnershipTimer)
+P(NeedsTransformCheck)
+P_REF(SubSurfaces)
 
 #if defined(GENERATING_TYPE_INFO)
 ADD_TYPE("RootTemplate", SurfaceTemplate)
@@ -24,6 +28,14 @@ pm.AddProperty("RootTemplate",
 	}
 );
 #endif
+END_CLS()
+
+BEGIN_CLS(esv::SubSurface)
+P_RO(Flags);
+P_REF(Cells);
+P_REF(GrowCells);
+P_RO(SurfaceIndex);
+P_REF(Position);
 END_CLS()
 
 BEGIN_CLS(SurfaceCell)

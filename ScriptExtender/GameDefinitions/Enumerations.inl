@@ -3023,6 +3023,12 @@ BEGIN_ENUM(SurfaceLayer, uint32_t)
 END_ENUM()
 
 
+BEGIN_ENUM_NS(esv, SurfaceVisionFlags, ServerSurfaceVisionFlags, uint8_t)
+	EV(CantSeeThrough, 0x40)
+	EV(CantShootThrough, 0x80)
+END_ENUM_NS()
+
+
 BEGIN_ENUM(TemplateType, uint32_t)
 	EV(RootTemplate, 0)
 	EV(GlobalTemplate, 1)

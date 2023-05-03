@@ -31,12 +31,11 @@ BEGIN_NS(esv)
 struct SubSurface : public ProtectedGameObject<SubSurface>
 {
     Surface* Surface;
-    uint64_t SurfaceStateFlags;
-    PrimitiveSmallSet<SurfaceCell> SurfaceCells1;
-    PrimitiveSmallSet<SurfaceCell> SurfaceCells2;
+    ESurfaceFlag Flags;
+    PrimitiveSmallSet<SurfaceCell> Cells;
+    PrimitiveSmallSet<SurfaceCell> GrowCells;
     uint16_t SurfaceIndex;
-    uint8_t Position[2];
-    int field_44;
+    std::array<uint8_t, 2> Position;
 };
 
 
@@ -48,23 +47,23 @@ struct Surface : ProtectedGameObject<Surface>
     NetId NetID;
     ComponentHandle MyHandle;
     SurfaceType SurfaceType;
-    uint8_t Flags;
+    SurfaceVisionFlags VisionFlags;
     int field_20;
-    int CombatComponentIdx;
+    int field_24;
     eoc::CombatTeamId TeamId;
     ComponentHandle OwnerHandle;
     float LifeTime;
     int8_t Level;
     uint8_t _Pad3[3];
-    bool LifeTimeFromTemplate;
+    bool NeedsNetworkSync;
     float StatusChance;
-    uint64_t PrimSetSurfaceCell[3];
-    uint64_t TransformActionObjectHandles[14];
+    PrimitiveSmallSet<SurfaceCell> GrowCells;
+    std::array<ComponentHandle, 14> TransformActionHandles;
     uint16_t Index;
     SurfaceManager* SurfaceManager;
     bool NeedsSplitEvaluation;
     float OwnershipTimer;
-    bool field_E8;
+    bool NeedsTransformCheck;
     ObjectSet<SubSurface*> SubSurfaces;
 };
 
