@@ -6,7 +6,7 @@
 
 BEGIN_SE()
 
-struct BaseComponent
+struct BaseComponent : public Noncopyable<BaseComponent>
 {
 	void* VMT;
 	EntityHandle Entity;

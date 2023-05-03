@@ -5,8 +5,16 @@ P_RO(CombinedId)
 END_CLS()
 
 
+BEGIN_CLS(eoc::CombatData)
+P_REF(HasBeenHitBy)
+P(Flags)
+P_REF(HasHadStatus)
+END_CLS()
+
+
 BEGIN_CLS(eoc::CombatComponent)
-P_REF(Base)
+INHERIT(BaseComponent)
+P_REF(CombatData)
 P(Alignment1)
 P(Alignment2)
 P(CombatGroupId)

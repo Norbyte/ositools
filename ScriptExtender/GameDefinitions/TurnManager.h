@@ -54,16 +54,23 @@ namespace dse
 			}
 		};
 
-		struct CombatComponent : public ProtectedGameObject<CombatComponent>
+		struct CombatData
 		{
-			void * VMT;
-			BaseComponent Base;
+			std::array<stats::DamageType, 3> HasBeenHitBy;
+			uint8_t Flags;
+			ObjectSet<FixedString> HasHadStatus;
+		};
+
+
+		struct CombatComponent : public BaseComponent
+		{
+			CombatData* CombatData;
 			FixedString Alignment1;
 			FixedString Alignment2;
 			FixedString CombatGroupId;
 			CombatTeamId CombatAndTeamIndex;
 			uint16_t Initiative;
-			bool HasAttackOfOpportunity;
+			uint8_t HasAttackOfOpportunity;
 			CombatComponentFlags Flags;
 		};
 	}

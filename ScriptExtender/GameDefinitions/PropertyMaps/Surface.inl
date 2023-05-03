@@ -31,11 +31,11 @@ pm.AddProperty("RootTemplate",
 END_CLS()
 
 BEGIN_CLS(esv::SubSurface)
-P_RO(Flags);
-P_REF(Cells);
-P_REF(GrowCells);
-P_RO(SurfaceIndex);
-P_REF(Position);
+P_RO(Flags)
+P_REF(Cells)
+P_REF(GrowCells)
+P_RO(SurfaceIndex)
+P_REF(Position)
 END_CLS()
 
 BEGIN_CLS(SurfaceCell)
