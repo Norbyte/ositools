@@ -289,10 +289,22 @@ void assign(lua_State* L, int idx, glm::mat3 const& m);
 void assign(lua_State* L, int idx, glm::mat4 const& m);
 
 template <class T>
+inline void push_bitfield(lua_State* L, T value)
+{
+	static_assert(std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>, "Can only push bitmask fields!");
+	push_bitfield_value(L, (typename EnumInfo<T>::UnderlyingType)value, *EnumInfo<T>::Store);
+}
+
+template <class T>
 inline typename std::enable_if_t<std::is_enum_v<T>, void> push(lua_State* L, T v)
 {
-	auto ei = EnumInfo<T>::Store;
-	push_enum_value(L, static_cast<EnumUnderlyingType>(v), *ei);
+	if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
+		push_bitfield(L, v);
+	} else {
+		static_assert(std::is_base_of_v<EnumInfoBase<T>, EnumInfo<T>>, "Cannot push an enumeration that has no EnumInfo!");
+		auto ei = EnumInfo<T>::Store;
+		push_enum_value(L, static_cast<EnumUnderlyingType>(v), *ei);
+	}
 }
 
 template <class T>
@@ -303,13 +315,6 @@ inline void push(lua_State* L, std::optional<T> const& v)
 	} else {
 		lua_pushnil(L);
 	}
-}
-
-template <class T>
-inline void push_bitfield(lua_State* L, T value)
-{
-	static_assert(std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>, "Can only push bitmask fields!");
-	push_bitfield_value(L, (typename EnumInfo<T>::UnderlyingType)value, *EnumInfo<T>::Store);
 }
 
 template <class T>

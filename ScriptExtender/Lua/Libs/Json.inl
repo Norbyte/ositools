@@ -262,6 +262,10 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 		return Json::Value();
 	}
 
+#if !defined(NDEBUG)
+	auto ptrVal = GetPointerValue(L, index);
+#endif
+
 	// Call __pairs(obj)
 	auto nextIndex = lua_absindex(L, -1);
 	lua_pushvalue(L, index);

@@ -34,6 +34,7 @@ UserReturn AiGrid::GetCellInfo(lua_State* L, float x, float z)
 
 	lua_newtable(L);
 	settable(L, "Flags", cell->AiFlags);
+	settable(L, "AiFlags", (ESurfaceFlag)cell->AiFlags);
 	settable(L, "Height", height);
 
 	lua_newtable(L);
