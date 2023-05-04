@@ -318,6 +318,47 @@ struct SurfaceMetaData
     bool field_14;
 };
 
+struct SurfaceAlphaRenderer
+{
+    struct Texture
+    {
+        uint32_t* BufStart;
+        uint32_t* BufEnd;
+    };
+
+    struct SurfacePrepareJob
+    {
+        void* VMT;
+        __int64 field_8;
+        __int64 field_10;
+        ObjectSet<void*> DecalReceivers;
+    };
+
+    void* VMT;
+    __int64 field_8;
+    void* VMT1;
+    void* VMT2;
+    void* LevelAllocator;
+    Level* Level;
+    ObjectSet<void*> DecalObjects;
+#if defined(OSI_EOCAPP)
+    void* Unknown;
+#endif
+    ObjectSet<glm::vec4>* OS_Vec4;
+    std::array<Texture, 2> Textures;
+    std::array<uint64_t, 2> TextureHandles;
+    std::array<int, 2> TextureSize;
+    std::array<float, 3> GridOffset;
+    std::array<int, 2> GridSize;
+    float GridScale;
+    Bound Bounds;
+    bool DecalsInitialized;
+    bool NeedsTextureUpdate;
+    SurfacePrepareJob PrepareJobs[78];
+    void* WorkerThreadBatch;
+    bool Initialized;
+};
+
 
 struct SurfaceManager
 {
@@ -325,7 +366,7 @@ struct SurfaceManager
     __int64 field_8;
     std::array<Surface*, 79> SurfacesByType;
     Level* Level;
-    void* AlphaRenderer; // SurfaceAlphaRenderer*
+    SurfaceAlphaRenderer* AlphaRenderer;
     Array<SurfaceRegion> Regions;
     bool NeedsVisualReload;
     bool ShouldReloadInstances;

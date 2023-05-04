@@ -18,7 +18,8 @@ UserReturn AiGrid::GetCellInfo(lua_State* L, float x, float z)
 	// Prevent crash when called while level init/unload
 	if (Tiles == nullptr) return 0;
 
-	auto cell = GetCell(glm::vec2(x, z));
+	auto cellPos = DataGrid.PositionToCellPosition(glm::vec2(x, z));
+	auto cell = Tiles->Get(cellPos);
 	if (!cell) {
 		OsiError("Could not find AiGrid cell at " << x << ";" << z);
 		push(L, nullptr);
@@ -64,6 +65,21 @@ UserReturn AiGrid::GetCellInfo(lua_State* L, float x, float z)
 				if (surface != nullptr) {
 					settable(L, "CloudSurface", surface->MyHandle);
 				}
+			}
+		}
+	} else {
+		auto level = GetStaticSymbols().GetCurrentClientLevel();
+		if (level && level->AiGrid == this && level->SurfaceManager != nullptr) {
+			auto alpha = level->SurfaceManager->AlphaRenderer;
+
+			if (groundIdx != AiGridTile::InvalidIndex) {
+				auto surfaceType = alpha->Textures[0].BufStart[cellPos.x + alpha->GridSize[0] * (alpha->GridSize[1] - cellPos.y - 1)] & 0xff;
+				settable(L, "GroundSurfaceType", (SurfaceType)surfaceType);
+			}
+
+			if (cloudIdx != AiGridTile::InvalidIndex) {
+				auto surfaceType = alpha->Textures[1].BufStart[cellPos.x + alpha->GridSize[0] * (alpha->GridSize[1] - cellPos.y - 1)] & 0xff;
+				settable(L, "CloudSurfaceType", (SurfaceType)surfaceType);
 			}
 		}
 	}
