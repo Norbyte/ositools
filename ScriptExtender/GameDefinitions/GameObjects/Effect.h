@@ -16,6 +16,7 @@ struct Effect : public Visual
 	uint8_t EffectFlags;
 	ComponentHandle SoundObjectHandle;
 	uint8_t SoundObjectRefCount;
+	uint32_t _Pad;
 	Transform CachedWorldTransform;
 	FixedString EffectName;
 	uint8_t field_300;
