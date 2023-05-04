@@ -758,7 +758,7 @@ void ModVariableManager::SavegameVisit(ObjectVisitor* visitor)
 	if (visitor->EnterNode(GFS.strModVariables, GFS.strEmpty)) {
 		if (visitor->IsReading()) {
 			uint32_t numVars;
-			visitor->VisitCount(GFS.strGameObjectVariables, &numVars);
+			visitor->VisitCount(GFS.strModVariables, &numVars);
 
 			for (uint32_t i = 0; i < numVars; i++) {
 				if (visitor->EnterNode(GFS.strModVariables, GFS.strModule)) {
