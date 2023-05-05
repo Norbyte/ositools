@@ -60,8 +60,8 @@
     <DllImport Symbol="ls__VisualFactory__DestroyVisual" Module="GameEngine.dll" Proc="?DestroyVisual@VisualFactory@ls@@QEAAXVObjectHandle@2@@Z" />
     <DllImport Symbol="ls__Visual__AddAttachment" Module="GameEngine.dll" Proc="?AddAttachment@Visual@ls@@QEAA_NPEAV12@AEBVFixedString@2@HI@Z" />
 
-    <DllImport Symbol="ls__CacheTemplateManagerBase__CacheTemplate" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VGlobalTemplateManager@ls@@@ls@@SAPEAVGlobalTemplateManager@2@XZ" />
-    <DllImport Symbol="ls__GlobalTemplateManager__GetInstance" Module="GameEngine.dll" Proc="?CacheTemplate@CacheTemplateManagerBase@ls@@QEAAPEAVGameObjectTemplate@2@PEBV32@@Z" />
+    <DllImport Symbol="ls__CacheTemplateManagerBase__CacheTemplate" Module="GameEngine.dll" Proc="?CacheTemplate@CacheTemplateManagerBase@ls@@QEAAPEAVGameObjectTemplate@2@PEBV32@@Z" />
+    <DllImport Symbol="ls__GlobalTemplateManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VGlobalTemplateManager@ls@@@ls@@SAPEAVGlobalTemplateManager@2@XZ" />
 
     <DllImport Symbol="ls__UIHelper__CustomDrawObject" Module="GameEngine.dll" Proc="?CustomDrawObject@UIHelper@ls@@SAXAEBUFlashCustomDrawCallback@2@QEAVRenderableObject@2@@Z" />
     <DllImport Symbol="ls__UIHelper__UIClearIcon" Module="GameEngine.dll" Proc="?UIClearIcon@UIHelper@ls@@SAXQEAUCustomDrawStruct@2@@Z" />
