@@ -116,7 +116,7 @@ std::optional<bool> CustomRequirementCallbackManager::Evaluate(stats::Character*
 	auto it = requirements_.find((uint32_t)requirement.RequirementId);
 	if (it != requirements_.end() && *it->second.EvaluateCallback) {
 		auto ctx = &gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
-		auto result = lua::ProtectedCallFunction<bool>(*it->second.EvaluateCallback, const_cast<stats::Requirement*>(&requirement), ctx);
+		auto result = lua::ProtectedCallFunction<bool>(*it->second.EvaluateCallback, const_cast<stats::Requirement*>(&requirement), ctx, character);
 		if (result) {
 			return *result;
 		}
