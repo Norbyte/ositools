@@ -1,16 +1,15 @@
 
 # Changes in v59
 
-The following engine structures are now accessible via Lua:
- - Client status controller state (`EclCharacter.StatusController`)
- - Client movement state (`EclCharacter.MovementMachine`)
- - Client and server skill states (`EclCharacter.SkillManager`, `EsvCharacter.SkillManager`) for the following skill types: `SkillStatePath`, `SkillStateTarget`, `SkillStateTeleportation`, `SkillStateProjectileStrike`, `SkillStateSummon`, `SkillStateRain`, `SkillStateZone`, `SkillStateHeal`, `SkillStateProjectile`, `SkillStateWall`, `SkillStateJump`, `SkillStateQuake`, `SkillStateMultistrike`, `SkillStateStorm`, `SkillStateTornado`, `SkillStateShout`, `SkillStateRush`, `SkillStateDome`
- - Client action state (via `EclCharacter.ActionMachine.Layers[x]`) for the following types: `ASAttack`, `ASDie`, `ASHit`, `ASIdle`, `ASAnimation`, `ASPrepareSkill`, `ASUseSkill`
- - Server character animation state (via `EsvCharacter.CharacterBody`)
- - Server action state (via `EsvCharacter.ActionMachine.Layers[x]`) for the following types: `ASAttack`, `ASDie`, `ASHit`, `ASIdle`, `ASAnimation`, `ASPickUp`, `ASDrop`, `ASMoveItem`, `ASPrepareSkill`, `ASUseSkill`, `ASKnockedDown`, `ASSummoning`, `ASPolymorphing`, `ASUseItem`, `ASCombineItem`, `ASTeleportFall`, `ASSheath`, `ASUnsheath`, `ASIdentify`, `ASRepair`, `ASLockpick`, `ASDisarmTrap`, `ASIncapacitated`, `ASJumpFlight`
- - Server surface subsurfaces and cells
+### Highlights
 
-### Misc changes
+ - Character skill, action and movement state access ([docs](#new-engine-types))
+ - Line-of-sight check functions ([docs](#raycasting))
+ - Custom stats requirements ([docs](#custom-requirements))
+ - Custom stats conditions ([docs](#custom-conditions))
+ - Mod variables ([docs](#mod-variables))
+
+### Minor changes
 
  - User variable functions were moved from `Ext.Utils` to `Ext.Vars`; the `Ext.Utils` functions are kept for backwards compatibility.
  - Added `Ext.Stats.GetItemBaseStats(statsId, level)` for retrieving a stats object containing the base stats for a given stats ID
@@ -25,6 +24,17 @@ The following engine structures are now accessible via Lua:
  - Fixed bug where dumping `Effect` structures could cause a crash
  - Added additional crash protection for mods changing visual data during the `OnCreateEquipmentVisuals` event
  - Fixed "No component found" message when exiting statuses on an item
+
+### New Engine Types
+
+The following engine structures are now accessible via Lua:
+ - Client status controller state (`EclCharacter.StatusController`)
+ - Client movement state (`EclCharacter.MovementMachine`)
+ - Client and server skill states (`EclCharacter.SkillManager`, `EsvCharacter.SkillManager`) for the following skill types: `SkillStatePath`, `SkillStateTarget`, `SkillStateTeleportation`, `SkillStateProjectileStrike`, `SkillStateSummon`, `SkillStateRain`, `SkillStateZone`, `SkillStateHeal`, `SkillStateProjectile`, `SkillStateWall`, `SkillStateJump`, `SkillStateQuake`, `SkillStateMultistrike`, `SkillStateStorm`, `SkillStateTornado`, `SkillStateShout`, `SkillStateRush`, `SkillStateDome`
+ - Client action state (via `EclCharacter.ActionMachine.Layers[x]`) for the following types: `ASAttack`, `ASDie`, `ASHit`, `ASIdle`, `ASAnimation`, `ASPrepareSkill`, `ASUseSkill`
+ - Server character animation state (via `EsvCharacter.CharacterBody`)
+ - Server action state (via `EsvCharacter.ActionMachine.Layers[x]`) for the following types: `ASAttack`, `ASDie`, `ASHit`, `ASIdle`, `ASAnimation`, `ASPickUp`, `ASDrop`, `ASMoveItem`, `ASPrepareSkill`, `ASUseSkill`, `ASKnockedDown`, `ASSummoning`, `ASPolymorphing`, `ASUseItem`, `ASCombineItem`, `ASTeleportFall`, `ASSheath`, `ASUnsheath`, `ASIdentify`, `ASRepair`, `ASLockpick`, `ASDisarmTrap`, `ASIncapacitated`, `ASJumpFlight`
+ - Server surface subsurfaces and cells
 
 ### Raycasting
 
