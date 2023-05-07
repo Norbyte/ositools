@@ -1,7 +1,7 @@
 
 # Changes in v59
 
-The following engine stsructures are now accessible via Lua:
+The following engine structures are now accessible via Lua:
  - Client status controller state (`EclCharacter.StatusController`)
  - Client movement state (`EclCharacter.MovementMachine`)
  - Client and server skill states (`EclCharacter.SkillManager`, `EsvCharacter.SkillManager`) for the following skill types: `SkillStatePath`, `SkillStateTarget`, `SkillStateTeleportation`, `SkillStateProjectileStrike`, `SkillStateSummon`, `SkillStateRain`, `SkillStateZone`, `SkillStateHeal`, `SkillStateProjectile`, `SkillStateWall`, `SkillStateJump`, `SkillStateQuake`, `SkillStateMultistrike`, `SkillStateStorm`, `SkillStateTornado`, `SkillStateShout`, `SkillStateRush`, `SkillStateDome`
