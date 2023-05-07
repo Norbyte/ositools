@@ -87,6 +87,7 @@ struct ResourceManager : public ProtectedGameObject<ResourceManager>
 {
     using GetInstanceProc = ResourceManager * ();
     using InstantiateVisualProc = Visual* (ResourceManager* self, FixedString const& visualId, bool playEffects, bool prepareAnims, bool unknown);
+    using GetResourceBankProc = ResourceBank* (ResourceManager* self);
 
     void DestroyVisual(ComponentHandle const& handle);
 

@@ -55,6 +55,9 @@
     <DllImport Symbol="ResourceManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VResourceManager@ls@@@ls@@SAPEAVResourceManager@2@XZ" />
     <DllImport Symbol="ResourceManager__InstantiateVisual" Module="GameEngine.dll" Proc="?InstantiateVisual@ResourceManager@ls@@QEAAPEAVVisual@2@AEBVFixedString@2@_N11@Z" />
     
+    <DllImport Symbol="GlobalTemplateManager__GetGlobalTemplateBank" Module="GameEngine.dll" Proc="?GetGlobalTemplateBank@GlobalTemplateManager@ls@@QEBAQEAVGlobalTemplateBank@2@XZ" />
+    <DllImport Symbol="ResourceManager__GetResourceBank" Module="GameEngine.dll" Proc="?GetResourceBank@ResourceManager@ls@@QEBAQEAVResourceBank@2@XZ" />
+    
     <DllImport Symbol="ls__EffectsManager__DestroyEffect" Module="GameEngine.dll" Proc="?DestroyEffect@EffectsManager@ls@@QEAAXAEBVObjectHandle@2@@Z" />
     <DllImport Symbol="ls__EffectsManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VEffectsManager@ls@@@ls@@SAPEAVEffectsManager@2@XZ" />
     <DllImport Symbol="ls__VisualFactory__DestroyVisual" Module="GameEngine.dll" Proc="?DestroyVisual@VisualFactory@ls@@QEAAXVObjectHandle@2@@Z" />

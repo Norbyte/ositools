@@ -154,18 +154,30 @@ namespace dse
 	{
 		auto gtm = GetStaticSymbols().GetGlobalTemplateManager();
 		if (!gtm) return nullptr;
+
+#if defined(OSI_EOCAPP)
 		auto tls = *(uint64_t*)__readgsqword(0x58);
 		auto slot = ((uint8_t*)tls)[8];
 		return gtm->Banks[slot];
+#else
+		auto getter = GetStaticSymbols().GlobalTemplateManager__GetGlobalTemplateBank;
+		return getter(gtm);
+#endif
 	}
 
 	ResourceBank* StaticSymbols::GetResourceBank() const
 	{
 		auto resMgr = GetResourceManager();
 		if (!resMgr) return nullptr;
+
+#if defined(OSI_EOCAPP)
 		auto tls = *(uint64_t*)__readgsqword(0x58);
 		auto slot = ((uint8_t*)tls)[9];
 		return resMgr->ResourceBanks[slot];
+#else
+		auto getter = GetStaticSymbols().ResourceManager__GetResourceBank;
+		return getter(resMgr);
+#endif
 	}
 
 	bool StaticSymbols::FileExists(StringView path, PathRootType root, bool canonicalize) const

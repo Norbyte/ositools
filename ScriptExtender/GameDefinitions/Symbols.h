@@ -357,7 +357,9 @@ namespace dse
 
 		ResourceManager::GetInstanceProc * ResourceManager__GetInstance{ nullptr };
 		ResourceManager::InstantiateVisualProc* ResourceManager__InstantiateVisual{ nullptr };
+		ResourceManager::GetResourceBankProc* ResourceManager__GetResourceBank{ nullptr };
 		ResourceManager ** ResourceManager__Instance{ nullptr };
+		GlobalTemplateManager::GetGlobalTemplateBankProc* GlobalTemplateManager__GetGlobalTemplateBank{ nullptr };
 		VisualFactory::DestroyVisualProc* ls__VisualFactory__DestroyVisual{ nullptr };
 		ecl::EquipmentVisualsSystem::CreateVisualsProc* ecl__EquipmentVisualsSystem__CreateVisuals{ nullptr };
 

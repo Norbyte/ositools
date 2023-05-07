@@ -81,6 +81,7 @@ namespace dse
     struct GlobalTemplateManager : public ProtectedGameObject<GlobalTemplateManager>
     {
         using GetInstanceProc = GlobalTemplateManager * ();
+        using GetGlobalTemplateBankProc = GlobalTemplateBank * (GlobalTemplateManager* self);
 
         void* VMT;
         Map<FixedString, GameObjectTemplate*> Templates;
