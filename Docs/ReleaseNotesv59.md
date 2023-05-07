@@ -1,26 +1,30 @@
 
 # Changes in v59
 
-## WIP!
-
-The following engine functions are now accessible via Lua:
+The following engine stsructures are now accessible via Lua:
  - Client status controller state (`EclCharacter.StatusController`)
  - Client movement state (`EclCharacter.MovementMachine`)
  - Client and server skill states (`EclCharacter.SkillManager`, `EsvCharacter.SkillManager`) for the following skill types: `SkillStatePath`, `SkillStateTarget`, `SkillStateTeleportation`, `SkillStateProjectileStrike`, `SkillStateSummon`, `SkillStateRain`, `SkillStateZone`, `SkillStateHeal`, `SkillStateProjectile`, `SkillStateWall`, `SkillStateJump`, `SkillStateQuake`, `SkillStateMultistrike`, `SkillStateStorm`, `SkillStateTornado`, `SkillStateShout`, `SkillStateRush`, `SkillStateDome`
  - Client action state (via `EclCharacter.ActionMachine.Layers[x]`) for the following types: `ASAttack`, `ASDie`, `ASHit`, `ASIdle`, `ASAnimation`, `ASPrepareSkill`, `ASUseSkill`
  - Server character animation state (via `EsvCharacter.CharacterBody`)
- - Server action state (via `EsvCharacter.ActionMachine.Layers[x]`) for the following types: `ASAttack`, `ASDie`, `ASHit`, `ASIdle`, `ASAnimation`, `ASPickUp`, `ASDrop`, `ASMoveItem`, `ASPrepareSkill`, `ASUseSkill`
+ - Server action state (via `EsvCharacter.ActionMachine.Layers[x]`) for the following types: `ASAttack`, `ASDie`, `ASHit`, `ASIdle`, `ASAnimation`, `ASPickUp`, `ASDrop`, `ASMoveItem`, `ASPrepareSkill`, `ASUseSkill`, `ASKnockedDown`, `ASSummoning`, `ASPolymorphing`, `ASUseItem`, `ASCombineItem`, `ASTeleportFall`, `ASSheath`, `ASUnsheath`, `ASIdentify`, `ASRepair`, `ASLockpick`, `ASDisarmTrap`, `ASIncapacitated`, `ASJumpFlight`
+ - Server surface subsurfaces and cells
 
 ### Misc changes
 
- - User variable functions were moved from `Ext.Utils` to `Ext.Vars`
+ - User variable functions were moved from `Ext.Utils` to `Ext.Vars`; the `Ext.Utils` functions are kept for backwards compatibility.
  - Added `Ext.Stats.GetItemBaseStats(statsId, level)` for retrieving a stats object containing the base stats for a given stats ID
  - `Ext.UI.SetDirty` now accepts flag values (eg. `SetDirty(_C().Handle, "CharacterSkillSet")`)
+ - `AI:GetCellInfo()` now returns AI flags and ground/cloud surface type when called on the client
 
 ### Bugfixes
 
  - Fixed bug where user variables set on the client would not be synced to other clients in multiplayer
  - Fixed bug where user variables were not cleared on a savegame load if the savegame contained no saved variables
+ - Fixed bug where `CombatComponent` structure was mapped incorrectly
+ - Fixed bug where dumping `Effect` structures could cause a crash
+ - Added additional crash protection for mods changing visual data during the `OnCreateEquipmentVisuals` event
+ - Fixed "No component found" message when exiting statuses on an item
 
 ### Raycasting
 
@@ -88,6 +92,41 @@ Custom requirements are specified in stats entries just like normal requirement 
 data "Requirements" "CustomFireSpecialist 1"
 ```
 
+### Custom Conditions
+
+Custom stats conditions extend the built-in list of conditions that can be used in the stats conditions properties (`TargetConditions`, `AoEConditions`, etc.) as well as in the `IF(...)` part of `ExtraProperties` and `SkillProperties`. Conditions can be registered via the `Ext.Stats.AddCondition(name)` function.
+
+Example:
+```lua
+local defn = Ext.Stats.AddCondition("CasterSneaking")
+defn.Callbacks.EvaluateCallback = function (condition, conditionId, param)
+    return condition.Caster == nil or condition.Caster.Stats.Sneaking
+end
+```
+
+The `Ext.Stats.AddCondition()` function returns a condition descriptor where the condition evaluation function `Callbacks.EvaluateCallback`) can be defined.
+
+Each time the game evaluates a condition, the `EvaluateCallback(condition, conditionId, param)` function is called (both server and client side).
+The function takes the following parameters:
+ - `condition`: A `stats::ServerConditionCheck` or `stats::ClientConditionCheck` object containing caster and target data
+ - `conditionId`: Condition being evaluated
+ - `param`: Optional string parameter specified to the condition in the stats entry
+
+The condition object has the following fields:
+
+| Property | Type | Description |
+|-|-|-|
+| `Caster` | `esv::Character` | Caster character (`nil` when there is no caster) |
+| `TargetCharacter` | `esv::Item` | Target character (`nil` when the target is not a character) |
+| `TargetItem` | `ecl::Character` | Target item (`nil` when the target is not a item) |
+| `Position` | `vec3` | Target position |
+
+
+Example usage in stats entries:
+```lua
+data "SkillProperties" "IF(CasterSneaking):EXPLODE,100,1"
+```
+
 
 ### Mod variables
 
@@ -97,7 +136,7 @@ For a description of user variables see: [Custom Variable Docs](https://github.c
 To use a mod variable, the variable must first be registered with the variable manager:
 ```lua
 Ext.Vars.RegisterModVariable(ModuleUUID, "VariableName", {
-    Server = true,Client = true, SyncToClient = true
+    Server = true, Client = true, SyncToClient = true
 })
 ```
 
