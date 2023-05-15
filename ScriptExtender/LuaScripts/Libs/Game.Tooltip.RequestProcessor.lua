@@ -618,7 +618,7 @@ function RequestProcessor.OnExamineTooltip(e, ui, event, typeIndex, id, ...)
 
 	if typeIndex == 1 then
 		request.Type = "Stat"
-		request.Stat = Game.Tooltip.TooltipStatAttributes[id]
+		request.Stat = Game.Tooltip.TooltipStatAttributes[id] or id
 
 		if request.Stat == nil then
 			_PrintWarning("Requested tooltip for unknown stat ID " .. id)
