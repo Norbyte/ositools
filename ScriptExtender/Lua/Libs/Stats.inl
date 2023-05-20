@@ -1368,6 +1368,37 @@ CustomRequirementDescriptor* AddRequirement(FixedString const& requirementName, 
 	return descriptor;
 }
 
+CustomRequirementContext* GetRequirementContext()
+{
+	return &gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+}
+
+std::optional<bool> EvaluateRequirement(ProxyParam<stats::Character> character, FixedString const& requirementName, std::optional<int> param, std::optional<FixedString> tag, std::optional<bool> negate)
+{
+	auto requirementId = gExtender->GetCustomRequirementRegistry().GetId(requirementName);
+	if (!requirementId) {
+		OsiError("Unknown requirement: " << requirementName);
+		return {};
+	}
+
+	stats::Requirement req;
+	req.RequirementId = (RequirementType)*requirementId;
+	req.Param = param.value_or(0);
+	req.Tag = tag.value_or(FixedString{});
+	req.Not = negate.value_or(false);
+
+	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+	ctx.CharacterStats = character;
+	ctx.Requirement = &req;
+
+	auto result = gExtender->GetCurrentExtensionState()->GetLua()->GetCustomRequirementCallbacks().Evaluate(character, req, true);
+
+	ctx.CharacterStats = nullptr;
+	ctx.Requirement = nullptr;
+
+	return result;
+}
+
 CustomConditionDescriptor* AddCondition(FixedString const& conditionName, std::optional<bool> overwrite)
 {
 	CustomConditionDescriptor* descriptor;
@@ -1430,6 +1461,13 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(AddDamageType)
 	MODULE_FUNCTION(AddRequirement)
 	MODULE_FUNCTION(AddCondition)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, Requirement, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("Add", AddRequirement)
+	MODULE_NAMED_FUNCTION("Evaluate", EvaluateRequirement)
+	MODULE_NAMED_FUNCTION("GetContext", GetRequirementContext)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, DeltaMod, Both)

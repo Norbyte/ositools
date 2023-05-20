@@ -35,7 +35,7 @@ CustomRequirementDescriptor* CustomRequirementRegistry::RegisterNewRequirement(F
 {
 	auto requirementType = EnumInfo<stats::RequirementType>::Find(name);
 	if (requirementType) {
-		if (*requirementType <= stats::RequirementType::TALENT_MagicCycles) {
+		if ((uint32_t)*requirementType <= MaxBuiltinId) {
 			OsiError("Tried to register requirement type '" << name << "' multiple times!");
 			return nullptr;
 		}
@@ -59,7 +59,7 @@ CustomRequirementDescriptor* CustomRequirementRegistry::RegisterNewRequirement(F
 
 void CustomRequirementRegistry::Clear()
 {
-	EnumInfo<stats::RequirementType>::Store->Labels.resize((uint32_t)stats::RequirementType::TALENT_MagicCycles + 1);
+	EnumInfo<stats::RequirementType>::Store->Labels.resize(MaxBuiltinId + 1);
 	auto& enumInfo = EnumInfo<stats::RequirementType>::Store->Values;
 	for (auto const& ty : names_) {
 		auto it = enumInfo.find(ty.first);
@@ -70,7 +70,7 @@ void CustomRequirementRegistry::Clear()
 
 	requirements_.clear();
 	names_.clear();
-	nextRequirementId_ = (uint32_t)stats::RequirementType::TALENT_MagicCycles + 1;
+	nextRequirementId_ = MaxBuiltinId + 1;
 }
 
 CustomRequirementDescriptor* CustomRequirementRegistry::Get(uint32_t requirementId)
@@ -93,6 +93,22 @@ CustomRequirementDescriptor* CustomRequirementRegistry::Get(FixedString const& n
 	return nullptr;
 }
 
+std::optional<uint32_t> CustomRequirementRegistry::GetId(FixedString const& name)
+{
+	auto nameIt = names_.find(name);
+	if (nameIt != names_.end()) {
+		return nameIt->second->RequirementId;
+	}
+
+	auto& enumInfo = EnumInfo<stats::RequirementType>::Store->Values;
+	auto it = enumInfo.find(name);
+	if (it != enumInfo.end()) {
+		return (uint32_t)it.Value();
+	}
+
+	return {};
+}
+
 
 CustomRequirementCallbacks* CustomRequirementCallbackManager::GetOrRegister(uint32_t requirementId)
 {
@@ -111,7 +127,8 @@ void CustomRequirementCallbackManager::Clear()
 	requirements_.clear();
 }
 
-std::optional<bool> CustomRequirementCallbackManager::Evaluate(stats::Character* character, stats::Requirement const& requirement)
+std::optional<bool> CustomRequirementCallbackManager::Evaluate(stats::Character* character, stats::Requirement const& requirement,
+	bool checkBuiltin)
 {
 	auto it = requirements_.find((uint32_t)requirement.RequirementId);
 	if (it != requirements_.end() && *it->second.EvaluateCallback) {
@@ -120,6 +137,11 @@ std::optional<bool> CustomRequirementCallbackManager::Evaluate(stats::Character*
 		if (result) {
 			return *result;
 		}
+	}
+
+	if (checkBuiltin && (uint32_t)requirement.RequirementId < CustomRequirementRegistry::MaxBuiltinId) {
+		auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
+		return GetStaticSymbols().CheckRequirement1(character, ctx.IsInCombat, ctx.IsImmobile, ctx.HasCharges, ctx.Tags, requirement, ctx.ExcludeBoosts);
 	}
 
 	return {};

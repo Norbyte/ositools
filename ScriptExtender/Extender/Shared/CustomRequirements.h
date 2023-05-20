@@ -22,12 +22,15 @@ struct CustomRequirementDescriptor
 class CustomRequirementRegistry
 {
 public:
+	static uint32_t constexpr MaxBuiltinId = (uint32_t)stats::RequirementType::TALENT_MagicCycles;
+
 	CustomRequirementDescriptor* AssignRequirement(FixedString const& name);
 	CustomRequirementDescriptor* RegisterNewRequirement(FixedString const& name);
 	void Clear();
 
 	CustomRequirementDescriptor* Get(uint32_t requirementId);
 	CustomRequirementDescriptor* Get(FixedString const& name);
+	std::optional<uint32_t> GetId(FixedString const& name);
 
 	uint32_t MaxRequirementId() const
 	{
@@ -37,7 +40,7 @@ public:
 private:
 	std::unordered_map<uint32_t, CustomRequirementDescriptor> requirements_;
 	std::unordered_map<FixedString, CustomRequirementDescriptor*> names_;
-	uint32_t nextRequirementId_{ (uint32_t)stats::RequirementType::TALENT_MagicCycles + 1 };
+	uint32_t nextRequirementId_{ MaxBuiltinId + 1 };
 };
 
 struct CustomRequirementContext
@@ -75,7 +78,8 @@ public:
 	CustomRequirementCallbacks* GetOrRegister(uint32_t requirementId);
 	void Clear();
 
-	std::optional<bool> Evaluate(stats::Character* character, stats::Requirement const& requirement);
+	std::optional<bool> Evaluate(stats::Character* character, stats::Requirement const& requirement,
+		bool checkBuiltin = false);
 
 private:
 	std::unordered_map<uint32_t, CustomRequirementCallbacks> requirements_;
