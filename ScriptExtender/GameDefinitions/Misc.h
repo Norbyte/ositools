@@ -60,9 +60,31 @@ namespace dse
 
 	struct GlobalSwitches
 	{
-		struct SomeOption
+		struct ControlSwitch
 		{
-			float A, B, C, D;
+			float field_0;
+			float field_4;
+			float field_8;
+			float field_C;
+			float field_10;
+			std::array<float, 4> PickingBoundLimits;
+			std::array<float, 4> PickingAngleLimits;
+			std::array<float, 4> PickingBoundDistances;
+			float PickingMaxSmallBound;
+			float PickingDistanceBias;
+			float PickingAngleBias;
+			float PickingCharacterBoundBias;
+			float PickingHeightCutoff2;
+			float PickingTorchBias;
+			float PickingHeightCutoff;
+			float ItemReachMaxDistance;
+			float JoystickDistanceMultiplier;
+			float JoystickDistanceThreshold1;
+			float JoystickDistanceThreshold2;
+			float JoystickAngleThreshold;
+			int field_74;
+			float HeightMultiplier;
+			float field_7C;
 		};
 
 		struct SoundSetting
@@ -174,7 +196,7 @@ namespace dse
 		bool ShowOverheadDamage;
 		bool ShowOverheadText;
 		bool ShowOverheadDialog;
-		bool field_E8;
+		bool ShowFeedback;
 		std::array<SoundSetting, 12> SoundSettings;
 		int SoundQuality;
 		bool MuteSoundWhenNotFocused;
@@ -251,8 +273,8 @@ namespace dse
 		uint32_t ServerFrameCap;
 		GlobalCameraSwitches CameraSwitchesMode0;
 		GlobalCameraSwitches CameraSwitchesMode1;
-		std::array<float, 32> Floats3;
-		std::array<SomeOption, 50> Options2;
+		ControlSwitch ControlSwitches;
+		std::array<glm::vec4, 50> OverlayColors;
 		int GameMasterBind;
 		bool AutoRemoveHotbarSkills;
 		uint8_t AutoFillHotbarCategories;
