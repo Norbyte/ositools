@@ -407,6 +407,27 @@ void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::Eq
 	}
 }
 
+#define MAKE_REF(ty) case stats::PropertyType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<stats::Property##ty*>(p));
+
+void LuaPolymorphic<stats::PropertyData>::MakeRef(lua_State* L, stats::PropertyData* p, LifetimeHandle const & lifetime)
+{
+	switch (p->TypeId) {
+	MAKE_REF(Custom)
+	MAKE_REF(Status)
+	MAKE_REF(SurfaceChange)
+	MAKE_REF(GameAction)
+	MAKE_REF(OsirisTask)
+	MAKE_REF(Sabotage)
+	MAKE_REF(Summon)
+	MAKE_REF(Force)
+	MAKE_REF(CustomDescription)
+	MAKE_REF(Extender)
+	default: return MakeDirectObjectRef(L, lifetime, p);
+	}
+}
+
+#undef MAKE_REF
+
 void LuaPolymorphic<esv::MovementState>::MakeRef(lua_State* L, esv::MovementState* o, LifetimeHandle const & lifetime)
 {
 	switch (o->GetTypeId()) {

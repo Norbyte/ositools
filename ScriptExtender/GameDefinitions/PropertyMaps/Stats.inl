@@ -734,6 +734,11 @@ P_RO(Context)
 END_CLS()
 
 
+BEGIN_CLS(stats::PropertyCustom)
+INHERIT(stats::PropertyData)
+END_CLS()
+
+
 BEGIN_CLS(stats::PropertyStatus)
 INHERIT(stats::PropertyData)
 P(Status)
@@ -744,6 +749,64 @@ P(Arg4)
 P(Arg5)
 P(SurfaceBoost)
 P_REF(SurfaceBoosts)
+END_CLS()
+
+
+BEGIN_CLS(stats::PropertySurfaceChange)
+INHERIT(stats::PropertyData)
+P(SurfaceChange)
+P(SurfaceChance)
+P(Lifetime)
+P(StatusChance)
+P(Radius)
+END_CLS()
+
+
+BEGIN_CLS(stats::PropertySabotage)
+INHERIT(stats::PropertyData)
+P(Amount)
+END_CLS()
+
+
+BEGIN_CLS(stats::PropertySummon)
+INHERIT(stats::PropertyData)
+P(Template)
+P(Duration)
+P(IsTotem)
+P(Skill)
+END_CLS()
+
+
+BEGIN_CLS(stats::PropertyForce)
+INHERIT(stats::PropertyData)
+P(Distance)
+P(Unknown)
+END_CLS()
+
+
+BEGIN_CLS(stats::PropertyGameAction)
+INHERIT(stats::PropertyData)
+P(GameAction)
+P(Arg1)
+P(Arg2)
+P(Arg3)
+P(Arg4)
+P(Arg5)
+P(StatusHealType)
+END_CLS()
+
+
+BEGIN_CLS(stats::PropertyOsirisTask)
+INHERIT(stats::PropertyData)
+P(OsirisTask)
+P(Chance)
+P(VitalityOnRevive)
+END_CLS()
+
+
+BEGIN_CLS(stats::PropertyCustomDescription)
+INHERIT(stats::PropertyData)
+P(TextLine1)
 END_CLS()
 
 
@@ -759,10 +822,10 @@ P(Arg5)
 END_CLS()
 
 
-// FIXME - property list API!
 BEGIN_CLS(stats::PropertyList)
 P_RO(Name)
 P_RO(AllPropertyContexts)
+P_REF(Properties)
 END_CLS()
 
 
@@ -953,6 +1016,12 @@ P_FUN(GetByName, GetByName)
 END_CLS()
 
 BEGIN_CLS(stats::NamedElementManager<stats::LevelMap>)
+P_REF(Elements)
+P_REF(NameToIndex)
+P_FUN(GetByName, GetByName)
+END_CLS()
+
+BEGIN_CLS(stats::NamedElementManager<stats::PropertyData>)
 P_REF(Elements)
 P_REF(NameToIndex)
 P_FUN(GetByName, GetByName)

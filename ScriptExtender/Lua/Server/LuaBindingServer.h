@@ -37,6 +37,7 @@ LUA_POLYMORPHIC(esv::SkillState)
 LUA_POLYMORPHIC(rf::CameraController)
 LUA_POLYMORPHIC(UIObject)
 LUA_POLYMORPHIC(ecl::EoCUI)
+LUA_POLYMORPHIC(stats::PropertyData)
 
 void RegisterLibraries();
 void RegisterSharedMetatables(lua_State* L);
