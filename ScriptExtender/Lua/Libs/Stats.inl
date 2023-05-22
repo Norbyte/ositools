@@ -1387,14 +1387,37 @@ std::optional<bool> EvaluateRequirement(ProxyParam<stats::Character> character, 
 	req.Tag = tag.value_or(FixedString{});
 	req.Not = negate.value_or(false);
 
+	ObjectSet<FixedString> tags;
 	auto& ctx = gExtender->GetCurrentExtensionState()->GetCustomRequirementContext();
 	ctx.CharacterStats = character;
 	ctx.Requirement = &req;
+	ctx.Tags = &tags;
+
+	if (character->GameObject != nullptr) {
+		character->GameObject->GetTags(tags);
+
+		ComponentHandle handle;
+		character->GameObject->GetObjectHandle(handle);
+		switch ((ObjectHandleType)handle.GetType()) {
+		case ObjectHandleType::ClientCharacter: ctx.ClientCharacter = static_cast<ecl::Character*>(character->GameObject); break;
+		case ObjectHandleType::ClientItem: ctx.ClientItem = static_cast<ecl::Item*>(character->GameObject); break;
+		case ObjectHandleType::ServerCharacter: ctx.ServerCharacter = static_cast<esv::Character*>(character->GameObject); break;
+		case ObjectHandleType::ServerItem: ctx.ServerItem = static_cast<esv::Item*>(character->GameObject); break;
+		default:
+			OsiError("Unknown game object type bound to stats entry: " << handle.GetType());
+			break;
+		}
+	}
 
 	auto result = gExtender->GetCurrentExtensionState()->GetLua()->GetCustomRequirementCallbacks().Evaluate(character, req, true);
 
 	ctx.CharacterStats = nullptr;
 	ctx.Requirement = nullptr;
+	ctx.Tags = nullptr;
+	ctx.ClientCharacter = nullptr;
+	ctx.ClientItem = nullptr;
+	ctx.ServerCharacter = nullptr;
+	ctx.ServerItem = nullptr;
 
 	return result;
 }
