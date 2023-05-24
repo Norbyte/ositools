@@ -17,6 +17,8 @@ public:
 
 	void HandleCommand(std::string const& cmd);
 
+	void Clear();
+
 private:
 	bool created_{ false };
 	bool inputEnabled_{ false };
@@ -37,6 +39,7 @@ private:
 	void ResetLuaClient();
 	void ResetLuaServer();
 	void ExecLuaCommand(std::string const& cmd);
+	void ClearFromReset();
 };
 
 extern DebugConsole gConsole;

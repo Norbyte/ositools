@@ -69,6 +69,7 @@ void LoadConfig(std::wstring const & configPath, dse::ExtenderConfig & config)
 	ConfigGet(root, "DeveloperMode", config.DeveloperMode);
 	ConfigGet(root, "ShowPerfWarnings", config.ShowPerfWarnings);
 	ConfigGet(root, "EnableAchievements", config.EnableAchievements);
+	ConfigGet(root, "ClearOnReset", config.ClearOnReset);
 
 	ConfigGet(root, "DebuggerPort", config.DebuggerPort);
 	ConfigGet(root, "LuaDebuggerPort", config.LuaDebuggerPort);

@@ -127,12 +127,30 @@ void DebugConsole::PrintHelp()
 	DEBUG("  reset server - Reset server Lua state");
 	DEBUG("  reset - Reset client and server Lua states");
 	DEBUG("  silence <on|off> - Enable/disable silent mode (log output when in input mode)");
+	DEBUG("  clear - Clear the console");
 	DEBUG("  exit - Leave console mode");
 	DEBUG("  !<cmd> <arg1> ... <argN> - Trigger Lua \"ConsoleCommand\" event with arguments cmd, arg1, ..., argN");
 }
 
+void DebugConsole::Clear()
+{
+	// Clear screen, move cursor to top-left and clear scrollback
+	std::cout << "\x1b[2J" "\x1b[H" "\x1b[3J";
+}
+
+void DebugConsole::ClearFromReset()
+{
+	// Clear console if the setting is enabled
+	if (gExtender->GetConfig().ClearOnReset)
+	{
+		gConsole.Clear();
+	}
+}
+
 void DebugConsole::ResetLua()
 {
+	ClearFromReset();
+
 	DEBUG("Resetting Lua states.");
 	SubmitTaskAndWait(true, []() {
 		gExtender->GetServer().ResetLuaState();
@@ -147,6 +165,8 @@ void DebugConsole::ResetLua()
 
 void DebugConsole::ResetLuaClient()
 {
+	ClearFromReset();
+
 	DEBUG("Resetting client Lua state.");
 	SubmitTaskAndWait(false, []() {
 		if (!gExtender->GetServer().RequestResetClientLuaState()) {
@@ -157,6 +177,8 @@ void DebugConsole::ResetLuaClient()
 
 void DebugConsole::ResetLuaServer()
 {
+	ClearFromReset();
+
 	DEBUG("Resetting server Lua state.");
 	SubmitTaskAndWait(true, []() {
 		gExtender->GetServer().ResetLuaState();
@@ -217,6 +239,8 @@ void DebugConsole::HandleCommand(std::string const& cmd)
 	} else if (cmd == "silence off") {
 		DEBUG("Silent mode OFF");
 		silence_ = false;
+	} else if (cmd == "clear") {
+		Clear();
 	} else if (cmd == "help") {
 		PrintHelp();
 	} else {
