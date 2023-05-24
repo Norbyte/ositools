@@ -117,7 +117,7 @@ namespace dse::lua
 			if (v.DropCounts.size() > 0 || v.TotalCount > 0) {
 				v.TotalCount = 0;
 				for (uint32_t i = 0; i < v.DropCounts.size(); i++) {
-					v.TotalCount += v.DropCounts[i].Amount;
+					v.TotalCount += v.DropCounts[i].Chance;
 				}
 			}
 
