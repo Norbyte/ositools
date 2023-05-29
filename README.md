@@ -33,3 +33,5 @@ The following configuration variables can be set in the `OsirisExtenderSettings.
 | DebuggerPort | Integer | Port number the Osiris debugger will listen on (default 9999) |
 | EnableLuaDebugger | Boolean | Enables the Lua debugger interface |
 | LuaDebuggerPort | Integer | Port number the Lua debugger will listen on (default 9998) |
+| DefaultToClientConsole | Boolean | Makes the console default to the client context instead of server. Defaults to `false`.
+| ClearOnReset | Boolean | Clears the console window upon a manual Lua reset. Defaults to `false`.

@@ -30,6 +30,7 @@ struct ExtenderConfig
 	bool SendCrashReports{ true };
 	bool ForceCrashReporting{ false };
 	bool EnableAchievements{ true };
+	bool ClearOnReset{ false };
 
 	bool OptimizeHashing{ true };
 #if defined(OSI_EXTENSION_BUILD)
