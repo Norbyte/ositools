@@ -342,11 +342,12 @@ namespace dse
 	{
 		assert(luaRefs_ > 0);
 		luaRefs_--;
-		luaMutex_.unlock();
 
 		if (luaRefs_ == 0 && LuaPendingDelete) {
 			LuaResetInternal();
 		}
+
+		luaMutex_.unlock();
 	}
 
 	void ExtensionStateBase::LuaReset(ExtensionStateContext nextContext, bool startup)
