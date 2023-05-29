@@ -204,9 +204,9 @@ std::optional<float> UserspaceSkillStateClass::GetTargetRadius(CustomSkillEventP
 	return CallOptionalMethod("GetTargetRadius", Overload<float>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::ValidateTargetSight(CustomSkillEventParams& e, glm::vec3 const& target)
+std::optional<int32_t> UserspaceSkillStateClass::ValidateTargetSight(CustomSkillEventParams& e, glm::vec3 const& target)
 {
-	return CallOptionalMethod("ValidateTargetSight", Overload<bool>{}, &e, state_, target);
+	return CallOptionalMethod("ValidateTargetSight", Overload<int32_t>{}, &e, state_, target);
 }
 
 std::optional<uint32_t> UserspaceSkillStateClass::ValidateTarget(CustomSkillEventParams& e, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight)
@@ -387,9 +387,9 @@ float CustomSkillStateManager::OnGetTargetRadius(SkillState::GetTargetRadiusProc
 	DISPATCH_SKILL_EVENT(GetTargetRadius, float, 0.0f)
 }
 
-bool CustomSkillStateManager::OnValidateTargetSight(SkillState::ValidateTargetSightProc* wrapped, SkillState* self, glm::vec3 const& target)
+int32_t CustomSkillStateManager::OnValidateTargetSight(SkillState::ValidateTargetSightProc* wrapped, SkillState* self, glm::vec3 const& target)
 {
-	DISPATCH_SKILL_EVENT(ValidateTargetSight, bool, false, target)
+	DISPATCH_SKILL_EVENT(ValidateTargetSight, int32_t, 0, target)
 }
 
 uint32_t CustomSkillStateManager::OnValidateTarget(SkillState::ValidateTargetProc* wrapped, SkillState* self, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight)

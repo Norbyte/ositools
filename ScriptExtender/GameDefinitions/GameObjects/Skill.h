@@ -367,7 +367,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	using GetTargetRadiusProc = float (SkillState* self);
 	using ClearAICollidingProc = void (SkillState* self);
 	using SetAICollidingProc = void (SkillState* self);
-	using ValidateTargetSightProc = bool (SkillState* self, glm::vec3 const& target);
+	using ValidateTargetSightProc = int32_t (SkillState* self, glm::vec3 const& target);
 	using ValidateTargetProc = uint32_t (SkillState* self, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight);
 	using GetErrorReasonProc = uint32_t (SkillState* self);
 	using GetAbilityAndFlagsCheckProc = bool (SkillState* self);

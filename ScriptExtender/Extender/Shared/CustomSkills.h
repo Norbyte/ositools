@@ -114,7 +114,7 @@ public:
 	std::optional<bool> GetTargetPosition(CustomSkillEventParams& e, glm::vec3& targetPosition);
 	std::optional<float> GetTargetMoveDistance(CustomSkillEventParams& e);
 	std::optional<float> GetTargetRadius(CustomSkillEventParams& e);
-	std::optional<bool> ValidateTargetSight(CustomSkillEventParams& e, glm::vec3 const& target);
+	std::optional<int32_t> ValidateTargetSight(CustomSkillEventParams& e, glm::vec3 const& target);
 	std::optional<uint32_t> ValidateTarget(CustomSkillEventParams& e, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight);
 	bool FinishSkillState(CustomSkillEventParams& e);
 
@@ -155,7 +155,7 @@ private:
 	float OnGetTargetMoveDistance(SkillState::GetTargetMoveDistanceProc* wrapped, SkillState* self);
 	float OnGetTargetRadius(SkillState::GetTargetRadiusProc* wrapped, SkillState* self);
 
-	bool OnValidateTargetSight(SkillState::ValidateTargetSightProc* wrapped, SkillState* self, glm::vec3 const& target);
+	int32_t OnValidateTargetSight(SkillState::ValidateTargetSightProc* wrapped, SkillState* self, glm::vec3 const& target);
 	uint32_t OnValidateTarget(SkillState::ValidateTargetProc* wrapped, SkillState* self, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight);
 
 	void OnFinishSkillState(SkillState::FinishSkillStateProc* wrapped, SkillState* self);
