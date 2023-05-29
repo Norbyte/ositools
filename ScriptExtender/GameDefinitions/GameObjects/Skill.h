@@ -30,6 +30,73 @@ struct ProjectileTargetDesc
 
 struct SkillState : public ProtectedGameObject<SkillState>
 {
+	using DtorProc = void(SkillState* self);
+	using GetTypeProc = SkillType(SkillState* self);
+	using CheckTriggerProc = bool(SkillState* self, Trigger*);
+	using InitProc = bool(SkillState* self);
+	using EnterProc = bool(SkillState* self);
+	using UpdateProc = bool(SkillState* self, GameTime const&);
+	using TickProc = void(SkillState* self, int const& teamId);
+	using CanExitProc = bool(SkillState* self);
+	using ExitProc = bool(SkillState* self);
+	using IsFinishedProc = bool(SkillState* self);
+	using EnterBehaviourProc = bool(SkillState* self);
+	using ContinueBehaviourProc = bool(SkillState* self);
+	using UpdateBehaviourProc = bool(SkillState* self, GameTime const&);
+	using TickBehaviourProc = void(SkillState* self, uint32_t* teamId, float timeDelta);
+	using CanExitBehaviourProc = bool(SkillState* self);
+	using ExitBehaviourProc = bool(SkillState* self);
+	using IsFinishedBehaviourProc = bool(SkillState* self);
+	using EnterActionProc = bool(SkillState* self);
+	using ContinueActionProc = bool(SkillState* self);
+	using UpdateActionProc = bool(SkillState* self, GameTime const& time);
+	using TickActionProc = void(SkillState* self);
+	using CanExitActionProc = bool(SkillState* self);
+	using ExitActionProc = bool(SkillState* self);
+	using IsFinishedActionProc = bool(SkillState* self);
+	using GetSyncDataProc = bool(SkillState* self, ScratchBuffer&);
+	using GetSyncDataUpdateProc = bool(SkillState* self, ScratchBuffer&);
+	using SyncDataProc = bool(SkillState* self, ScratchBuffer&);
+	using GetTargetDistanceProc = float(SkillState* self);
+	using CloneProc = SkillState * (SkillState* self);
+	using ResetProc = void(SkillState* self);
+	using FinishProc = bool(SkillState* self);
+
+	struct VMT
+	{
+		DtorProc* Dtor;
+		GetTypeProc* GetType;
+		CheckTriggerProc* CheckTrigger;
+		InitProc* Init;
+		EnterProc* Enter;
+		UpdateProc* Update;
+		TickProc* Tick;
+		CanExitProc* CanExit;
+		ExitProc* Exit;
+		IsFinishedProc* IsFinished;
+		EnterBehaviourProc* EnterBehaviour;
+		ContinueBehaviourProc* ContinueBehaviour;
+		UpdateBehaviourProc* UpdateBehaviour;
+		TickBehaviourProc* TickBehaviour;
+		CanExitBehaviourProc* CanExitBehaviour;
+		ExitBehaviourProc* ExitBehaviour;
+		IsFinishedBehaviourProc* IsFinishedBehaviour;
+		EnterActionProc* EnterAction;
+		ContinueActionProc* ContinueAction;
+		UpdateActionProc* UpdateAction;
+		TickActionProc* TickAction;
+		CanExitActionProc* CanExitAction;
+		ExitActionProc* ExitAction;
+		IsFinishedActionProc* IsFinishedAction;
+		GetSyncDataProc* GetSyncData;
+		GetSyncDataUpdateProc* GetSyncDataUpdate;
+		SyncDataProc* SyncData;
+		GetTargetDistanceProc* GetTargetDistance;
+		CloneProc* Clone;
+		ResetProc* Reset;
+		FinishProc* Finish;
+	};
+
 	virtual ~SkillState() = 0;
 	virtual SkillType GetType() = 0;
 	virtual bool CheckTrigger(Trigger*) = 0;
@@ -57,6 +124,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	virtual bool GetSyncData(ScratchBuffer&) = 0;
 	virtual bool GetSyncDataUpdate(ScratchBuffer&) = 0;
 	virtual bool SyncData(ScratchBuffer&) = 0;
+	virtual float GetTargetDistance() = 0;
 	virtual SkillState* Clone() = 0;
 	virtual void Reset() = 0;
 	virtual bool Finish() = 0;

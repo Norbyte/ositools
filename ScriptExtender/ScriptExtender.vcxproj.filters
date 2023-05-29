@@ -489,8 +489,11 @@
     <ClInclude Include="Extender\Shared\CustomConditions.h">
       <Filter>Extender\Shared</Filter>
     </ClInclude>
-    <ClInclude Include="Extender\Shared\CustomSkills.h">
-      <Filter>Extender\Shared</Filter>
+    <ClInclude Include="Extender\Client\CustomSkills.h">
+      <Filter>Extender\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Server\CustomSkills.h">
+      <Filter>Extender\Server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1025,8 +1028,14 @@
     <None Include="GameDefinitions\PropertyMaps\MovementStates.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
-    <None Include="Extender\Shared\CustomSkills.inl">
-      <Filter>Extender\Shared</Filter>
+    <None Include="Extender\Client\CustomSkills.inl">
+      <Filter>Extender\Client</Filter>
+    </None>
+    <None Include="Extender\Server\CustomSkills.inl">
+      <Filter>Extender\Server</Filter>
+    </None>
+    <None Include="Lua\Libs\ServerBehavior.inl">
+      <Filter>Lua\Libs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

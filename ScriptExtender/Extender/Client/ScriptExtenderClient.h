@@ -5,7 +5,7 @@
 #include <Extender/Client/ExtensionStateClient.h>
 #include <Extender/Client/NetworkManagerClient.h>
 #include <Extender/Client/StatusHelpers.h>
-#include <Extender/Shared/CustomSkills.h>
+#include <Extender/Client/CustomSkills.h>
 #include <GameDefinitions/Symbols.h>
 
 BEGIN_NS(ecl)

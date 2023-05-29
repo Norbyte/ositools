@@ -11,12 +11,13 @@
 #include <psapi.h>
 #include <regex>
 
+#include <Extender/Shared/ThreadedExtenderState.inl>
+#include <Extender/Shared/ModuleHasher.inl>
 #include <Extender/Shared/StatLoadOrderHelper.inl>
 #include <Extender/Shared/SavegameSerializer.inl>
 #include <Extender/Shared/CustomDamageTypes.inl>
 #include <Extender/Shared/CustomRequirements.inl>
 #include <Extender/Shared/CustomConditions.inl>
-#include <Extender/Shared/CustomSkills.inl>
 #include <Extender/Shared/UserVariables.inl>
 
 #undef DEBUG_SERVER_CLIENT

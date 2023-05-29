@@ -1457,21 +1457,6 @@ float GetDamageBoostByType(ProxyParam<Character> self, DamageType damageType)
 #endif
 }
 
-void AddGlobalSkillConstructor(lua_State* L, Ref ctor)
-{
-	ecl::lua::ClientState::FromLua(L)->GetCustomSkillManager().AddConstructor(L, ctor);
-}
-
-void AddSkillTypeConstructor(lua_State* L, SkillType type, Ref ctor)
-{
-	ecl::lua::ClientState::FromLua(L)->GetCustomSkillManager().AddConstructor(type, L, ctor);
-}
-
-void AddSkillIdConstructor(lua_State* L, FixedString id, Ref ctor)
-{
-	ecl::lua::ClientState::FromLua(L)->GetCustomSkillManager().AddConstructor(id, L, ctor);
-}
-
 void RegisterStatsLib()
 {
 	DECLARE_MODULE(Stats, Both)
@@ -1499,13 +1484,6 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(AddDamageType)
 	MODULE_FUNCTION(AddRequirement)
 	MODULE_FUNCTION(AddCondition)
-	END_MODULE()
-		
-	DECLARE_SUBMODULE(Stats, Skill, Both)
-	BEGIN_MODULE()
-	MODULE_NAMED_FUNCTION("AddGlobal", AddGlobalSkillConstructor)
-	MODULE_NAMED_FUNCTION("AddByType", AddSkillTypeConstructor)
-	MODULE_NAMED_FUNCTION("AddById", AddSkillIdConstructor)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, Requirement, Both)

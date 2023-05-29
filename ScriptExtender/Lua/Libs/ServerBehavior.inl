@@ -1,33 +1,30 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
-#include <Lua/Libs/ClientCharacterTask.inl>
 
 /// <lua_module>Behavior</lua_module>
-BEGIN_NS(ecl::lua::behavior)
+BEGIN_NS(esv::lua::behavior)
 
 void AddGlobalSkillConstructor(lua_State* L, Ref ctor)
 {
-	ClientState::FromLua(L)->GetCustomSkillManager().AddConstructor(L, ctor);
+	ServerState::FromLua(L)->GetCustomSkillManager().AddConstructor(L, ctor);
 }
 
 void AddSkillTypeConstructor(lua_State* L, SkillType type, Ref ctor)
 {
-	ClientState::FromLua(L)->GetCustomSkillManager().AddConstructor(type, L, ctor);
+	ServerState::FromLua(L)->GetCustomSkillManager().AddConstructor(type, L, ctor);
 }
 
 void AddSkillIdConstructor(lua_State* L, FixedString id, Ref ctor)
 {
-	ClientState::FromLua(L)->GetCustomSkillManager().AddConstructor(id, L, ctor);
+	ServerState::FromLua(L)->GetCustomSkillManager().AddConstructor(id, L, ctor);
 }
 
 void RegisterBehaviorLib()
 {
-	DECLARE_MODULE(Behavior, Client)
+	DECLARE_MODULE(Behavior, Server)
 	BEGIN_MODULE()
-	MODULE_FUNCTION(RegisterCharacterTask)
-	MODULE_FUNCTION(AttachCharacterTask)
 	END_MODULE()
 
-	DECLARE_SUBMODULE(Behavior, Skill, Client)
+	DECLARE_SUBMODULE(Behavior, Skill, Server)
 	BEGIN_MODULE()
 	MODULE_NAMED_FUNCTION("AddGlobal", AddGlobalSkillConstructor)
 	MODULE_NAMED_FUNCTION("AddByType", AddSkillTypeConstructor)

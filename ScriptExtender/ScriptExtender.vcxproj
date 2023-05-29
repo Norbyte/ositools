@@ -21,11 +21,13 @@
   <ItemGroup>
     <ClInclude Include="DxgiWrapper.h" />
     <ClInclude Include="Extender\Client\CharacterTaskBinder.h" />
+    <ClInclude Include="Extender\Client\CustomSkills.h" />
     <ClInclude Include="Extender\Client\ExtensionStateClient.h" />
     <ClInclude Include="Extender\Client\NetworkManagerClient.h" />
     <ClInclude Include="Extender\Client\ScriptExtenderClient.h" />
     <ClInclude Include="Extender\Client\StatusHelpers.h" />
     <ClInclude Include="Extender\ScriptExtender.h" />
+    <ClInclude Include="Extender\Server\CustomSkills.h" />
     <ClInclude Include="Extender\Server\ExtensionStateServer.h" />
     <ClInclude Include="Extender\Server\NetworkManagerServer.h" />
     <ClInclude Include="Extender\Server\OsirisStatusHelpers.h" />
@@ -35,7 +37,6 @@
     <ClInclude Include="Extender\Shared\CustomConditions.h" />
     <ClInclude Include="Extender\Shared\CustomDamageTypes.h" />
     <ClInclude Include="Extender\Shared\CustomRequirements.h" />
-    <ClInclude Include="Extender\Shared\CustomSkills.h" />
     <ClInclude Include="Extender\Shared\Hooks.h" />
     <ClInclude Include="Extender\Shared\ExtenderConfig.h" />
     <ClInclude Include="Extender\Shared\ExtensionHelpers.h" />
@@ -275,12 +276,13 @@
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
     <None Include="Extender\Client\CharacterTaskBinder.inl" />
+    <None Include="Extender\Client\CustomSkills.inl" />
     <None Include="Extender\Client\StatusHelpers.inl" />
+    <None Include="Extender\Server\CustomSkills.inl" />
     <None Include="Extender\Server\StatusHelpers.inl" />
     <None Include="Extender\Shared\CustomConditions.inl" />
     <None Include="Extender\Shared\CustomDamageTypes.inl" />
     <None Include="Extender\Shared\CustomRequirements.inl" />
-    <None Include="Extender\Shared\CustomSkills.inl" />
     <None Include="Extender\Shared\ModuleHasher.inl" />
     <None Include="Extender\Shared\SavegameSerializer.inl" />
     <None Include="Extender\Shared\ScriptExtensions.proto" />
@@ -359,6 +361,7 @@
     <None Include="Lua\Libs\Server.inl" />
     <None Include="Lua\Libs\ServerAction.inl" />
     <None Include="Lua\Libs\ServerAi.inl" />
+    <None Include="Lua\Libs\ServerBehavior.inl" />
     <None Include="Lua\Libs\ServerCombat.inl" />
     <None Include="Lua\Libs\ServerCustomStats.inl" />
     <None Include="Lua\Libs\ServerEffect.inl" />

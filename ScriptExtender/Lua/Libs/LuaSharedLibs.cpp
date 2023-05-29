@@ -21,6 +21,7 @@
 #include <Lua/Libs/ClientInput.inl>
 #include <Lua/Libs/Server.inl>
 #include <Lua/Libs/ServerAi.inl>
+#include <Lua/Libs/ServerBehavior.inl>
 #include <Lua/Libs/ServerOsiris.inl>
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
@@ -59,6 +60,7 @@ void RegisterServerLibraries()
 {
 	server::RegisterServerLib();
 	ai::RegisterAiLib();
+	behavior::RegisterBehaviorLib();
 	osiris::RegisterOsirisLib();
 	net::RegisterNetLib();
 	stats::RegisterCustomStatLib();

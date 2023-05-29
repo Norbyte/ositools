@@ -7,54 +7,54 @@
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaUserspaceClass.h>
 
-#define FOR_ALL_SKILL_TYPES() \
-	FOR_SKILL_TYPE(Zone) \
-	FOR_SKILL_TYPE(SkillHeal) \
-	FOR_SKILL_TYPE(Jump) \
-	FOR_SKILL_TYPE(MultiStrike) \
-	FOR_SKILL_TYPE(Path) \
-	FOR_SKILL_TYPE(Projectile) \
-	FOR_SKILL_TYPE(ProjectileStrike) \
-	FOR_SKILL_TYPE(Quake) \
-	FOR_SKILL_TYPE(Rain) \
-	FOR_SKILL_TYPE(Rush) \
-	FOR_SKILL_TYPE(Shout) \
-	FOR_SKILL_TYPE(Storm) \
-	FOR_SKILL_TYPE(Summon) \
-	FOR_SKILL_TYPE(Target) \
-	FOR_SKILL_TYPE(Teleportation) \
-	FOR_SKILL_TYPE(Tornado) \
-	FOR_SKILL_TYPE(Wall) \
-	FOR_SKILL_TYPE(Dome)
+#define FOR_ALL_ECL_SKILL_TYPES() \
+	FOR_ECL_SKILL_TYPE(Zone) \
+	FOR_ECL_SKILL_TYPE(SkillHeal) \
+	FOR_ECL_SKILL_TYPE(Jump) \
+	FOR_ECL_SKILL_TYPE(MultiStrike) \
+	FOR_ECL_SKILL_TYPE(Path) \
+	FOR_ECL_SKILL_TYPE(Projectile) \
+	FOR_ECL_SKILL_TYPE(ProjectileStrike) \
+	FOR_ECL_SKILL_TYPE(Quake) \
+	FOR_ECL_SKILL_TYPE(Rain) \
+	FOR_ECL_SKILL_TYPE(Rush) \
+	FOR_ECL_SKILL_TYPE(Shout) \
+	FOR_ECL_SKILL_TYPE(Storm) \
+	FOR_ECL_SKILL_TYPE(Summon) \
+	FOR_ECL_SKILL_TYPE(Target) \
+	FOR_ECL_SKILL_TYPE(Teleportation) \
+	FOR_ECL_SKILL_TYPE(Tornado) \
+	FOR_ECL_SKILL_TYPE(Wall) \
+	FOR_ECL_SKILL_TYPE(Dome)
 
 #define FOR_ALL_SKILL_FUNCS(ty) \
-	FOR_SKILL_FUNC(ty, Enter) \
-	FOR_SKILL_FUNC(ty, Continue) \
-	FOR_SKILL_FUNC(ty, Update) \
-	FOR_SKILL_FUNC(ty, Tick) \
-	FOR_SKILL_FUNC(ty, Exit) \
-	FOR_SKILL_FUNC(ty, OnInputEvent) \
-	FOR_SKILL_FUNC(ty, EnterBehaviour) \
-	FOR_SKILL_FUNC(ty, ContinueBehaviour) \
-	FOR_SKILL_FUNC(ty, UpdateBehaviour) \
-	FOR_SKILL_FUNC(ty, TickBehaviour) \
-	FOR_SKILL_FUNC(ty, ExitBehaviour) \
-	FOR_SKILL_FUNC(ty, EnterAction) \
-	FOR_SKILL_FUNC(ty, ContinueAction) \
-	FOR_SKILL_FUNC(ty, UpdateAction) \
-	FOR_SKILL_FUNC(ty, TickAction) \
-	FOR_SKILL_FUNC(ty, ExitAction) \
-	FOR_SKILL_FUNC(ty, GetTarget) \
-	FOR_SKILL_FUNC(ty, GetTargetPosition) \
-	FOR_SKILL_FUNC(ty, GetTargetMoveDistance) \
-	FOR_SKILL_FUNC(ty, GetTargetRadius) \
-	FOR_SKILL_FUNC(ty, ValidateTargetSight) \
-	FOR_SKILL_FUNC(ty, ValidateTarget) \
-	FOR_SKILL_FUNC(ty, FinishSkillState)
+	FOR_ECL_SKILL_FUNC(ty, Enter) \
+	FOR_ECL_SKILL_FUNC(ty, Continue) \
+	FOR_ECL_SKILL_FUNC(ty, Update) \
+	FOR_ECL_SKILL_FUNC(ty, Tick) \
+	FOR_ECL_SKILL_FUNC(ty, Exit) \
+	FOR_ECL_SKILL_FUNC(ty, OnInputEvent) \
+	FOR_ECL_SKILL_FUNC(ty, EnterBehaviour) \
+	FOR_ECL_SKILL_FUNC(ty, ContinueBehaviour) \
+	FOR_ECL_SKILL_FUNC(ty, UpdateBehaviour) \
+	FOR_ECL_SKILL_FUNC(ty, TickBehaviour) \
+	FOR_ECL_SKILL_FUNC(ty, ExitBehaviour) \
+	FOR_ECL_SKILL_FUNC(ty, EnterAction) \
+	FOR_ECL_SKILL_FUNC(ty, ContinueAction) \
+	FOR_ECL_SKILL_FUNC(ty, UpdateAction) \
+	FOR_ECL_SKILL_FUNC(ty, TickAction) \
+	FOR_ECL_SKILL_FUNC(ty, ExitAction) \
+	FOR_ECL_SKILL_FUNC(ty, GetTarget) \
+	FOR_ECL_SKILL_FUNC(ty, GetTargetPosition) \
+	FOR_ECL_SKILL_FUNC(ty, GetTargetMoveDistance) \
+	FOR_ECL_SKILL_FUNC(ty, GetTargetRadius) \
+	FOR_ECL_SKILL_FUNC(ty, ValidateTargetSight) \
+	FOR_ECL_SKILL_FUNC(ty, ValidateTarget) \
+	FOR_ECL_SKILL_FUNC(ty, FinishSkillState)
 
 BEGIN_NS(ecl)
 
-#define FOR_SKILL_FUNC(ty, name) \
+#define FOR_ECL_SKILL_FUNC(ty, name) \
 	enum class name##Tag {}; \
 	using name##Wrapper = WrappableFunction<name##Tag, SkillState::name##Proc>; \
 	name##Wrapper name;
@@ -65,23 +65,23 @@ struct CustomSkillVMTs
 	FOR_ALL_SKILL_FUNCS(void)
 };
 
-#undef FOR_SKILL_FUNC
+#undef FOR_ECL_SKILL_FUNC
 
 
-#define FOR_SKILL_TYPE(ty) CustomSkillVMTs<SkillType::ty> ##ty;
+#define FOR_ECL_SKILL_TYPE(ty) CustomSkillVMTs<SkillType::ty> ##ty;
 
 class CustomSkillVMTWrappers
 {
 public:
 	void Initialize();
 
-	FOR_ALL_SKILL_TYPES()
+	FOR_ALL_ECL_SKILL_TYPES()
 
 private:
 	bool initialized_{ false };
 };
 
-#undef FOR_SKILL_TYPE
+#undef FOR_ECL_SKILL_TYPE
 
 struct CustomSkillEventParams
 {

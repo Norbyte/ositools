@@ -8,6 +8,7 @@
 #include <Osiris/Shared/CustomFunctions.h>
 #include <Extender/Shared/ExtensionHelpers.h>
 #include <Osiris/Shared/OsirisHelpers.h>
+#include <Extender/Server/CustomSkills.h>
 
 BEGIN_NS(lua)
 
@@ -243,6 +244,11 @@ public:
 	ServerState(ExtensionState& state, uint32_t generationId);
 	~ServerState();
 
+	CustomSkillStateManager& GetCustomSkillManager()
+	{
+		return customSkills_;
+	}
+
 	void Initialize() override;
 	bool IsClient() override;
 
@@ -341,6 +347,7 @@ public:
 private:
 	ExtensionLibraryServer library_;
 	OsirisBinding osiris_;
+	CustomSkillStateManager customSkills_;
 
 	bool QueryInternal(char const* mod, char const* name, RegistryEntry* func,
 		std::vector<CustomFunctionParam> const& signature, OsiArgumentDesc& params);

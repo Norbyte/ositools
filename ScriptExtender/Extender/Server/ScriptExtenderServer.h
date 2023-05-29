@@ -13,6 +13,7 @@
 #include <Osiris/OsirisExtender.h>
 #include <GameHooks/Wrappers.h>
 #include <Osiris/OsirisExtender.h>
+#include <Extender/Server/CustomSkills.h>
 
 BEGIN_NS(esv)
 
@@ -60,6 +61,11 @@ public:
 		return osirisStatusHelpers_;
 	}
 
+	inline CustomSkillVMTWrappers& GetSkillVMTs()
+	{
+		return customSkillVmts_;
+	}
+
 	bool IsInServerThread() const;
 	void ResetLuaState();
 	bool RequestResetClientLuaState();
@@ -85,6 +91,7 @@ private:
 	StatusHelpers statusHelpers_;
 	OsirisStatusHelpers osirisStatusHelpers_;
 	SavegameSerializer savegameSerializer_;
+	CustomSkillVMTWrappers customSkillVmts_;
 
 	void OnBaseModuleLoaded(void * self);
 	void OnGameStateChanged(void * self, GameState fromState, GameState toState);

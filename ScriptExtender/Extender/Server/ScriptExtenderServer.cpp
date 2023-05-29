@@ -3,6 +3,7 @@
 #include <Extender/ScriptExtender.h>
 
 #include <Extender/Server/StatusHelpers.inl>
+#include <Extender/Server/CustomSkills.inl>
 
 #define STATIC_HOOK(name) decltype(dse::esv::ScriptExtender::name) * decltype(dse::esv::ScriptExtender::name)::gHook;
 STATIC_HOOK(gameStateWorkerStart_)
@@ -269,6 +270,7 @@ void ScriptExtender::LoadExtensionState(ExtensionStateContext ctx)
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
 		OsiMsg("Initializing server with target context " << ContextToString(ctx));
 		gExtender->GetLibraryManager().ApplyCodePatches();
+		customSkillVmts_.Initialize();
 		network_.ExtendNetworking();
 		osiris_.GetCustomFunctionManager().ClearDynamicEntries();
 		extensionState_->GetModVariables().OnModuleLoading();

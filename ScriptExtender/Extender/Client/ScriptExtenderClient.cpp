@@ -11,8 +11,7 @@ STATIC_HOOK(gameStateChangedEvent_)
 STATIC_HOOK(gameStateMachineUpdate_)
 STATIC_HOOK(gameStateLoadIncLocalProgress_)
 
-#include <Extender/Shared/ThreadedExtenderState.inl>
-#include <Extender/Shared/ModuleHasher.inl>
+#include <Extender/Client/CustomSkills.inl>
 
 BEGIN_SE()
 

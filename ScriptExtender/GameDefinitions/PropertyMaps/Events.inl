@@ -280,3 +280,8 @@ BEGIN_CLS(ecl::CustomSkillEventParams)
 P(StopEvent)
 P(PreventDefault)
 END_CLS()
+
+BEGIN_CLS(esv::CustomSkillEventParams)
+P(StopEvent)
+P(PreventDefault)
+END_CLS()

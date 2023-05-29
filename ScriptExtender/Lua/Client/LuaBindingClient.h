@@ -5,7 +5,7 @@
 #include <GameDefinitions/UI.h>
 #include <Lua/Client/ClientUI.h>
 #include <GameDefinitions/GameObjects/Effect.h>
-#include <Extender/Shared/CustomSkills.h>
+#include <Extender/Client/CustomSkills.h>
 #include <span>
 
 BEGIN_NS(ecl::lua::visual)
