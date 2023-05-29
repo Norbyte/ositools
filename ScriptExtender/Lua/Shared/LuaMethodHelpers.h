@@ -278,6 +278,7 @@ struct ProtectedMethodCaller : public ProtectedMethodCallerBase
 {
 	TArgs Args;
 	ReturnValueContainer<TReturn> Retval;
+	bool Optional{ false };
 
 	bool Call(lua_State* L)
 	{
@@ -292,6 +293,10 @@ struct ProtectedMethodCaller : public ProtectedMethodCallerBase
 
 		lua_pushvalue(L, 2);
 		lua_getfield(L, -1, self->Method);
+		if (self->Optional && lua_type(L, -1) == LUA_TNIL) {
+			lua_pop(L, 1);
+			return -1;
+		}
 
 		lua_pushvalue(L, 2);
 		PushUserCallArg(L, self->Args);

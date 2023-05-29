@@ -21,6 +21,13 @@ END_NS()
 
 BEGIN_NS(esv)
 
+struct ProjectileTargetDesc
+{
+	ComponentHandle Target;
+	glm::vec3 TargetPosition;
+	glm::vec3 TargetPosition2;
+};
+
 struct SkillState : public ProtectedGameObject<SkillState>
 {
 	virtual ~SkillState() = 0;
@@ -361,7 +368,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	using ClearAICollidingProc = void (SkillState* self);
 	using SetAICollidingProc = void (SkillState* self);
 	using ValidateTargetSightProc = bool (SkillState* self, glm::vec3 const& target);
-	using ValidateTargetProc = uint32_t (SkillState* self, ComponentHandle& targetHandle, glm::vec3 const& targetPos, bool, bool);
+	using ValidateTargetProc = uint32_t (SkillState* self, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight);
 	using GetErrorReasonProc = uint32_t (SkillState* self);
 	using GetAbilityAndFlagsCheckProc = bool (SkillState* self);
 	using GetNameTranslatedStringProc = TranslatedString* (SkillState* self, TranslatedString&);
@@ -476,7 +483,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	virtual void ClearAIColliding() = 0;
 	virtual void SetAIColliding() = 0;
 	virtual bool ValidateTargetSight(glm::vec3 const& target) = 0;
-	virtual uint32_t ValidateTarget(ComponentHandle& targetHandle, glm::vec3 const& targetPos, bool, bool) = 0;
+	virtual uint32_t ValidateTarget(uint64_t targetHandle, glm::vec3 const* targetPos, bool, bool) = 0;
 	virtual uint32_t GetErrorReason() = 0;
 	virtual bool GetAbilityAndFlagsCheck() = 0;
 	virtual TranslatedString* GetNameTranslatedString(TranslatedString&) = 0;

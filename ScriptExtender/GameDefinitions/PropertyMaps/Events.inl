@@ -275,3 +275,8 @@ P(Entity)
 P_REF(Character)
 P_REF(Params)
 END_CLS()
+
+BEGIN_CLS(ecl::CustomSkillEventParams)
+P(StopEvent)
+P(PreventDefault)
+END_CLS()

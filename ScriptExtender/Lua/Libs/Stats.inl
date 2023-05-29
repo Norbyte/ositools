@@ -1457,6 +1457,11 @@ float GetDamageBoostByType(ProxyParam<Character> self, DamageType damageType)
 #endif
 }
 
+void AddSkillConstructor(lua_State* L, SkillType type, Ref ctor)
+{
+	ecl::lua::ClientState::FromLua(L)->GetCustomSkillManager().SetConstructor(type, L, ctor);
+}
+
 void RegisterStatsLib()
 {
 	DECLARE_MODULE(Stats, Both)
@@ -1484,6 +1489,11 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(AddDamageType)
 	MODULE_FUNCTION(AddRequirement)
 	MODULE_FUNCTION(AddCondition)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, Skill, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("Add", AddSkillConstructor)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, Requirement, Both)

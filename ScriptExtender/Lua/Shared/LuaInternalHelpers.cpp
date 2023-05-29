@@ -933,7 +933,9 @@ bool ProtectedMethodCallerBase::ProtectedCall(lua_State* L, lua_CFunction fun)
 {
 	StackCheck _(L);
 	auto ret = CallUserFunctionWithTraceback(L, fun);
-	if (ret != LUA_OK) {
+	if (ret == -1) {
+		return false;
+	} else if (ret != LUA_OK) {
 		ERR("Error while dispatching user method call '%s': %s", Method, lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return false; 

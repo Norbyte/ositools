@@ -387,6 +387,7 @@ void ScriptExtender::LoadExtensionState(ExtensionStateContext ctx)
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
 		OsiMsg("Initializing client with target context " << ContextToString(ctx));
 		gExtender->GetLibraryManager().ApplyCodePatches();
+		customSkillVmts_.Initialize();
 		network_.ExtendNetworking();
 		extensionState_->GetModVariables().OnModuleLoading();
 		extensionState_->LuaReset(ctx, true);

@@ -5,6 +5,7 @@
 #include <GameDefinitions/UI.h>
 #include <Lua/Client/ClientUI.h>
 #include <GameDefinitions/GameObjects/Effect.h>
+#include <Extender/Shared/CustomSkills.h>
 #include <span>
 
 BEGIN_NS(ecl::lua::visual)
@@ -138,6 +139,11 @@ namespace dse::ecl::lua
 			return characterTaskRegistry_;
 		}
 
+		CustomSkillStateManager& GetCustomSkillManager()
+		{
+			return customSkills_;
+		}
+
 		void Initialize() override;
 		bool IsClient() override;
 		void OnUpdate(GameTime const& time) override;
@@ -166,5 +172,6 @@ namespace dse::ecl::lua
 		CustomDrawHelper customDrawHelper_;
 		visual::VisualSystem visualSystem_;
 		CharacterTaskRegistry characterTaskRegistry_;
+		CustomSkillStateManager customSkills_;
 	};
 }

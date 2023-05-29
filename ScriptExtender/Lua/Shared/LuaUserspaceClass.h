@@ -9,19 +9,15 @@ BEGIN_NS(lua)
 class UserspaceClassBase
 {
 public:
-	inline UserspaceClassBase(lua_State* L, int index)
-		: L_(L), ref_(L, index)
-	{}
-	
 	inline UserspaceClassBase(lua_State* L, Ref const& reg)
-		: L_(L), ref_(reg)
+		: L_(L), ref_(L, reg)
 	{}
 
 	inline ~UserspaceClassBase() {}
 
 	void Push() const
 	{
-		ref_.Push(L_);
+		ref_.Push();
 	}
 
 	template <class Ret, class ...Args>
@@ -31,6 +27,21 @@ public:
 		caller.Self = ref_;
 		caller.Method = name;
 		caller.Args = std::tuple<Args...>(std::forward<Args>(args)...);
+		if (caller.Call(L_)) {
+			return caller.Retval.Value;
+		} else {
+			return {};
+		}
+	}
+
+	template <class Ret, class ...Args>
+	std::optional<Ret> CallOptionalMethod(char const* name, Overload<Ret> ov, Args... args)
+	{
+		ProtectedMethodCaller<std::tuple<Args...>, Ret> caller;
+		caller.Self = ref_;
+		caller.Method = name;
+		caller.Args = std::tuple<Args...>(std::forward<Args>(args)...);
+		caller.Optional = true;
 		if (caller.Call(L_)) {
 			return caller.Retval.Value;
 		} else {
@@ -62,9 +73,20 @@ public:
 		return caller.Call(L_);
 	}
 
+	template <class ...Args>
+	bool CallOptionalMethod(char const* name, Overload<void> ov, Args... args)
+	{
+		ProtectedMethodCaller<std::tuple<Args...>, void> caller;
+		caller.Self = ref_;
+		caller.Method = name;
+		caller.Args = std::tuple<Args...>(std::forward<Args>(args)...);
+		caller.Optional = true;
+		return caller.Call(L_);
+	}
+
 private:
 	lua_State* L_;
-	Ref ref_;
+	RegistryEntry ref_;
 };
 
 // Reference that may outlive the Lua state/variable that it is referencing.

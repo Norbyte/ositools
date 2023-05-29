@@ -209,10 +209,21 @@ inline uint64_t Hash(uint64_t v)
 	return v;
 }
 
+inline uint64_t Hash(int64_t v)
+{
+	return (uint64_t)v;
+}
+
 template <class T>
 inline typename std::enable_if_t<std::is_enum_v<T>, uint64_t> Hash(T v)
 {
 	return Hash(std::underlying_type_t<T>(v));
+}
+
+template <class T>
+inline typename std::enable_if_t<std::is_pointer_v<T>, uint64_t> Hash(T v)
+{
+	return Hash(reinterpret_cast<intptr_t>(v));
 }
 
 // Return type indicating that Lua return values are pushed to the stack by the function

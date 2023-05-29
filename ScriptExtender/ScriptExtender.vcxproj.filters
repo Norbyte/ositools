@@ -489,6 +489,9 @@
     <ClInclude Include="Extender\Shared\CustomConditions.h">
       <Filter>Extender\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Extender\Shared\CustomSkills.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -1021,6 +1024,9 @@
     </None>
     <None Include="GameDefinitions\PropertyMaps\MovementStates.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="Extender\Shared\CustomSkills.inl">
+      <Filter>Extender\Shared</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

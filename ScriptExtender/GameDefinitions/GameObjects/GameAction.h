@@ -3,7 +3,7 @@
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/Stats.h>
-#include <GameDefinitions/Components/Projectile.h>
+#include <GameDefinitions/GameObjects/Skill.h>
 
 BEGIN_NS(esv)
 

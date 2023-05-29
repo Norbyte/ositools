@@ -5,6 +5,7 @@
 #include <Extender/Client/ExtensionStateClient.h>
 #include <Extender/Client/NetworkManagerClient.h>
 #include <Extender/Client/StatusHelpers.h>
+#include <Extender/Shared/CustomSkills.h>
 #include <GameDefinitions/Symbols.h>
 
 BEGIN_NS(ecl)
@@ -43,6 +44,11 @@ public:
 		return statusHelpers_;
 	}
 
+	inline CustomSkillVMTWrappers& GetSkillVMTs()
+	{
+		return customSkillVmts_;
+	}
+
 	bool IsInClientThread() const;
 	void ResetLuaState();
 	void ResetExtensionState();
@@ -68,6 +74,7 @@ private:
 	NetworkManager network_;
 	NetworkFixedStringReceiver networkFixedStrings_;
 	StatusHelpers statusHelpers_;
+	CustomSkillVMTWrappers customSkillVmts_;
 	STDWString serverStatus_;
 	STDWString clientStatus_;
 
