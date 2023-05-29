@@ -249,7 +249,7 @@ void CustomSkillStateManager::DestroyUserState(SkillState* self)
 
 #define DISPATCH_SKILL_EVENT(fun, ret, defval, ...) \
 	CustomSkillEventParams ev; \
-	std::optional<bool> result; \
+	std::optional<ret> result; \
 	auto states = userStates_.find(self); \
 	if (states != userStates_.end()) { \
 		for (auto& state : states.Value()) { \
