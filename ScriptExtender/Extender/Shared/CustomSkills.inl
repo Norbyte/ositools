@@ -69,35 +69,22 @@ CustomSkillStateManager::~CustomSkillStateManager()
 #undef FOR_SKILL_TYPE
 #undef FOR_SKILL_FUNC
 
-void CustomSkillStateManager::SetConstructor(SkillType type, lua_State* L, dse::lua::Ref const& ctor)
+void CustomSkillStateManager::AddConstructor(lua_State* L, dse::lua::Ref const& ctor)
 {
-	typeConstructors_.insert(std::make_pair(type, dse::lua::RegistryEntry(L, ctor)));
+	globalConstructors_.push_back(lua::UserObjectConstructor<UserspaceSkillStateClass>(L, ctor));
 }
 
-template <class T>
-class UserObjectConstructor
+void CustomSkillStateManager::AddConstructor(SkillType type, lua_State* L, dse::lua::Ref const& ctor)
 {
-public:
-	UserObjectConstructor(lua_State* L, lua::Ref const& ref)
-		: ref_(L, ref)
-	{}
+	auto ctors = typeConstructors_.get_or_insert(type);
+	ctors->push_back(lua::UserObjectConstructor<UserspaceSkillStateClass>(L, ctor));
+}
 
-	lua::RegistryEntry Construct(lua_State* L, SkillState* state)
-	{
-		lua::StackCheck _(L);
-		lua::ProtectedFunctionCaller<std::tuple<SkillState*>, dse::lua::RegistryEntry> caller;
-		caller.Function = ref_;
-		caller.Args = std::tuple(state);
-		if (caller.Call(L, "constructing user object")) {
-			return std::move(caller.Retval.Value);
-		} else {
-			return {};
-		}
-	}
-
-private:
-	lua::RegistryEntry ref_;
-};
+void CustomSkillStateManager::AddConstructor(FixedString const& skillId, lua_State* L, dse::lua::Ref const& ctor)
+{
+	auto ctors = idConstructors_.get_or_insert(skillId);
+	ctors->push_back(lua::UserObjectConstructor<UserspaceSkillStateClass>(L, ctor));
+}
 
 UserspaceSkillStateClass::UserspaceSkillStateClass(lua_State* L, SkillState* state, lua::Ref const& ref)
 	: UserspaceClassBase(L, ref),
@@ -219,19 +206,41 @@ bool UserspaceSkillStateClass::FinishSkillState(CustomSkillEventParams& e)
 	return CallOptionalMethod("FinishSkillState", Overload<void>{}, &e, state_);
 }
 
+void ConstructState(lua_State* L, SkillState* skill, Vector<GameUniquePtr<UserspaceSkillStateClass>>& states, lua::UserObjectConstructor<UserspaceSkillStateClass>& ctor)
+{
+	auto userState = ctor.Construct(L, skill);
+	userState.Push();
+	auto nonNil = lua_type(L, -1) != LUA_TNIL;
+	lua_pop(L, 1);
+	if (nonNil) {
+		states.push_back(MakeGameUnique<UserspaceSkillStateClass>(L, skill, userState));
+	}
+}
 
 void CustomSkillStateManager::ConstructUserState(SkillState* self)
 {
+	LuaClientPin lua(ExtensionState::Get());
+	auto L = lua->GetState();
+	lua::StackCheck _(L);
+
 	Vector<GameUniquePtr<UserspaceSkillStateClass>> states;
+
+	for (auto& ctor : globalConstructors_) {
+		ConstructState(L, self, states, ctor);
+	}
 
 	auto it = typeConstructors_.find(self->GetType());
 	if (it != typeConstructors_.end()) {
-		LuaClientPin lua(ExtensionState::Get());
-		auto L = lua->GetState();
-		lua::StackCheck _(L);
-		UserObjectConstructor<UserspaceSkillStateClass> ctor(L, it.Value());
-		auto userState = ctor.Construct(L, self);
-		states.push_back(MakeGameUnique<UserspaceSkillStateClass>(L, self, userState));
+		for (auto& ctor : it.Value()) {
+			ConstructState(L, self, states, ctor);
+		}
+	}
+
+	auto idIt = idConstructors_.find(self->SkillId);
+	if (idIt != idConstructors_.end()) {
+		for (auto& ctor : it.Value()) {
+			ConstructState(L, self, states, ctor);
+		}
 	}
 
 	if (!states.empty()) {

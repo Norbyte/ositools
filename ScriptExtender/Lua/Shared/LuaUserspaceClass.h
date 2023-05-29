@@ -189,4 +189,30 @@ public:
 	}
 };
 
+template <class T>
+class UserObjectConstructor
+{
+public:
+	UserObjectConstructor(lua_State* L, lua::Ref const& ref)
+		: ref_(L, ref)
+	{}
+
+	template <class ...Args>
+	lua::RegistryEntry Construct(lua_State* L, Args... args)
+	{
+		lua::StackCheck _(L);
+		lua::ProtectedFunctionCaller<std::tuple<Args...>, dse::lua::RegistryEntry> caller;
+		caller.Function = ref_;
+		caller.Args = std::tuple(args...);
+		if (caller.Call(L, "constructing user object")) {
+			return std::move(caller.Retval.Value);
+		} else {
+			return {};
+		}
+	}
+
+private:
+	lua::RegistryEntry ref_;
+};
+
 END_NS()

@@ -128,7 +128,9 @@ public:
 	CustomSkillStateManager();
 	~CustomSkillStateManager();
 
-	void SetConstructor(SkillType type, lua_State* L, dse::lua::Ref const& ctor);
+	void AddConstructor(lua_State* L, dse::lua::Ref const& ctor);
+	void AddConstructor(SkillType type, lua_State* L, dse::lua::Ref const& ctor);
+	void AddConstructor(FixedString const& skillId, lua_State* L, dse::lua::Ref const& ctor);
 
 private:
 	bool OnEnter(SkillState::EnterProc* wrapped, SkillState* self);
@@ -163,7 +165,9 @@ private:
 	void ConstructUserState(SkillState* self);
 	void DestroyUserState(SkillState* self);
 
-	Map<SkillType, dse::lua::RegistryEntry> typeConstructors_;
+	Vector<lua::UserObjectConstructor<UserspaceSkillStateClass>> globalConstructors_;
+	Map<SkillType, Vector<lua::UserObjectConstructor<UserspaceSkillStateClass>>> typeConstructors_;
+	Map<FixedString, Vector<lua::UserObjectConstructor<UserspaceSkillStateClass>>> idConstructors_;
 	Map<SkillState*, Vector<GameUniquePtr<UserspaceSkillStateClass>>> userStates_;
 };
 
