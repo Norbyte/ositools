@@ -93,17 +93,17 @@ public:
 	std::optional<bool> Enter(CustomSkillEventParams& e);
 	std::optional<bool> Update(CustomSkillEventParams& e, GameTime const& time);
 	bool Tick(CustomSkillEventParams& e, int const& teamId);
-	std::optional<bool> Exit(CustomSkillEventParams& e);
+	bool Exit(CustomSkillEventParams& e);
 	std::optional<bool> EnterBehaviour(CustomSkillEventParams& e);
 	std::optional<bool> ContinueBehaviour(CustomSkillEventParams& e);
-	std::optional<bool> UpdateBehaviour(CustomSkillEventParams& e, GameTime const& time);
+	bool UpdateBehaviour(CustomSkillEventParams& e, GameTime const& time);
 	bool TickBehaviour(CustomSkillEventParams& e, uint32_t* teamId, float timeDelta);
 	std::optional<bool> ExitBehaviour(CustomSkillEventParams& e);
 	std::optional<bool> EnterAction(CustomSkillEventParams& e);
 	std::optional<bool> ContinueAction(CustomSkillEventParams& e);
-	std::optional<bool> UpdateAction(CustomSkillEventParams& e, GameTime const& time);
+	bool UpdateAction(CustomSkillEventParams& e, GameTime const& time);
 	bool TickAction(CustomSkillEventParams& e);
-	std::optional<bool> ExitAction(CustomSkillEventParams& e);
+	bool ExitAction(CustomSkillEventParams& e);
 	std::optional<float> GetTargetDistance(CustomSkillEventParams& e);
 	bool Reset(CustomSkillEventParams& e);
 	bool Finish(CustomSkillEventParams& e);
@@ -127,19 +127,19 @@ private:
 	bool OnEnter(SkillState::EnterProc* wrapped, SkillState* self);
 	bool OnUpdate(SkillState::UpdateProc* wrapped, SkillState* self, GameTime const& time);
 	void OnTick(SkillState::TickProc* wrapped, SkillState* self, int const& teamId);
-	bool OnExit(SkillState::ExitProc* wrapped, SkillState* self);
+	void OnExit(SkillState::ExitProc* wrapped, SkillState* self);
 
 	bool OnEnterBehaviour(SkillState::EnterBehaviourProc* wrapped, SkillState* self);
 	bool OnContinueBehaviour(SkillState::ContinueBehaviourProc* wrapped, SkillState* self);
-	bool OnUpdateBehaviour(SkillState::UpdateBehaviourProc* wrapped, SkillState* self, GameTime const& time);
+	void OnUpdateBehaviour(SkillState::UpdateBehaviourProc* wrapped, SkillState* self, GameTime const& time);
 	void OnTickBehaviour(SkillState::TickBehaviourProc* wrapped, SkillState* self, uint32_t* teamId, float timeDelta);
 	bool OnExitBehaviour(SkillState::ExitBehaviourProc* wrapped, SkillState* self);
 
 	bool OnEnterAction(SkillState::EnterActionProc* wrapped, SkillState* self);
 	bool OnContinueAction(SkillState::ContinueActionProc* wrapped, SkillState* self);
-	bool OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time);
+	void OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time);
 	void OnTickAction(SkillState::TickActionProc* wrapped, SkillState* self);
-	bool OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self);
+	void OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self);
 	float OnGetTargetDistance(SkillState::GetTargetDistanceProc* wrapped, SkillState* self);
 
 	void OnReset(SkillState::ResetProc* wrapped, SkillState* self);

@@ -111,9 +111,9 @@ bool UserspaceSkillStateClass::Tick(CustomSkillEventParams& e, int const& teamId
 	return CallOptionalMethod("Tick", Overload<void>{}, &e, state_, teamId);
 }
 
-std::optional<bool> UserspaceSkillStateClass::Exit(CustomSkillEventParams& e)
+bool UserspaceSkillStateClass::Exit(CustomSkillEventParams& e)
 {
-	return CallOptionalMethod("Exit", Overload<bool>{}, &e, state_);
+	return CallOptionalMethod("Exit", Overload<void>{}, &e, state_);
 }
 
 std::optional<bool> UserspaceSkillStateClass::EnterBehaviour(CustomSkillEventParams& e)
@@ -126,9 +126,9 @@ std::optional<bool> UserspaceSkillStateClass::ContinueBehaviour(CustomSkillEvent
 	return CallOptionalMethod("ContinueBehaviour", Overload<bool>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::UpdateBehaviour(CustomSkillEventParams& e, GameTime const& time)
+bool UserspaceSkillStateClass::UpdateBehaviour(CustomSkillEventParams& e, GameTime const& time)
 {
-	return CallOptionalMethod("UpdateBehaviour", Overload<bool>{}, &e, state_, const_cast<GameTime*>(&time));
+	return CallOptionalMethod("UpdateBehaviour", Overload<void>{}, &e, state_, const_cast<GameTime*>(&time));
 }
 
 bool UserspaceSkillStateClass::TickBehaviour(CustomSkillEventParams& e, uint32_t* teamId, float timeDelta)
@@ -151,9 +151,9 @@ std::optional<bool> UserspaceSkillStateClass::ContinueAction(CustomSkillEventPar
 	return CallOptionalMethod("ContinueAction", Overload<bool>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::UpdateAction(CustomSkillEventParams& e, GameTime const& time)
+bool UserspaceSkillStateClass::UpdateAction(CustomSkillEventParams& e, GameTime const& time)
 {
-	return CallOptionalMethod("UpdateAction", Overload<bool>{}, &e, state_);
+	return CallOptionalMethod("UpdateAction", Overload<void>{}, &e, state_);
 }
 
 bool UserspaceSkillStateClass::TickAction(CustomSkillEventParams& e)
@@ -161,9 +161,9 @@ bool UserspaceSkillStateClass::TickAction(CustomSkillEventParams& e)
 	return CallOptionalMethod("TickAction", Overload<void>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::ExitAction(CustomSkillEventParams& e)
+bool UserspaceSkillStateClass::ExitAction(CustomSkillEventParams& e)
 {
-	return CallOptionalMethod("ExitAction", Overload<bool>{}, &e, state_);
+	return CallOptionalMethod("ExitAction", Overload<void>{}, &e, state_);
 }
 
 std::optional<float> UserspaceSkillStateClass::GetTargetDistance(CustomSkillEventParams& e)
@@ -284,9 +284,9 @@ void CustomSkillStateManager::OnTick(SkillState::TickProc* wrapped, SkillState* 
 	DISPATCH_SKILL_FUN(Tick, teamId)
 }
 
-bool CustomSkillStateManager::OnExit(SkillState::ExitProc* wrapped, SkillState* self)
+void CustomSkillStateManager::OnExit(SkillState::ExitProc* wrapped, SkillState* self)
 {
-	DISPATCH_SKILL_EVENT(Exit, bool, false)
+	DISPATCH_SKILL_FUN(Exit)
 }
 
 bool CustomSkillStateManager::OnEnterBehaviour(SkillState::EnterBehaviourProc* wrapped, SkillState* self)
@@ -299,9 +299,9 @@ bool CustomSkillStateManager::OnContinueBehaviour(SkillState::ContinueBehaviourP
 	DISPATCH_SKILL_EVENT(ContinueBehaviour, bool, false)
 }
 
-bool CustomSkillStateManager::OnUpdateBehaviour(SkillState::UpdateBehaviourProc* wrapped, SkillState* self, GameTime const& time)
+void CustomSkillStateManager::OnUpdateBehaviour(SkillState::UpdateBehaviourProc* wrapped, SkillState* self, GameTime const& time)
 {
-	DISPATCH_SKILL_EVENT(UpdateBehaviour, bool, false, time)
+	DISPATCH_SKILL_FUN(UpdateBehaviour, time)
 }
 
 void CustomSkillStateManager::OnTickBehaviour(SkillState::TickBehaviourProc* wrapped, SkillState* self, uint32_t* teamId, float timeDelta)
@@ -324,9 +324,9 @@ bool CustomSkillStateManager::OnContinueAction(SkillState::ContinueActionProc* w
 	DISPATCH_SKILL_EVENT(ContinueAction, bool, false)
 }
 
-bool CustomSkillStateManager::OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time)
+void CustomSkillStateManager::OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time)
 {
-	DISPATCH_SKILL_EVENT(UpdateAction, bool, false, time)
+	DISPATCH_SKILL_FUN(UpdateAction, time)
 }
 
 void CustomSkillStateManager::OnTickAction(SkillState::TickActionProc* wrapped, SkillState* self)
@@ -334,9 +334,9 @@ void CustomSkillStateManager::OnTickAction(SkillState::TickActionProc* wrapped, 
 	DISPATCH_SKILL_FUN(TickAction)
 }
 
-bool CustomSkillStateManager::OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self)
+void CustomSkillStateManager::OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self)
 {
-	DISPATCH_SKILL_EVENT(ExitAction, bool, false)
+	DISPATCH_SKILL_FUN(ExitAction)
 }
 
 float CustomSkillStateManager::OnGetTargetDistance(SkillState::GetTargetDistanceProc* wrapped, SkillState* self)
@@ -346,6 +346,7 @@ float CustomSkillStateManager::OnGetTargetDistance(SkillState::GetTargetDistance
 
 void CustomSkillStateManager::OnReset(SkillState::ResetProc* wrapped, SkillState* self)
 {
+	wrapped(self);
 	ConstructUserState(self);
 }
 
