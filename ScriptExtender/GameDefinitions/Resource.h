@@ -96,7 +96,7 @@ struct ResourceManager : public ProtectedGameObject<ResourceManager>
     void* MeshProxyFactory;
     VisualFactory* VisualFactory;
     PrimitiveSmallSet<FixedString> AnimationPreloadList;
-    void* EffectFactory;
+    fx::FxEffectFactory* EffectFactory;
     void* VisualTemplateManager;
     void* AnimationTemplateManager;
     void* PhysicsTemplateManager;

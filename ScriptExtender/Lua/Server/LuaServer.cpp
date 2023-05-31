@@ -623,6 +623,38 @@ void LuaPolymorphic<ecl::EoCUI>::MakeRef(lua_State* L, ecl::EoCUI* o, LifetimeHa
 	return MakeObjectRef(L, lifetime, static_cast<UIObject*>(o));
 }
 
+void LuaPolymorphic<aspk::Input>::MakeRef(lua_State* L, aspk::Input* o, LifetimeHandle const& lifetime)
+{
+	switch (o->GetType()) {
+	case 0: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::TypedInput<float>*>(o));
+	case 1: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::TypedInput<glm::vec3>*>(o));
+	case 2: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::TypedInput<glm::vec4>*>(o));
+	case 3: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::TypedInput<FixedString>*>(o));
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+#define MAKE_REF(ty, valty) case aspk::PropertyType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::TypedProperty<valty>*>(o));
+
+void LuaPolymorphic<aspk::Property>::MakeRef(lua_State* L, aspk::Property* o, LifetimeHandle const& lifetime)
+{
+	switch (o->GetType()) {
+	MAKE_REF(Boolean, bool)
+	MAKE_REF(Integer, int32_t)
+	MAKE_REF(IntegerRange, glm::ivec2)
+	MAKE_REF(ColorARGBKeyFrame, Array<aspk::ColorARGBKeyFrameData>)
+	MAKE_REF(Float, float)
+	MAKE_REF(FloatRange, glm::vec2)
+	MAKE_REF(FloatKeyFrame, Array<aspk::FloatKeyFrameData>)
+	MAKE_REF(String, STDString)
+	MAKE_REF(Vector3, glm::vec3)
+	MAKE_REF(FixedString, FixedString)
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+#undef MAKE_REF
+
 template <>
 esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get(lua_State* L) const
 {

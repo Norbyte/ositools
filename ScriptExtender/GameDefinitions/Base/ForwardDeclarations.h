@@ -52,7 +52,6 @@ struct Scene;
 struct MoveableObject;
 struct Visual;
 struct RenderableObject;
-struct Effect;
 
 struct Material;
 struct AppliedMaterial;
@@ -68,6 +67,18 @@ struct SkillAIParams;
 struct PlayerManager;
 
 class ScriptExtenderMessage;
+
+namespace aspk
+{
+	struct Effect;
+	struct Component;
+}
+
+namespace fx
+{
+	struct FxEffectFactory;
+	struct Effect;
+}
 
 namespace stats
 {

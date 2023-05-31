@@ -259,6 +259,13 @@ P_RO(GMSubSection)
 P_RO(Internal)
 END_CLS()
 
+BEGIN_CLS(EffectResource)
+INHERIT(DeferredLoadableResource)
+P_RO(EffectName)
+P_REF(Components)
+P_REF(Dependencies)
+END_CLS()
+
 BEGIN_CLS(SoundComponent)
 INHERIT(BaseComponent)
 P(Flags)

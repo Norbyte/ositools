@@ -180,6 +180,16 @@ Projectile* GetProjectile(lua_State* L)
 	return LuaGetProjectile(L, 1);
 }
 
+fx::Effect* GetEffect(ComponentHandle handle)
+{
+	auto effectFactory = GetStaticSymbols().GetResourceManager()->EffectFactory;
+	if (!effectFactory) {
+		return nullptr;
+	}
+
+	return effectFactory->EffectFactory.Get(handle);
+}
+
 eoc::AiGrid* GetAiGrid()
 {
 	auto level = GetStaticSymbols().GetCurrentClientLevel();
@@ -237,6 +247,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetStatus)
 	MODULE_FUNCTION(GetGameObject)
 	MODULE_FUNCTION(GetProjectile)
+	MODULE_FUNCTION(GetEffect)
 	MODULE_FUNCTION(GetAiGrid)
 	MODULE_FUNCTION(GetVisionGrid)
 	MODULE_FUNCTION(GetCurrentLevel)

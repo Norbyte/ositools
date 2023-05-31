@@ -4,15 +4,70 @@
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/GameObjects/Visuals.h>
 
-BEGIN_NS(ecl)
+BEGIN_SE()
+
+struct EffectResource : public DeferredLoadableResource
+{
+	FixedString EffectName;
+	ObjectSet<aspk::Component*> Components;
+	ObjectSet<FixedString> Dependencies;
+	void* EffectConstructor;
+	void* field_108;
+};
+
+struct EffectFactory : public ProtectedGameObject<EffectFactory>
+{
+	virtual ~EffectFactory() = 0;
+	// ...
+
+#if !defined(OSI_EOCAPP)
+	bool Initialized;
+#endif
+};
 
 struct Effect : public Visual
 {
 	static constexpr auto ObjectTypeIndex = ObjectHandleType::Effect;
 
+	virtual void PreUpdate(GameTime const&) = 0;
+	virtual void Update(GameTime const&) = 0;
+	virtual void PostUpdate(GameTime const&) = 0;
+	virtual void SetForwardShading2() = 0;
+	virtual EntityHandle* GetSoundObject(EntityHandle&) = 0;
+	virtual void CreateSoundObject(float) = 0;
+	virtual void DestroySoundObject() = 0;
+	virtual void ActivateSound(EntityHandle&) = 0;
+	virtual void DeactivateSound(EntityHandle&) = 0;
+	virtual void ReleaseResources(void*) = 0;
+	virtual void InitResources() = 0;
+	virtual void GetRenderableObjects(void*) = 0;
+	virtual void UNKN(void*) = 0;
+	virtual bool IsStopped() = 0;
+	virtual bool IsPlaying() = 0;
+	virtual void ReloadFx() = 0;
+	virtual void UpdateEffectParametersToEffectResource() = 0;
+	virtual void UpdateEffectParametersFromEffectResource() = 0;
+	virtual void ResetParameters() = 0;
+	virtual void Construct(void* EffectConstructor) = 0;
+	virtual void SetPlayToEnd(bool) = 0;
+	virtual void Play() = 0;
+	virtual void Pause() = 0;
+	virtual void Stop() = 0;
+	virtual void StopImmediate() = 0;
+	virtual void SetForgetEffect(bool) = 0;
+	virtual void SetInput(uint32_t entry, ComponentHandle const&) = 0;
+	virtual void SetInput(uint32_t entry, FixedString const&) = 0;
+	virtual void SetInput(uint32_t entry, char const*) = 0;
+	virtual void SetInput(uint32_t entry, glm::vec4 const&) = 0;
+	virtual void SetInput(uint32_t entry, glm::vec3 const&) = 0;
+	virtual void SetInput(uint32_t entry, float) = 0;
+	virtual void SetInput(uint32_t entry, int) = 0;
+	virtual void GetInput(uint32_t entry, ComponentHandle&) = 0;
+	virtual void ResetInput(uint32_t entry) = 0;
+
 	void* VMT;
 	__int64 field_258;
-	void* EffectResource; // EffectResource*
+	EffectResource* Resource;
 	uint8_t EffectFlags;
 	ComponentHandle SoundObjectHandle;
 	uint8_t SoundObjectRefCount;
@@ -27,7 +82,7 @@ struct Effect : public Visual
 	uint16_t RefCount;
 };
 
-END_NS()
+END_SE()
 
 BEGIN_NS(lsfx)
 
@@ -39,27 +94,33 @@ struct Parameter
 	float Value;
 };
 
-struct Property
+struct Property : public ProtectedGameObject<Property>
 {
-	void* VMT;
-	FixedString EffectPropertyName;
+	virtual ~Property() = 0;
+	virtual void Clone(Property* other) = 0;
+	virtual bool Visit(ObjectVisitor* visitor) = 0;
+	virtual aspk::PropertyType GetType() = 0;
+
+	FixedString FullName;
 	FixedString AttributeName;
-	PrimitiveSmallSet<Parameter*> Parameters;
-	uint32_t field_30;
-	uint32_t field_34;
+	Array<Parameter*> Parameters;
 };
 
-struct Module
+struct Module : public ProtectedGameObject<Module>
 {
 	STDString Name;
-	ObjectSet<FixedString> EffectPropertyName;
+	ObjectSet<FixedString> PropertyNames;
 	ObjectSet<Property*> BoundProperties;
 	Component* Owner;
 };
 
-struct Component
+struct Component : public ProtectedGameObject<Component>
 {
 	void* VMT;
+#if defined(OSI_EOCAPP)
+	uint32_t Unknown1;
+	uint32_t Unknown2;
+#endif
 	ObjectSet<Property*> Properties;
 	Guid UUID;
 	STDString Name;
@@ -76,16 +137,67 @@ struct Property;
 struct Component;
 struct Input;
 
+
+struct Property : public lsfx::Property
+{
+	uint64_t field_38;
+	uint64_t field_40;
+	FixedString Input;
+};
+
+template <class T>
+struct TypedProperty : public Property
+{
+	T Value;
+};
+
+struct ColorARGBKeyFrameData
+{
+	float Time;
+	glm::vec4 Color;
+};
+
+struct FloatKeyFrameData
+{
+	float Time;
+	float Value;
+};
+
+struct Input : public ProtectedGameObject<Input>
+{
+	virtual ~Input() = 0;
+	virtual void Clear() = 0;
+	virtual uint32_t GetType() = 0;
+
+	bool HasValue;
+	FixedString Name;
+};
+
+template <class T>
+struct TypedInput : public Input
+{
+	T Value;
+};
+
+
+struct Phase
+{
+	float Duration;
+	int field_4;
+	int PlayCount;
+};
+
+
 struct EffectHeader
 {
 	float Duration;
-	Array<void*> Phases;
+	Array<Phase> Phases;
 };
 
 struct Component : public lsfx::Component
 {
 	Effect* Effect;
-	Map<FixedString, Property*> Properties;
+	Map<FixedString, Property*> NamedProperties;
 	int TrackGroupIndex;
 	float StartTime;
 	float EndTime;
@@ -93,10 +205,12 @@ struct Component : public lsfx::Component
 	bool StayAlive;
 };
 
-struct Effect : public dse::ecl::Effect
+struct Effect : public dse::Effect
 {
-	bool field_328;
-	int field_32C;
+	virtual void ReleaseFx() = 0;
+
+	bool PlayToEnd;
+	float Speed;
 	ObjectSet<Component*> Components;
 	bool Paused;
 	bool RequestAdvancePhase;
@@ -113,6 +227,51 @@ struct Effect : public dse::ecl::Effect
 
 END_NS()
 
+BEGIN_NS(fx)
+
+struct Effect : public aspk::Effect
+{
+	bool HasBound;
+	bool IsInitialized;
+};
+
+
+struct EffectStatesManager : public ProtectedGameObject<EffectStatesManager>
+{
+	ObjectSet<void*> States;
+	CRITICAL_SECTION CriticalSection;
+};
+
+struct FxEffectFactory : public EffectFactory
+{
+	struct CacheInfo
+	{
+		uint16_t StartIndex;
+		uint8_t Size;
+		uint8_t Capacity;
+	};
+
+	void* VMT2;
+	CRITICAL_SECTION CacheCriticalSection;
+	Map<STDString, FixedString> UnknownPaths;
+#if defined(OSI_EOCAPP)
+	uint32_t UnknownLock;
+#else
+	CRITICAL_SECTION* ResourceLock;
+#endif
+	Map<FixedString, FixedString> EffectNameToResourceName;
+	ObjectSet<Path> SourcePaths;
+#if !defined(OSI_EOCAPP)
+	ObjectSet<Path> OS_Path2;
+	EffectStatesManager* EffectStates;
+#endif
+	RefMap<FixedString, CacheInfo> EffectCaches;
+	ObjectSet<Effect*> EffectPool;
+	ComponentFactory<Effect, ObjectFactoryRWLocker> EffectFactory;
+	CRITICAL_SECTION EffectCriticalSection;
+};
+
+END_NS()
 
 BEGIN_NS(ecl)
 
