@@ -114,15 +114,42 @@ P_REF(Phases)
 END_CLS()
 
 
-BEGIN_CLS(aspk::ColorARGBKeyFrameData)
+BEGIN_CLS(aspk::ColorARGBKeyFrame)
 P(Time)
 P(Color)
 END_CLS()
 
 
+BEGIN_CLS(aspk::ColorARGBKeyFrameData)
+P_REF(Keyframes)
+END_CLS()
+
+
 BEGIN_CLS(aspk::FloatKeyFrameData)
+END_CLS()
+
+
+BEGIN_CLS(aspk::LinearFloatKeyFrame)
 P(Time)
 P(Value)
+END_CLS()
+
+
+BEGIN_CLS(aspk::LinearFloatKeyFrameData)
+INHERIT(aspk::FloatKeyFrameData)
+P_REF(Keyframes)
+END_CLS()
+
+
+BEGIN_CLS(aspk::CubicFloatKeyFrame)
+P(Time)
+P(Value)
+END_CLS()
+
+
+BEGIN_CLS(aspk::CubicFloatKeyFrameData)
+INHERIT(aspk::FloatKeyFrameData)
+P_REF(Keyframes)
 END_CLS()
 
 

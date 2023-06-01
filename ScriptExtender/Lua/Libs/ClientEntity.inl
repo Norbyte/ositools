@@ -190,6 +190,16 @@ fx::Effect* GetEffect(ComponentHandle handle)
 	return effectFactory->EffectFactory.Get(handle);
 }
 
+ObjectSet<fx::Effect*>* GetAllEffects()
+{
+	auto effectFactory = GetStaticSymbols().GetResourceManager()->EffectFactory;
+	if (!effectFactory) {
+		return nullptr;
+	}
+
+	return &effectFactory->EffectPool;
+}
+
 eoc::AiGrid* GetAiGrid()
 {
 	auto level = GetStaticSymbols().GetCurrentClientLevel();
@@ -248,6 +258,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetGameObject)
 	MODULE_FUNCTION(GetProjectile)
 	MODULE_FUNCTION(GetEffect)
+	MODULE_FUNCTION(GetAllEffects)
 	MODULE_FUNCTION(GetAiGrid)
 	MODULE_FUNCTION(GetVisionGrid)
 	MODULE_FUNCTION(GetCurrentLevel)

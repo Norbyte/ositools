@@ -140,8 +140,8 @@ struct Input;
 
 struct Property : public lsfx::Property
 {
-	uint64_t field_38;
-	uint64_t field_40;
+	Input* InputNode;
+	Component* Component;
 	FixedString Input;
 };
 
@@ -151,16 +151,56 @@ struct TypedProperty : public Property
 	T Value;
 };
 
-struct ColorARGBKeyFrameData
+struct ColorARGBKeyFrame
 {
 	float Time;
 	glm::vec4 Color;
 };
 
-struct FloatKeyFrameData
+struct ColorARGBKeyFrameData
 {
+	Array<ColorARGBKeyFrame> Keyframes;
+};
+
+struct FloatKeyFrameData : public ProtectedGameObject<FloatKeyFrameData>
+{
+	virtual ~FloatKeyFrameData() = 0;
+	virtual uint32_t GetType() = 0;
+	virtual float GetValueAt(float time) = 0;
+	virtual void SetValue(void*) = 0;
+	virtual bool Visit(ObjectVisitor&) = 0;
+};
+
+struct LinearFloatKeyFrame : public ProtectedGameObject<LinearFloatKeyFrame>
+{
+	virtual ~LinearFloatKeyFrame() = 0;
+	virtual void Set(LinearFloatKeyFrame const&) = 0;
+	virtual bool Visit(ObjectVisitor&) = 0;
+
 	float Time;
+	uint32_t _Pad;
 	float Value;
+};
+
+struct LinearFloatKeyFrameData : public FloatKeyFrameData
+{
+	Array<LinearFloatKeyFrame> Keyframes;
+};
+
+struct CubicFloatKeyFrame : public ProtectedGameObject<CubicFloatKeyFrame>
+{
+	virtual ~CubicFloatKeyFrame() = 0;
+	virtual void Set(CubicFloatKeyFrame const&) = 0;
+	virtual bool Visit(ObjectVisitor&) = 0;
+
+	float Time;
+	uint32_t _Pad;
+	glm::vec4 Value;
+};
+
+struct CubicFloatKeyFrameData : public FloatKeyFrameData
+{
+	Array<CubicFloatKeyFrame> Keyframes;
 };
 
 struct Input : public ProtectedGameObject<Input>

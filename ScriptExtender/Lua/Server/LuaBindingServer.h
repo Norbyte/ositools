@@ -41,6 +41,7 @@ LUA_POLYMORPHIC(ecl::EoCUI)
 LUA_POLYMORPHIC(stats::PropertyData)
 LUA_POLYMORPHIC(aspk::Input)
 LUA_POLYMORPHIC(aspk::Property)
+LUA_POLYMORPHIC(aspk::FloatKeyFrameData)
 
 void RegisterLibraries();
 void RegisterSharedMetatables(lua_State* L);

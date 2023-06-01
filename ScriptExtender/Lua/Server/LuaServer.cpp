@@ -634,6 +634,15 @@ void LuaPolymorphic<aspk::Input>::MakeRef(lua_State* L, aspk::Input* o, Lifetime
 	}
 }
 
+void LuaPolymorphic<aspk::FloatKeyFrameData>::MakeRef(lua_State* L, aspk::FloatKeyFrameData* o, LifetimeHandle const& lifetime)
+{
+	switch (o->GetType()) {
+	case 0: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::LinearFloatKeyFrameData*>(o));
+	case 1: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::CubicFloatKeyFrameData*>(o));
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
 #define MAKE_REF(ty, valty) case aspk::PropertyType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<aspk::TypedProperty<valty>*>(o));
 
 void LuaPolymorphic<aspk::Property>::MakeRef(lua_State* L, aspk::Property* o, LifetimeHandle const& lifetime)
