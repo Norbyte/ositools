@@ -6,10 +6,46 @@
 /// <lua_module>Template</lua_module>
 BEGIN_NS(ecl::lua::tmpl)
 
+Map<FixedString, GameObjectTemplate*>* GetAllRootTemplates()
+{
+	auto bank = GetStaticSymbols().GetGlobalTemplateBank();
+	return &bank->Templates;
+}
+
 GameObjectTemplate* GetRootTemplate(FixedString templateId)
 {
 	auto bank = GetStaticSymbols().GetGlobalTemplateBank();
 	return bank->Templates.try_get(templateId);
+}
+
+Map<FixedString, GameObjectTemplate*>* GetAllLocalTemplates()
+{
+	auto level = GetStaticSymbols().GetCurrentClientLevel();
+	if (level) {
+		return &level->LocalTemplateManager->Templates;
+	}
+
+	return nullptr;
+}
+
+GameObjectTemplate* GetLocalTemplate(FixedString const& templateId)
+{
+	auto level = GetStaticSymbols().GetCurrentClientLevel();
+	if (level) {
+		return level->LocalTemplateManager->Templates.try_get(templateId);
+	}
+
+	return nullptr;
+}
+
+Map<FixedString, GameObjectTemplate*>* GetAllCacheTemplates()
+{
+	auto cache = *GetStaticSymbols().ecl__CacheTemplateManager;
+	if (cache) {
+		return &cache->Templates;
+	}
+
+	return nullptr;
 }
 
 GameObjectTemplate* GetCacheTemplate(FixedString const& templateId)
@@ -22,11 +58,11 @@ GameObjectTemplate* GetCacheTemplate(FixedString const& templateId)
 	return nullptr;
 }
 
-GameObjectTemplate* GetLocalTemplate(FixedString const& templateId)
+Map<FixedString, GameObjectTemplate*>* GetAllLocalCacheTemplates()
 {
 	auto level = GetStaticSymbols().GetCurrentClientLevel();
 	if (level) {
-		return level->LocalTemplateManager->Templates.try_get(templateId);
+		return &level->LevelCacheTemplateManager->Templates;
 	}
 
 	return nullptr;
@@ -62,9 +98,13 @@ void RegisterTemplateLib()
 {
 	DECLARE_MODULE(Template, Client)
 	BEGIN_MODULE()
+	MODULE_FUNCTION(GetAllRootTemplates)
 	MODULE_FUNCTION(GetRootTemplate)
+	MODULE_FUNCTION(GetAllLocalTemplates)
 	MODULE_FUNCTION(GetLocalTemplate)
+	MODULE_FUNCTION(GetAllCacheTemplates)
 	MODULE_FUNCTION(GetCacheTemplate)
+	MODULE_FUNCTION(GetAllLocalCacheTemplates)
 	MODULE_FUNCTION(GetLocalCacheTemplate)
 	MODULE_FUNCTION(GetTemplate)
 	END_MODULE()

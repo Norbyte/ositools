@@ -116,7 +116,21 @@ struct Module : public ProtectedGameObject<Module>
 
 struct Component : public ProtectedGameObject<Component>
 {
-	void* VMT;
+	virtual ~Component() = 0;
+	virtual void Clone(Component&) = 0;
+	virtual bool Visit(ObjectVisitor&) = 0;
+	virtual float GetParameterValue(char const*, float) = 0;
+	virtual void CloneProperties(Component&) = 0;
+	virtual bool VisitProperties(ObjectVisitor&) = 0;
+	virtual bool PURECALL(ObjectVisitor&) = 0;
+	virtual bool OnPropertyChanged(char const*) = 0;
+	virtual void Update(float) = 0;
+	virtual void Activate() = 0;
+	virtual void Deactivate() = 0;
+	virtual void Reset() = 0;
+	virtual void Reload() = 0;
+	virtual void OnPause() = 0;
+
 #if defined(OSI_EOCAPP)
 	uint32_t Unknown1;
 	uint32_t Unknown2;
@@ -154,6 +168,9 @@ struct TypedProperty : public Property
 struct ColorARGBKeyFrame
 {
 	float Time;
+#if defined(OSI_EOCAPP)
+	uint8_t _Pad[12];
+#endif
 	glm::vec4 Color;
 };
 
