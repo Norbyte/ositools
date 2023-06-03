@@ -2,6 +2,40 @@
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/GameObjects/Player.h>
 
+BEGIN_SE()
+
+void Effect::LuaPlay()
+{
+	Play();
+}
+
+void Effect::LuaPause()
+{
+	Pause();
+}
+
+void Effect::LuaStop()
+{
+	Stop();
+}
+
+void Effect::LuaStopImmediate()
+{
+	StopImmediate();
+}
+
+void Effect::LuaReloadParameters()
+{
+	ReloadParameters();
+}
+
+void Effect::LuaUpdateEffectParametersFromEffectResource()
+{
+	UpdateEffectParametersFromEffectResource();
+}
+
+END_SE()
+
 /// <lua_module>Entity</lua_module>
 BEGIN_NS(ecl::lua::ecs)
 

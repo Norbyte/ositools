@@ -41,13 +41,13 @@ struct Effect : public Visual
 	virtual void ReleaseResources(void*) = 0;
 	virtual void InitResources() = 0;
 	virtual void GetRenderableObjects(void*) = 0;
-	virtual void UNKN(void*) = 0;
+	virtual void CollectVisuals(ObjectSet<Visual*>&) = 0;
 	virtual bool IsStopped() = 0;
 	virtual bool IsPlaying() = 0;
 	virtual void ReloadFx() = 0;
 	virtual void UpdateEffectParametersToEffectResource() = 0;
 	virtual void UpdateEffectParametersFromEffectResource() = 0;
-	virtual void ResetParameters() = 0;
+	virtual void ReloadParameters() = 0;
 	virtual void Construct(void* EffectConstructor) = 0;
 	virtual void SetPlayToEnd(bool) = 0;
 	virtual void Play() = 0;
@@ -68,7 +68,7 @@ struct Effect : public Visual
 	void* VMT;
 	__int64 field_258;
 	EffectResource* Resource;
-	uint8_t EffectFlags;
+	EffectFlags Flags;
 	ComponentHandle SoundObjectHandle;
 	uint8_t SoundObjectRefCount;
 	uint32_t _Pad;
@@ -80,6 +80,13 @@ struct Effect : public Visual
 	uint8_t FreezeFadeOpacity;
 	void* OldJob;
 	uint16_t RefCount;
+
+	void LuaPlay();
+	void LuaPause();
+	void LuaStop();
+	void LuaStopImmediate();
+	void LuaReloadParameters();
+	void LuaUpdateEffectParametersFromEffectResource();
 };
 
 END_SE()
