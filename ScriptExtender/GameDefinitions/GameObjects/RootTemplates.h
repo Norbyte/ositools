@@ -498,4 +498,108 @@ namespace dse
         OverrideableProperty<FixedString> TriggerGizmoOverride;
     };
 
+    struct DecalTemplate : public GameObjectTemplate
+    {
+        OverrideableProperty<FixedString> Material;
+        OverrideableProperty<FixedString> UUID;
+        OverrideableProperty<glm::vec2> Tiling;
+        OverrideableProperty<glm::vec2> Offset;
+        OverrideableProperty<glm::vec3> Dimensions;
+        OverrideableProperty<uint8_t> DecalType;
+    };
+
+    struct LightTemplate : public GameObjectTemplate
+    {
+        OverrideableProperty<glm::vec3> Color;
+        OverrideableProperty<glm::vec2> Angle;
+        OverrideableProperty<float> Radius;
+        OverrideableProperty<float> Intensity;
+        int field_1FC;
+        float field_200;
+        OverrideableProperty<float> Speed;
+        OverrideableProperty<float> Amount;
+        OverrideableProperty<float> MovementSpeed;
+        OverrideableProperty<float> MovementAmount;
+        OverrideableProperty<float> VolumetricLightIntensity;
+        OverrideableProperty<float> VolumetricLightCollisionProbability;
+        OverrideableProperty<bool> Enabled;
+        OverrideableProperty<bool> IsFlickering;
+        OverrideableProperty<bool> IsMoving;
+        OverrideableProperty<bool> Shadow;
+        OverrideableProperty<bool> LightVolume;
+        OverrideableProperty<uint32_t> LightType;
+        OverrideableProperty<int> LightVolumeSamplesCount;
+        OverrideableProperty<uint32_t> TextureMapping;
+        OverrideableProperty<FixedString> LightVolumeTexture;
+    };
+
+    struct LightProbeCaptureDesc
+    {
+        FixedString Atmosphere;
+        Path DiffuseIBL;
+        Path DiffuseAlphaIBL;
+        Path SpecularIBL;
+        Path SpecularAlphaIBL;
+    };
+
+    struct LightProbeTemplate : public GameObjectTemplate
+    {
+        OverrideableProperty<float> Intensity;
+        OverrideableProperty<glm::vec3> Size;
+        OverrideableProperty<float> Radius;
+        OverrideableProperty<float> TransitionDistance;
+        OverrideableProperty<bool> InfiniteCapture;
+        OverrideableProperty<bool> Enabled;
+        OverrideableProperty<uint32_t> LightProbeType;
+        OverrideableProperty<uint32_t> LightProbeShape;
+        OverrideableProperty<uint32_t> CaptureType;
+        FixedString TriggerAtmosphere;
+        ObjectSet<LightProbeCaptureDesc> CaptureDescriptions;
+    };
+
+    struct PrefabTemplate : public GameObjectTemplate
+    {
+        OverrideableProperty<FixedString> field_1D0;
+        OverrideableProperty<ObjectSet<FixedString>> PrefabChildren;
+        OverrideableProperty<ObjectSet<dse::Transform>> PrefabChildrenTransforms;
+    };
+
+    struct TerrainLayerSetting
+    {
+        FixedString MaterialResource;
+    };
+
+    struct TerrainTemplate : public GameObjectTemplate
+    {
+        OverrideableProperty<glm::ivec2> Size;
+        OverrideableProperty<FixedString> MaterialResource;
+        OverrideableProperty<STDString> Data;
+        OverrideableProperty<STDString> Physics;
+        OverrideableProperty<ObjectSet<TerrainLayerSetting>> Layers;
+    };
+
+    struct WallConstructionTemplate : public EoCGameObjectTemplate
+    {
+        OverrideableProperty<Array<ecl::WallConstructionStruct*>> WallTiles;
+        OverrideableProperty<Array<ecl::WallIntersection*>> WallIntersections;
+        OverrideableProperty<Array<ecl::Wall*>> Walls;
+        ObjectSet<void*> BuildingLayerVertex;
+        ObjectSet<uint16_t> BuildingLayerIndices;
+        glm::vec3 BuildingLayerBoundMin;
+        glm::vec3 BuildingLayerBoundMax;
+        bool field_460;
+        OverrideableProperty<FixedString> BuildingLayerMaterial;
+        OverrideableProperty<float> BuildingLayer1Height;
+        OverrideableProperty<float> BuildingLayer2Height;
+        OverrideableProperty<float> BuildingLayer1Inset;
+        OverrideableProperty<float> BuildingLayer2Inset;
+        OverrideableProperty<float> BuildingLayerTiling;
+        OverrideableProperty<uint32_t> BuildingLayerType;
+        OverrideableProperty<bool> BuildingLayerWalkable;
+        OverrideableProperty<bool> WalkOn;
+        OverrideableProperty<bool> CanSeeThrough;
+        OverrideableProperty<bool> CanShootThrough;
+        bool field_4B0;
+    };
+
 }

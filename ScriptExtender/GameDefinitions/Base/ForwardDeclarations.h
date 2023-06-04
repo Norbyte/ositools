@@ -21,6 +21,7 @@ struct ProjectileTemplate;
 struct SurfaceTemplate;
 struct TriggerTemplate;
 struct LevelTemplate;
+struct WallConstructionTemplate;
 
 struct IGameObject;
 struct IEoCServerObject;
@@ -190,6 +191,11 @@ namespace ecl
 	struct StatusMachine;
 	struct Scenery;
 	struct Projectile;
+	struct WallConstructionStruct;
+	struct WallConstruction;
+	struct WallIntersection;
+	struct Wall;
+	struct WallManager;
 
 	struct Surface;
 	struct SurfaceManager;

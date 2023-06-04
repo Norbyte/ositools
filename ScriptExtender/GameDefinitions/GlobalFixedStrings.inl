@@ -231,6 +231,10 @@ FS(item);
 FS(surface);
 FS(projectile);
 FS(trigger);
+FS(decal);
+FS(prefab);
+FS(light);
+FS_NAME(wallconstruction, "wall construction");
 
 // InputDeviceId values
 FS(C);

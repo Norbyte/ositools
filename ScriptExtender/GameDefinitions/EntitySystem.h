@@ -678,9 +678,9 @@ template <class TWorld>
 struct EntityManager
 {
 	void* VMT;
-	RefMap<FixedString, void*> field_8;
+	RefMap<FixedString, ObjectSet<EntityHandle>> RegisteredEntities;
 	TWorld* EntityWorld;
-	FixedString FS1;
+	FixedString LevelName;
 };
 
 
@@ -872,7 +872,7 @@ namespace ecl
 		TriggerConversionHelpers TriggerConversionHelpers;
 		SceneryConversionHelpers SceneryConversionHelpers;
 		ProjectileConversionHelpers ProjectileConversionHelpers;
-		void* WallManager;
+		WallManager* WallManager;
 		ObjectSet<FixedString> TriggerTypes;
 		ObjectSet<FixedString> OS_FS2;
 	};

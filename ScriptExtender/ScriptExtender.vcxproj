@@ -95,6 +95,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\Terrain.h" />
     <ClInclude Include="GameDefinitions\GameObjects\UseActions.h" />
     <ClInclude Include="GameDefinitions\GameObjects\VisualsShared.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Wall.h" />
     <ClInclude Include="GameDefinitions\GlobalFixedStrings.h" />
     <ClInclude Include="GameDefinitions\Helpers.h" />
     <ClInclude Include="GameDefinitions\Input.h" />
@@ -324,6 +325,7 @@
     <None Include="GameDefinitions\PropertyMaps\Trigger.inl" />
     <None Include="GameDefinitions\PropertyMaps\UI.inl" />
     <None Include="GameDefinitions\PropertyMaps\UseActions.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Wall.inl" />
     <None Include="GameDefinitions\StatsObject.inl" />
     <None Include="GameHooks\EngineHooks.inl" />
     <None Include="LuaScripts\BuiltinLibrary.lua" />

@@ -29,6 +29,7 @@
 #include <GameDefinitions/PropertyMaps/Player.inl>
 #include <GameDefinitions/PropertyMaps/Camera.inl>
 #include <GameDefinitions/PropertyMaps/Skill.inl>
+#include <GameDefinitions/PropertyMaps/Wall.inl>
 
 
 BEGIN_CLS(TypeInformation)

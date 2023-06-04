@@ -184,6 +184,10 @@ void LuaPolymorphic<GameObjectTemplate>::MakeRef(lua_State* L, GameObjectTemplat
 	MAKE_REF(strsurface, SurfaceTemplate)
 	MAKE_REF(strprojectile, ProjectileTemplate)
 	MAKE_REF(strtrigger, TriggerTemplate)
+	MAKE_REF(strdecal, DecalTemplate)
+	MAKE_REF(strprefab, PrefabTemplate)
+	MAKE_REF(strlight, LightTemplate)
+	MAKE_REF(strwallconstruction, WallConstructionTemplate)
 
 	OsiError("Creating Lua proxy for unknown template type " << *type);
 	MakeDirectObjectRef(L, lifetime, obj);

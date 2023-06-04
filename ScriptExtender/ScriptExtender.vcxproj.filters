@@ -495,6 +495,9 @@
     <ClInclude Include="Extender\Server\CustomSkills.h">
       <Filter>Extender\Server</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Wall.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -1036,6 +1039,9 @@
     </None>
     <None Include="Lua\Libs\ServerBehavior.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Wall.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
