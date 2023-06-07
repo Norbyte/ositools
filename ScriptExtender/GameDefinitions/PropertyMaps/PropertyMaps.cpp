@@ -208,7 +208,6 @@ namespace dse
 			BEGIN_PROPERTIES(gStatusDyingPropertyMap, esv::StatusDying);
 			propertyMap.Parent = &gStatusPropertyMap;
 			PROP(SourceHandle);
-			PROP(SourceType);
 			PROP_ENUM(DeathType);
 			PROP(AttackDirection);
 			PROP(ImpactDirection);

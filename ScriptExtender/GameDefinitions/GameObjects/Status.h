@@ -231,7 +231,7 @@ struct StatusHit : public Status
 struct StatusDying : public Status
 {
 	ComponentHandle SourceHandle;
-	int SourceType;
+	stats::DamageType SourceType;
 	stats::DeathType DeathType;
 	int AttackDirection;
 	glm::vec3 ImpactDirection;

@@ -90,6 +90,7 @@ struct DamagePairList : public ObjectSet<TDamagePair>
 	void LuaMerge(lua_State* L);
 	UserReturn LuaToTable(lua_State* L);
 	void LuaCopyFrom(lua_State* L);
+	ObjectSet<TDamagePair>* LuaAsArray();
 };
 
 struct DamageDesc

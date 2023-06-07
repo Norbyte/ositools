@@ -262,6 +262,11 @@ void DamagePairList::LuaCopyFrom(lua_State* L)
 	*this = *other;
 }
 
+ObjectSet<TDamagePair>* DamagePairList::LuaAsArray()
+{
+	return this;
+}
+
 void SkillPrototypeManager::SyncSkillStat(Object* object, SkillPrototype* proto)
 {
 	auto stats = GetStaticSymbols().GetStats();
