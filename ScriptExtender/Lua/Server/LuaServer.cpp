@@ -1031,7 +1031,7 @@ namespace dse::esv::lua
 	}
 
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, stats::HitDamageInfo& hit, ComponentHandle attackerHandle,
-			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
+			CauseType causeType, glm::vec3& impactDirection, bool enterCombat, PendingHit* context)
 	{
 		stats::ObjectInstance* attacker{ nullptr };
 		if (attackerHandle) {
@@ -1054,6 +1054,7 @@ namespace dse::esv::lua
 			.Hit = &hit, 
 			.Cause = causeType, 
 			.ImpactDirection = impactDirection, 
+			.EnterCombat = enterCombat,
 			.Context = context
 		};
 		ThrowEvent("BeforeCharacterApplyDamage", evt);

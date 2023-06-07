@@ -79,3 +79,4 @@ ScriptExtender/Osiris/Debugger/osidebug.pb.cc
 ScriptExtender/Osiris/Debugger/osidebug.pb.h
 ScriptExtender/Lua/Debugger/LuaDebug.pb.cc
 ScriptExtender/Lua/Debugger/LuaDebug.pb.h
+.vscode/settings.json

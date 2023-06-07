@@ -144,6 +144,7 @@ struct BeforeCharacterApplyDamageEvent : public EventBase
 	stats::HitDamageInfo* Hit;
 	CauseType Cause;
 	glm::vec3 ImpactDirection;
+	bool EnterCombat;
 	PendingHit* Context;
 	bool Handled{ false };
 };
@@ -318,7 +319,7 @@ public:
 		bool forceReduceDurability, stats::HitDamageInfo *damageInfo, stats::PropertyList *skillProperties,
 		stats::HighGroundBonus highGroundFlag, stats::CriticalRoll criticalRoll);
 	bool OnCharacterApplyDamage(esv::Character* target, stats::HitDamageInfo& hit, ComponentHandle attackerHandle,
-		CauseType causeType, glm::vec3& impactDirection, PendingHit* context);
+		CauseType causeType, glm::vec3& impactDirection, bool enterCombat, PendingHit* context);
 	void OnGameStateChanged(GameState fromState, GameState toState);
 	esv::Item* OnGenerateTreasureItem(esv::Item* item);
 	bool OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,

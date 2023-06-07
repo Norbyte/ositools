@@ -81,7 +81,7 @@ namespace dse::esv
 			bool forceReduceDurability, stats::HitDamageInfo* damageInfo, stats::PropertyList* skillProperties,
 			stats::HighGroundBonus highGroundFlag, stats::CriticalRoll criticalRoll);
 		void OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, stats::HitDamageInfo& hit,
-			uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
+			uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection, bool enterCombat);
 
 		void OnApplyStatus(esv::StatusMachine::ApplyStatusProc* wrappedApply, esv::StatusMachine* self, esv::Status* status);
 		void OnGetSkillDamage(stats::SkillPrototype::GetSkillDamageProc* next, stats::SkillPrototype* self, stats::DamagePairList* damageList,

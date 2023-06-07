@@ -155,7 +155,7 @@ struct Character : public IEoCServerObject
 
 	using HitProc = void (esv::Character* self, stats::Character* attackerStats, stats::Item* itemStats, stats::DamagePairList* damageList,
 		stats::HitType hitType, bool noHitRoll, stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGroundFlag, bool procWindWalker, stats::CriticalRoll criticalRoll);
-	using ApplyDamageProc = void (esv::Character* self, stats::HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
+	using ApplyDamageProc = void (esv::Character* self, stats::HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection, bool enterCombat);
 	using CheckSkillRequirementsProc = uint64_t (Character* self, FixedString const& skillId, Item* item, bool checkAP, bool mustHaveSkill);
 
 	Status* GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;

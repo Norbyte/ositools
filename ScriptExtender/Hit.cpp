@@ -295,7 +295,7 @@ namespace dse::esv
 
 
 	void HitProxy::OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, stats::HitDamageInfo& hit,
-		uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection)
+		uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection, bool enterCombat)
 	{
 		auto context = gExtender->GetServer().GetExtensionState().PendingHits.OnCharacterApplyDamage(&hit);
 
@@ -303,12 +303,12 @@ namespace dse::esv
 
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
-			if (lua->OnCharacterApplyDamage(self, luaHit, ComponentHandle(attackerHandle), causeType, impactDirection, context)) {
+			if (lua->OnCharacterApplyDamage(self, luaHit, ComponentHandle(attackerHandle), causeType, impactDirection, enterCombat, context)) {
 				return;
 			}
 		}
 
-		next(self, luaHit, attackerHandle, causeType, impactDirection);
+		next(self, luaHit, attackerHandle, causeType, impactDirection, enterCombat);
 		// ApplyDamage() sets these two flags so we need to copy them
 		hit.EffectFlags = luaHit.EffectFlags;
 		hit.DamageDealt = luaHit.DamageDealt;
