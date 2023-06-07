@@ -38,7 +38,7 @@ function DamageTypeToDeathType(damageType)
     end
 end
 
---- @param item StatItem
+--- @param item CDivinityStatsItem
 function IsRangedWeapon(item)
     local type = item.WeaponType
     return type == "Bow" or type == "Crossbow" or type == "Wand" or type == "Rifle"
@@ -50,7 +50,7 @@ function ScaledDamageFromPrimaryAttribute(primaryAttr)
 end
 
 --- @param skill StatEntrySkillData
---- @param character StatCharacter
+--- @param character CDivinityStatsCharacter
 function GetPrimaryAttributeAmount(skill, character)
     if skill.UseWeaponDamage == "Yes" and character.MainWeapon ~= nil then
         local main = character.MainWeapon
@@ -73,7 +73,7 @@ function GetPrimaryAttributeAmount(skill, character)
 end
 
 --- @param skill StatEntrySkillData
---- @param attacker StatCharacter
+--- @param attacker CDivinityStatsCharacter
 function GetSkillAttributeDamageScale(skill, attacker)
     if attacker == nil or skill.UseWeaponDamage == "Yes" or skill.Ability == "None" then
         return 1.0
@@ -154,7 +154,7 @@ function GetLevelScaledMonsterWeaponDamage(level)
     return ((level * Ext.ExtraData.MonsterDamageBoostPerLevel) + 1.0) * weaponDmg
 end
 
---- @param attacker StatCharacter
+--- @param attacker CDivinityStatsCharacter
 function GetShieldPhysicalArmor(attacker)
     local shield = attacker:GetItemBySlot("Shield", true)
     if shield == nil or shield.ItemType ~= "Shield" then
@@ -173,27 +173,27 @@ function GetShieldPhysicalArmor(attacker)
 end
 
 DamageBoostTable = {
-    --- @param character StatCharacter
+    --- @param character CDivinityStatsCharacter
     Physical = function (character)
         return character.WarriorLore * Ext.ExtraData.SkillAbilityPhysicalDamageBoostPerPoint
     end,
-    --- @param character StatCharacter
+    --- @param character CDivinityStatsCharacter
     Fire = function (character)
         return character.FireSpecialist * Ext.ExtraData.SkillAbilityFireDamageBoostPerPoint
     end,
-    --- @param character StatCharacter
+    --- @param character CDivinityStatsCharacter
     Air = function (character)
         return character.AirSpecialist * Ext.ExtraData.SkillAbilityAirDamageBoostPerPoint
     end,
-    --- @param character StatCharacter
+    --- @param character CDivinityStatsCharacter
     Water = function (character)
         return character.WaterSpecialist * Ext.ExtraData.SkillAbilityWaterDamageBoostPerPoint
     end,
-    --- @param character StatCharacter
+    --- @param character CDivinityStatsCharacter
     Earth = function (character)
         return character.EarthSpecialist * Ext.ExtraData.SkillAbilityPoisonAndEarthDamageBoostPerPoint
     end,
-    --- @param character StatCharacter
+    --- @param character CDivinityStatsCharacter
     Poison = function (character)
         return character.EarthSpecialist * Ext.ExtraData.SkillAbilityPoisonAndEarthDamageBoostPerPoint
     end
@@ -201,7 +201,7 @@ DamageBoostTable = {
 
 --- Base implementation code for reference purposes;
 --- GetDamageBoostByType (below) is used instead for custom damage type support.
---- @param character StatCharacter
+--- @param character CDivinityStatsCharacter
 --- @param damageType string See DamageType enum
 function GetDamageBoostByTypeVanilla(character, damageType)
     local boostFunc = DamageBoostTable[damageType]
@@ -212,14 +212,14 @@ function GetDamageBoostByTypeVanilla(character, damageType)
     end
 end
 
---- @param character StatCharacter
+--- @param character CDivinityStatsCharacter
 --- @param damageType string See DamageType enum
 function GetDamageBoostByType(character, damageType)
     return Ext.Stats.Math.GetDamageBoostByType(character, damageType) / 100.0
 end
 
---- @param character StatCharacter
---- @param damageList DamageList
+--- @param character CDivinityStatsCharacter
+--- @param damageList StatsDamagePairList
 function ApplyDamageBoosts(character, damageList)
     for i, damage in pairs(damageList:ToTable()) do
         local boost = GetDamageBoostByType(character, damage.DamageType)
@@ -281,14 +281,14 @@ local DamageSourceCalcTable = {
 }
 
 --- @param skillDamageType string See DamageType enumeration
---- @param attacker StatCharacter
---- @param target StatCharacter|StatItem
+--- @param attacker CDivinityStatsCharacter
+--- @param target CDivinityStatsCharacter|CDivinityStatsItem
 --- @param level integer
 function CalculateBaseDamage(skillDamageType, attacker, target, level)
     return DamageSourceCalcTable[skillDamageType](attacker, target, level)
 end
 
---- @param damageList DamageList
+--- @param damageList StatsDamagePairList
 function GetDamageListDeathType(damageList)
     local biggestDamage = -1
     local deathType
@@ -303,8 +303,8 @@ function GetDamageListDeathType(damageList)
     return deathType
 end
 
---- @param character StatCharacter
---- @param weapon StatItem
+--- @param character CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
 function GetWeaponAbility(character, weapon)
     if weapon == nil then
         return nil
@@ -327,8 +327,8 @@ function GetWeaponAbility(character, weapon)
     return "SingleHanded"
 end
 
---- @param character StatCharacter
---- @param weapon StatItem
+--- @param character CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
 function ComputeWeaponCombatAbilityBoost(character, weapon)
     local abilityType = GetWeaponAbility(character, weapon)
 
@@ -340,7 +340,7 @@ function ComputeWeaponCombatAbilityBoost(character, weapon)
     end
 end
 
---- @param weapon StatItem
+--- @param weapon CDivinityStatsItem
 function GetWeaponScalingRequirement(weapon)
     local requirementName
     -- Stat requirements without points (i.e. just "Strength") get -1 as their Param value, so we need a -2 minimum to capture them
@@ -359,8 +359,8 @@ function GetWeaponScalingRequirement(weapon)
     return requirementName
 end
 
---- @param character StatCharacter
---- @param weapon StatItem
+--- @param character CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
 function GetItemRequirementAttribute(character, weapon)
     local attribute = GetWeaponScalingRequirement(weapon)
     if attribute ~= nil then
@@ -370,8 +370,8 @@ function GetItemRequirementAttribute(character, weapon)
     end
 end
 
---- @param character StatCharacter
---- @param weapon StatItem
+--- @param character CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
 function ComputeWeaponRequirementScaledDamage(character, weapon)
     local scalingReq = GetWeaponScalingRequirement(weapon)
     if scalingReq ~= nil then
@@ -382,7 +382,7 @@ function ComputeWeaponRequirementScaledDamage(character, weapon)
 end
 
 -- from Item::ComputeDamage
---- @param weapon StatItem
+--- @param weapon CDivinityStatsItem
 function ComputeBaseWeaponDamage(weapon)
     local damages = {}
     local stats = weapon.DynamicStats
@@ -438,7 +438,7 @@ function ComputeBaseWeaponDamage(weapon)
 end
 
 -- from Item::ComputeDamage
---- @param weapon StatItem
+--- @param weapon CDivinityStatsItem
 function CalculateWeaponDamageWithDamageBoost(weapon)
     local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
     local boost = 1.0 + damageBoost * 0.01
@@ -457,8 +457,8 @@ function CalculateWeaponDamageWithDamageBoost(weapon)
 end
 
 -- from Item::ComputeScaledDamage
---- @param character StatCharacter
---- @param weapon StatItem
+--- @param character CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
 function CalculateWeaponScaledDamageRanges(character, weapon)
     local damages = CalculateWeaponDamageWithDamageBoost(weapon)
 
@@ -482,9 +482,9 @@ function CalculateWeaponScaledDamageRanges(character, weapon)
 end
 
 -- from Character::CalculateWeaponDamageInner
---- @param character StatCharacter
---- @param weapon StatItem
---- @param damageList DamageList
+--- @param character CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
+--- @param damageList StatsDamagePairList
 --- @param noRandomization boolean
 function CalculateWeaponScaledDamage(character, weapon, damageList, noRandomization)
     local damages = CalculateWeaponScaledDamageRanges(character, weapon)
@@ -503,8 +503,8 @@ function CalculateWeaponScaledDamage(character, weapon, damageList, noRandomizat
     end
 end
 
---- @param attacker StatCharacter
---- @param weapon StatItem
+--- @param attacker CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
 --- @param noRandomization boolean
 function CalculateWeaponDamage(attacker, weapon, noRandomization)
     local damageList = Ext.NewDamageList()
@@ -532,15 +532,15 @@ function CalculateWeaponDamage(attacker, weapon, noRandomization)
 end
 
 --- @param skill StatEntrySkillData
---- @param attacker StatCharacter
+--- @param attacker CDivinityStatsCharacter
 --- @param isFromItem boolean
 --- @param stealthed boolean
 --- @param attackerPos number[]
 --- @param targetPos number[]
 --- @param level integer
 --- @param noRandomization boolean
---- @param mainWeapon StatItem  Optional mainhand weapon to use in place of the attacker's.
---- @param offHandWeapon StatItem   Optional offhand weapon to use in place of the attacker's.
+--- @param mainWeapon CDivinityStatsItem  Optional mainhand weapon to use in place of the attacker's.
+--- @param offHandWeapon CDivinityStatsItem   Optional offhand weapon to use in place of the attacker's.
 function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, targetPos, level, noRandomization, mainWeapon, offHandWeapon)
     if attacker ~= nil and level < 0 then
         level = attacker.Level
@@ -673,8 +673,8 @@ HitFlag = {
     NoEvents = 0x80000000
 }
 
---- @param damageList DamageList
---- @param attacker StatCharacter
+--- @param damageList StatsDamagePairList
+--- @param attacker CDivinityStatsCharacter
 function ApplyDamageSkillAbilityBonuses(damageList, attacker)
 
     if attacker == nil then
@@ -715,14 +715,14 @@ function ApplyDamageSkillAbilityBonuses(damageList, attacker)
      end
 end
 
---- @param character StatCharacter
+--- @param character CDivinityStatsCharacter
 --- @param type string DamageType enumeration
 function GetResistance(character, type)
     return Ext.Stats.Math.GetResistance(character, type, false)
 end
 
---- @param character StatCharacter
---- @param damageList DamageList
+--- @param character CDivinityStatsCharacter
+--- @param damageList StatsDamagePairList
 function ApplyHitResistances(character, damageList)
     for i,damage in pairs(damageList:ToTable()) do
         local resistance = GetResistance(character, damage.DamageType)
@@ -730,9 +730,9 @@ function ApplyHitResistances(character, damageList)
     end
 end
 
---- @param character StatCharacter
---- @param attacker StatCharacter
---- @param damageList DamageList
+--- @param character CDivinityStatsCharacter
+--- @param attacker CDivinityStatsCharacter
+--- @param damageList StatsDamagePairList
 function ApplyDamageCharacterBonuses(character, attacker, damageList)
     damageList:AggregateSameTypeDamages()
     ApplyHitResistances(character, damageList)
@@ -741,7 +741,7 @@ function ApplyDamageCharacterBonuses(character, attacker, damageList)
 end
 
 
---- @param character StatCharacter
+--- @param character CDivinityStatsCharacter
 --- @param ability string Ability enumeration
 function GetAbilityCriticalHitMultiplier(character, ability)
     if ability == "TwoHanded" then
@@ -755,8 +755,8 @@ function GetAbilityCriticalHitMultiplier(character, ability)
     return 0
 end
 
---- @param weapon StatItem
---- @param character StatCharacter
+--- @param weapon CDivinityStatsItem
+--- @param character CDivinityStatsCharacter
 function GetCriticalHitMultiplier(weapon, character)
     local criticalMultiplier = 0
     if weapon.ItemType == "Weapon" then
@@ -777,8 +777,8 @@ function GetCriticalHitMultiplier(weapon, character)
     return criticalMultiplier * 0.01
 end
 
---- @param hit HitRequest
---- @param attacker StatCharacter
+--- @param hit StatsHitDamageInfo
+--- @param attacker CDivinityStatsCharacter
 --- @param ctx HitCalculationContext
 function ApplyCriticalHit(hit, attacker, ctx)
     local mainWeapon = attacker.MainWeapon
@@ -788,8 +788,8 @@ function ApplyCriticalHit(hit, attacker, ctx)
     end
 end
 
---- @param hit HitRequest
---- @param attacker StatCharacter
+--- @param hit StatsHitDamageInfo
+--- @param attacker CDivinityStatsCharacter
 --- @param hitType string HitType enumeration
 --- @param criticalRoll string CriticalRoll enumeration
 function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
@@ -822,9 +822,9 @@ function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
     return math.random(0, 99) < critChance
 end
 
---- @param hit HitRequest
---- @param target StatCharacter
---- @param attacker StatCharacter
+--- @param hit StatsHitDamageInfo
+--- @param target CDivinityStatsCharacter
+--- @param attacker CDivinityStatsCharacter
 --- @param hitType string HitType enumeration
 --- @param criticalRoll string CriticalRoll enumeration
 --- @param ctx HitCalculationContext
@@ -834,9 +834,9 @@ function ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, c
     end
 end
 
---- @param hit HitRequest
---- @param target StatCharacter
---- @param attacker StatCharacter
+--- @param hit StatsHitDamageInfo
+--- @param target CDivinityStatsCharacter
+--- @param attacker CDivinityStatsCharacter
 --- @param hitType string HitType enumeration
 function ApplyLifeSteal(hit, target, attacker, hitType)
     if attacker == nil or hitType == "DoT" or hitType == "Surface" then
@@ -861,8 +861,8 @@ function ApplyLifeSteal(hit, target, attacker, hitType)
     end
 end
 
---- @param damageList DamageList
---- @param hit HitRequest
+--- @param damageList StatsDamagePairList
+--- @param hit StatsHitDamageInfo
 function ApplyDamagesToHitInfo(damageList, hit)
     local totalDamage = 0
     for i,damage in pairs(damageList:ToTable()) do
@@ -877,14 +877,14 @@ function ApplyDamagesToHitInfo(damageList, hit)
     hit.TotalDamageDone = hit.TotalDamageDone + totalDamage
 end
 
---- @param damageList DamageList
+--- @param damageList StatsDamagePairList
 --- @param armor integer
 function ComputeArmorDamage(damageList, armor)
     local damage = damageList:GetByType("Corrosive") + damageList:GetByType("Physical") + damageList:GetByType("Sulfuric")
     return math.min(armor, damage)
 end
 
---- @param damageList DamageList
+--- @param damageList StatsDamagePairList
 --- @param magicArmor integer
 function ComputeMagicArmorDamage(damageList, magicArmor)
     local damage = damageList:GetByType("Magic") 
@@ -896,12 +896,12 @@ function ComputeMagicArmorDamage(damageList, magicArmor)
     return math.min(magicArmor, damage)
 end
 
---- @param hit HitRequest
---- @param damageList DamageList
---- @param statusBonusDmgTypes DamageList
+--- @param hit StatsHitDamageInfo
+--- @param damageList StatsDamagePairList
+--- @param statusBonusDmgTypes StatsDamagePairList
 --- @param hitType string HitType enumeration
---- @param target StatCharacter
---- @param attacker StatCharacter
+--- @param target CDivinityStatsCharacter
+--- @param attacker CDivinityStatsCharacter
 --- @param ctx HitCalculationContext
 function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker, ctx)
     hit.Hit = true;
@@ -944,8 +944,8 @@ function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker, 
     end
 end
 
---- @param attacker StatCharacter
---- @param target StatCharacter
+--- @param attacker CDivinityStatsCharacter
+--- @param target CDivinityStatsCharacter
 --- @param highGround string HighGround enumeration
 function GetAttackerDamageMultiplier(attacker, target, highGround)
     if target == nil then
@@ -962,8 +962,8 @@ function GetAttackerDamageMultiplier(attacker, target, highGround)
     end
 end
 
---- @param character StatCharacter
---- @param item StatItem
+--- @param character CDivinityStatsCharacter
+--- @param item CDivinityStatsItem
 function DamageItemDurability(character, item)
     local degradeSpeed = 0
     for i,stats in pairs(item.DynamicStats) do
@@ -982,8 +982,8 @@ function DamageItemDurability(character, item)
     end
 end
 
---- @param character StatCharacter
---- @param item StatItem
+--- @param character CDivinityStatsCharacter
+--- @param item CDivinityStatsItem
 function ConditionalDamageItemDurability(character, item)
     if not character.InParty or not item.LoseDurabilityOnCharacterHit or item.Unbreakable or not IsRangedWeapon(item) then
         return
@@ -999,8 +999,8 @@ function ConditionalDamageItemDurability(character, item)
     end
 end
 
---- @param attacker StatCharacter
---- @param target StatCharacter
+--- @param attacker CDivinityStatsCharacter
+--- @param target CDivinityStatsCharacter
 function CalculateHitChance(attacker, target)
     if attacker.TALENT_Haymaker then
         return 100
@@ -1018,8 +1018,8 @@ function CalculateHitChance(attacker, target)
     return chanceToHit1 + attacker.ChanceToHitBoost
 end
 
---- @param target StatCharacter
---- @param attacker StatCharacter
+--- @param target CDivinityStatsCharacter
+--- @param attacker CDivinityStatsCharacter
 function IsInFlankingPosition(target, attacker)
     local tPos = target.Position
     local aPos = attacker.Position
@@ -1033,8 +1033,8 @@ function IsInFlankingPosition(target, attacker)
     return ang > math.cos(0.52359879)
 end
 
---- @param target StatCharacter
---- @param attacker StatCharacter
+--- @param target CDivinityStatsCharacter
+--- @param attacker CDivinityStatsCharacter
 function CanBackstab(target, attacker)
     local targetPos = target.Position
     local attackerPos = attacker.Position
@@ -1063,14 +1063,14 @@ function CanBackstab(target, attacker)
     return relAngle >= 150 and relAngle <= 210
 end
 
---- @param target StatCharacter
---- @param attacker StatCharacter
---- @param weapon StatItem
---- @param damageList DamageList
+--- @param target CDivinityStatsCharacter
+--- @param attacker CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
+--- @param damageList StatsDamagePairList
 --- @param hitType string HitType enumeration
 --- @param noHitRoll boolean
 --- @param forceReduceDurability boolean
---- @param hit HitRequest
+--- @param hit StatsHitDamageInfo
 --- @param alwaysBackstab boolean
 --- @param highGroundFlag string HighGround enumeration
 --- @param criticalRoll string CriticalRoll enumeration
@@ -1159,10 +1159,10 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
     return hit
 end
 
---- @param character StatCharacter
+--- @param character CDivinityStatsCharacter
 --- @param skill StatEntrySkillData
---- @param mainWeapon StatItem  Optional mainhand weapon to use in place of the character's.
---- @param offHandWeapon StatItem   Optional offhand weapon to use in place of the character's.
+--- @param mainWeapon CDivinityStatsItem  Optional mainhand weapon to use in place of the character's.
+--- @param offHandWeapon CDivinityStatsItem   Optional offhand weapon to use in place of the character's.
 function GetSkillDamageRange(character, skill, mainWeapon, offHandWeapon)
     local damageMultiplier = skill['Damage Multiplier'] * 0.01
     local result
@@ -1372,8 +1372,8 @@ function StatusGetEnterChance(status, isEnterCheck)
 end
 
 
---- @param character StatCharacter
---- @param weapon StatItem
+--- @param character CDivinityStatsCharacter
+--- @param weapon CDivinityStatsItem
 function GetWeaponAPCost(character, weapon)
     if weapon.ItemType ~= "Weapon" then
         return 0
@@ -1388,7 +1388,7 @@ function GetWeaponAPCost(character, weapon)
 end
 
 
---- @param character StatCharacter
+--- @param character CDivinityStatsCharacter
 function GetCharacterWeaponAPCost(character)
     local mainWeapon = character.MainWeapon
     local offHandWeapon = character.OffHandWeapon
@@ -1398,7 +1398,7 @@ function GetCharacterWeaponAPCost(character)
     if offHandWeapon ~= nil and IsRangedWeapon(mainWeapon) == IsRangedWeapon(offHandWeapon) then
         ap = ap + GetWeaponAPCost(character, offHandWeapon) - Ext.ExtraData.DualWieldingAPPenalty
     else
-        --- @type StatItem
+        --- @type CDivinityStatsItem
         local offHandItem = character:GetItemBySlot("Shield")
         if offHandItem ~= nil and offHandItem.ItemType == "Shield" then
             ap = ap + Ext.ExtraData.ShieldAPCost
@@ -1419,8 +1419,8 @@ local ElementalAffinityAiFlags = {
 }
 
 --- @param skill StatEntrySkillData
---- @param character StatCharacter
---- @param grid AiGrid
+--- @param character CDivinityStatsCharacter
+--- @param grid EocAiGrid
 --- @param position number[]
 --- @param radius number
 function GetSkillAPCost(skill, character, grid, position, radius)

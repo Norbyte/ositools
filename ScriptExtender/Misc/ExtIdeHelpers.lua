@@ -1907,7 +1907,7 @@ Osi = {}
 --- @field GetStatus fun(self:IEoCServerObject, statusId:FixedString):EsvStatus
 --- @field GetStatusByHandle fun(self:IEoCServerObject, handle:ComponentHandle):EsvStatus
 --- @field GetStatusByType fun(self:IEoCServerObject, type:StatusType):EsvStatus
---- @field GetStatusObjects fun(self:IEoCClientObject):EclStatus
+--- @field GetStatusObjects fun(self:IEoCServerObject):EsvStatus[]
 --- @field GetStatuses fun(self:IEoCServerObject):FixedString[]
 --- @field TransformTemplate fun(self:IEoCServerObject, tmpl:GameObjectTemplate)
 
