@@ -507,7 +507,7 @@ end
 --- @param weapon CDivinityStatsItem
 --- @param noRandomization boolean
 function CalculateWeaponDamage(attacker, weapon, noRandomization)
-    local damageList = Ext.NewDamageList()
+    local damageList = Ext.Stats.NewDamageList()
 
     CalculateWeaponScaledDamage(attacker, weapon, damageList, noRandomization)
 
@@ -557,7 +557,7 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
         end
     end
 
-    local damageList = Ext.NewDamageList()
+    local damageList = Ext.Stats.NewDamageList()
 
     if damageMultiplier <= 0 then
         return
@@ -919,7 +919,7 @@ function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker, 
 
     ApplyDamageCharacterBonuses(target, attacker, damageList)
     damageList:AggregateSameTypeDamages()
-    hit.DamageList = Ext.NewDamageList()
+    hit.DamageList = Ext.Stats.NewDamageList()
 
     for i,damageType in pairs(statusBonusDmgTypes) do
         damageList:Add(damageType, math.ceil(totalDamage * 0.1))
@@ -1334,7 +1334,7 @@ end
 
 --- @param status EsvStatus
 function CanTriggerTorturer(status)
-    local source = Ext.GetGameObject(status.StatusSourceHandle)
+    local source = Ext.Entity.GetGameObject(status.StatusSourceHandle)
     local causeType = status.DamageSourceType
     local statusType = status.StatusType
 
@@ -1348,7 +1348,7 @@ end
 --- @param status EsvStatus
 --- @param isEnterCheck boolean
 function StatusGetEnterChance(status, isEnterCheck)
-    local target = Ext.GetGameObject(status.TargetHandle)
+    local target = Ext.Entity.GetGameObject(status.TargetHandle)
     if target ~= nil and not target.Dead and not target:HasTag("GHOST") then
         if status.ForceStatus then
             return 100
@@ -1449,3 +1449,408 @@ function GetSkillAPCost(skill, character, grid, position, radius)
     return math.max(characterAP, baseAP), elementalAffinity
 end
 
+--- @param entity EsvCharacter|EsvItem
+--- @param combatComp EsvCombatComponent
+function CanEntityFight(entity, combatComp)
+    if not combatComp.CanFight or not combatComp.CanJoinCombat then
+        return false
+    end
+
+    if Ext.Types.GetObjectType(entity) == "esv::Item" then
+        return not entity.Destroyed and not entity.OffStage
+    else
+        if not entity.Deactivated and not entity.CF_IsStoryNPC and not entity.Dead and not entity.OffStage then
+          local task = "FIXME" -- FIXME esv::TaskController::GetNextTask(character->OsirisController);
+          -- esv::OsirisDisappearTask
+          -- esv::OsirisFleeTask
+          return task == nil or (task.Type ~= "Disappear" and task.Type ~= "Flee")
+        else
+            return false
+        end
+    end
+end
+
+--- @param status EsvStatus
+function ShouldDeleteStatus(status)
+    if status.RequestDelete then
+        return true
+    end
+
+    local target = Ext.Entity.GetGameObject(status.TargetHandle)
+    local combatComp = Ext.Entity.GetCombatComponent(target.Base.Entity:GetComponent("Combat"))
+
+    if combatComp ~= nil and combatComp.CombatAndTeamIndex.CombatId == 0 and status.RequestDeleteAtTurnEnd then
+        return true
+    end
+
+    if target ~= nil and not CanEntityFight(target, combatComp) then
+        return status.RequestDeleteAtTurnEnd
+    else
+        return false
+    end
+end
+
+--- @param character EsvCharacter
+function IsResistingDeath(character)
+    for i,status in pairs(character:GetStatusObjects()) do
+        if status.Started and status.IsResistingDeath and not ShouldDeleteStatus(status) then
+            return true
+        end
+    end
+
+    return false
+end
+
+--- @param causeType CauseType
+function IsSurfaceCauseType(causeType)
+    return causeType == "SurfaceMove" or causeType == "SurfaceCreate" or causeType == "SurfaceStatus"
+end
+
+--- @param target EsvCharacter
+--- @param deathType StatsDeathType
+--- @param damageType StatsDamageType
+--- @param attackDirection number
+--- @param impactDirection vec3
+--- @param attacker EsvCharacter
+--- @param inflicter EsvCharacter
+--- @param disputeTarget EsvCharacter
+function ApplyDying(target, deathType, damageType, attackDirection, impactDirection, attacker, inflicter, disputeTarget)
+    --- @type EsvStatusDying
+    local dying = target.DelayedDyingStatus
+    if dying == nil then
+        dying = Ext.PrepareStatus(target.Handle, "DYING", -1.0)
+    end
+    
+    if target.HasOwner then
+        deathType = "Lifetime"
+    end
+
+    dying.DeathType = deathType
+    dying.AttackDirection = attackDirection
+    dying.ImpactDirection = impactDirection
+    dying.RequestClientSync = true
+    dying.SourceType = damageType
+    dying.SourceHandle = attacker and attacker.Handle
+    dying.InflicterHandle = inflicter and inflicter.Handle
+    dying.DisputeTargetHandle = disputeTarget and disputeTarget.Handle
+    
+    if target.DelayDeathCount then
+        -- FIXME allow binding DelayedDyingStatus
+        target.DelayedDyingStatus = dying
+    else
+        Ext.ApplyStatus(dying)
+        -- FIXME allow binding DelayedDyingStatus
+        target.DelayedDyingStatus = nil
+    end
+end
+
+--- @param target EsvCharacter
+--- @param hit StatsHitDamageInfo
+--- @param attacker EsvCharacter|EsvItem
+--- @param causeType CauseType
+--- @param impactDirection vec3
+--- @param enterCombat boolean
+function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCombat)
+  if not target.Activated and target.OffStage then
+      Ext.Utils.PrintWarning("Trying to damage offstage character")
+      return
+  end
+
+  if target.Stats == nil then
+      Ext.Utils.PrintWarning("Could not find Stats for character")
+      return
+  end
+
+  if target.Dead then
+      return
+  end
+
+  local stats = target.Stats
+  
+  if not hit.FromShacklesOfPain then
+    local shacklesStatus = target:GetStatus("SHACKLES_OF_PAIN_CASTER")
+    if shacklesStatus ~= nil then
+        -- FIXME does not exist!
+        StatusStacklesOfPainCaster__ApplyDamage(shacklesStatus, hit, causeType);
+    end
+  end
+  
+  -- TODO - SummonLifeLinkModifier skipped
+
+
+
+  local initialVitality = stats.CurrentVitality
+  local initialArmor = stats.CurrentArmor
+  local initialMagicArmor = stats.CurrentMagicArmor
+  local totalDamageDone = hit.TotalDamageDone
+
+  local damageList = Ext.Stats.NewDamageList()
+  damageList:Merge(hit.DamageList)
+
+  local hasDamage = false
+  for i,damage in pairs(damageList:AsArray()) do
+    if damage.Amount >= 0 then
+        hasDamage = true
+    end
+  end
+
+  damageList:AggregateSameTypeDamages()
+
+  local MagicalDamageTypes = {
+    Physical = false,
+    Corrosive = false,
+    Magic = true,
+    Fire = true,
+    Air = true,
+    Water = true,
+    Earth = true,
+    Poison = true
+  }
+  
+    for i,damage in pairs(damageList:AsArray()) do
+        if damage.Amount > 0 then
+            local isMagicDamage = MagicalDamageTypes[damage.DamageType]
+
+            if damage.DamageType == "Sulfur" then
+                isMagicDamage = stats.MagicalSulfur
+            end
+
+            local armorDmg = 0
+            if isMagicDamage then
+                stats.MagicArmorAfterHitCooldownMultiplier = Ext.ExtraData.MagicArmorAfterHitCooldown
+                armorDmg = math.min(damage.Amount, stats.CurrentMagicArmor)
+                stats.CurrentMagicArmor = stats.CurrentMagicArmor - armorDmg
+            elseif isMagicDamage == false then
+                stats.ArmorAfterHitCooldownMultiplier = Ext.ExtraData.ArmorAfterHitCooldown
+                armorDmg = math.min(damage.Amount, stats.CurrentArmor)
+                stats.CurrentArmor = stats.CurrentArmor - armorDmg
+            end
+
+            totalDamageDone = totalDamageDone - armorDmg
+            damage.Amount = damage.Amount - armorDmg
+        end
+    end
+  
+
+
+
+    local armorAfterDmg = stats.CurrentArmor
+    local magicArmorAfterDmg = stats.CurrentMagicArmor
+
+    if initialArmor > armorAfterDmg then
+        hit.DamagedPhysicalArmor = true
+    end
+    
+    if initialMagicArmor > magicArmorAfterDmg then
+        hit.DamagedMagicArmor = true
+    end
+
+    if initialArmor <= 0 then
+        hit.DamageList:Clear("Corrosive")
+    end
+
+    if initialMagicArmor <= 0 then
+        hit.DamageList:Clear("Magic")
+    end
+    
+    if Ext.Types.GetObjectType(attacker) == "esv::Item" then
+        if attacker.InUseByCharacterHandle ~= nil then
+            attacker = Ext.Entity.GetCharacter(attacker.InUseByCharacterHandle)
+        else
+            attacker = nil
+        end
+    end
+
+
+    local attackerOwner = attacker
+    if attacker ~= nil and attacker.OwnerHandle ~= nil and attacker.HasOwner then
+        attackerOwner = Ext.Entity.GetCharacter(attacker.OwnerHandle)
+    end
+
+    if totalDamageDone < 0 then
+        --- @type EsvStatusHeal
+        local heal = Ext.PrepareStatus(target.Handle, "HEAL", -1.0)
+        heal.StatusSourceHandle = target.Handle
+        heal.CauseType = causeType
+        heal.HealAmount = -totalDamageDone
+        heal.HealEffect = "NegativeDamage"
+        heal.HealType = "Vitality"
+
+        -- FIXME apply heal logic
+        -- esv::StatusHeal::ApplyHeal(this)
+
+        Ext.ApplyStatus(heal)
+    else
+
+        local overDamage = math.max(totalDamageDone - initialVitality, 0)
+
+        local newVitality = math.min(math.max(initialVitality - totalDamageDone, 0), stats.MaxVitality)
+        if newVitality ~= initialVitality then
+            stats.CurrentVitality = newVitality
+            hit.DamagedVitality = true
+            -- FIXME!
+            -- esv::StoryCharacterEventManager::ThrowCharacterVitalityChangedEvent
+        end
+
+        local combatComp = Ext.Entity.GetCombatComponent(target.Base.Entity:GetComponent("Combat"))
+        local throwReceivedDamage = false
+        local lastDamageType = "Physical"
+
+        if true then -- FIXME: if ( this->PlanManager )
+            local maxVitality = target.Stats.MaxVitality
+            local behaviorVitality = initialVitality
+
+            for i,damage in pairs(damageList:AsArray()) do
+                lastDamageType = damage.DamageType
+
+                if damage.Amount > 0 then
+                    -- FIXME
+                -- esv::PlanManager::ThrowOnDamage(this->PlanManager, damage.DamageType, damage.Amount / maxVitality, attacker)
+                if combatComp ~= nil and combatComp.CombatData ~= nil then
+                    local found = false
+                    local hasBeenHitBy = combatComp.CombatData.HasBeenHitBy
+                    for i,damageType in pairs(hasBeenHitBy) do
+                        if damageType == damage.DamageType then
+                            found = true
+                        end
+                    end
+
+                    if not found then
+                        hasBeenHitBy[3] = hasBeenHitBy[2]
+                        hasBeenHitBy[2] = hasBeenHitBy[1]
+                        hasBeenHitBy[1] = damage.DamageType
+                    end
+                end
+
+                throwReceivedDamage = true
+
+                behaviorVitality = behaviorVitality - damage.Amount
+                if behaviorVitality <= 0 then
+                    break
+                end
+                end
+            end
+        end
+
+        local isDying = false
+
+        if stats.CurrentVitality <= 0 then
+            local canResistDeath = combatComp ~= nil and combatComp.CanUseResistDeadTalent
+            local isResistingDeath = IsResistingDeath(target)
+
+            if canResistDeath and stats.TALENT_ResistDead then
+                if not isResistingDeath then
+                    combatComp.CanUseResistDeadTalent = false
+                end
+            elseif not isResistingDeath then
+                ApplyDying(target, hit.DeathType, lastDamageType, hit.AttackDirection, impactDirection, attacker, attacker, attackerOwner)
+
+                isDying = true
+
+                if attacker ~= nil and attacker.Stats.TALENT_PainDrinker then
+                    local overDamagePercent = math.min(math.max(overDamage / GetAverageLevelDamage(attacker.Stats.Level), 0.1), 1.0)
+                    local painDrinker = Ext.PrepareStatus(attacker, "PAIN_DRINKER", -1.0)
+                    if painDrinker ~= nil then
+                        painDrinker.StatsMultiplier = overDamagePercent
+                        Ext.ApplyStatus(painDrinker)
+                    end
+                end
+            else
+                local heal = Ext.PrepareStatus(target.Handle, "HEAL", -1.0)
+                local healAmount
+
+                if isResistingDeath then
+                    healAmount = 1
+                else
+                    healAmount = math.max(math.round(stats.MaxVitality / 100.0 * Ext.ExtraData.TalentResistDeathVitalityPercentage), 1)
+                end
+
+                heal.HealAmount = healAmount
+                heal.HealEffect = "ResistDeath"
+                heal.HealType = "Vitality"
+        
+                -- FIXME apply heal logic
+                -- esv::StatusHeal::ApplyHeal(heal)
+
+                Ext.ApplyStatus(heal)
+
+                if not isResistingDeath then
+                    local text = Ext.L10N.GetTranslatedString("hf5114b41g1b8ag4d6dgb571gf9417296a15f", "[1] resisted Death!")
+                    text = text:gsub("[1]", target.DisplayName)
+                    -- FIXME
+                    -- sub_181001B30(text, 11, -1);
+                    -- CombatLogProtocol_AddText2(target.Handle, text, 0, 0, -1, 1)
+                    -- OverheadTextManager__AddText(target.Handle, 0, text, 3, "", -1, 0)
+                end
+            end
+        end
+
+        if throwReceivedDamage then
+            local vitalityPercent = totalDamageDone / stats.MaxVitality
+            -- FIXME
+            -- esv::StoryCharacterEventManager::ThrowCharacterReceivedDamageEvent(v152, target.Handle, attacker or attacker.Handle, v104);
+        end
+
+        -- FIXME "and false"
+        if enterCombat and false then
+            local level = Ext.Entity.GetCurrentLevel()
+            if level ~= nil and level.ShroudManager ~= nil and not isDying and attacker ~= nil and not attacker.Dead and not attacker.OffStage then
+                -- FIXME implement
+                local targetRegion = level.ShroudManager:Get("RegionMask", target.WorldPos[1], target.WorldPos[3])
+                -- FIXME implement
+                local attackerRegion = level.ShroudManager:Get("RegionMask", attacker.WorldPos[1], attacker.WorldPos[3])
+                if targetRegion == attackerRegion then
+                -- FIXME implement
+                    -- esv::TurnManager::TryEnterCombat(TurnManager, target, attacker, 1, 1)
+                end
+            end
+        end
+    end
+
+    if hasDamage then
+        if attacker ~= nil and Ext.Types.GetObjectType(attacker) == "esv::Character" then
+            -- FIXME implement
+            if false and AlignmentContainer__IsEnemy(attacker, target, 0, 0) then
+                local attackerParent = attacker
+                attacker.DamageCounter = attacker.DamageCounter + hit.TotalDamageDone
+                while attackerParent.HasOwner and attackerParent.OwnerHandle ~= nil do
+                    attackerParent = Ext.Entity.GetCharacter(attackerParent.OwnerHandle)
+                    attackerParent.DamageCounter = attackerParent.DamageCounter + hit.TotalDamageDone
+                end
+            end
+
+            -- FIXME implement
+            --if ( esv::gEoCServer->ArenaManager ) then
+            --  this->VMT->GetHandle(this, &v152);
+            --  sub_180AA5680(v115->ArenaManager, attacker, target.Handle, hit.TotalDamageDone, 0)
+            --end
+
+            if not IsSurfaceCauseType(causeType) or not attacker.IsPlayer or not target.IsPlayer then
+                -- FIXME implement
+                -- StoryGameEventManager__ThrowAttackedByObject(target, attackerOwner, 0, causeType, attacker)
+            end
+        elseif attacker ~= nil then
+            -- FIXME implement
+            -- StoryGameEventManager__ThrowAttackedByObject(target, attacker, 0, causeType, nil)
+        end
+    end
+  
+    hit.DamageDealt = math.max(initialVitality - math.max(stats.CurrentVitality, 0), 0) + 
+        math.max(initialArmor - math.max(stats.CurrentArmor, 0), 0) +
+        math.max(initialMagicArmor - math.max(stats.CurrentMagicArmor, 0), 0)
+  
+    if hit.ProcWindWalker then
+        local windWalker = target:GetStatus("WIND_WALKER")
+        if windWalker ~= nil then
+            -- FIXME
+            -- esv::StatusWindWalker::Apply(windWalker)
+        end
+    end
+  
+    if attacker ~= nil and hit.CounterAttack then
+        -- FIXME
+        -- bsAttackCharacter = j_esv::BehaviourMachine::CreateBehaviour(this->BehaviourMachine, 3);
+        -- esv::BSAttackCharacter::Setup(bsAttackCharacter, attackerHandle, attacker.WorldPos, 1, 1);
+        -- esv::BSAttackCharacter::CounterAttack(bsAttackCharacter);
+    end
+end

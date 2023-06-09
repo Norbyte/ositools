@@ -207,7 +207,7 @@ namespace dse
 
 						int32_t rel = *(int32_t *)(r + 7);
 						uint8_t const * registrantObj = r + rel + 4 + 7;
-						sym.ServerGlobals[i] = (uint8_t const **)registrantObj;
+						sym.ServerGlobals[i] = (uint8_t * const *)registrantObj;
 
 					}
 					else {

@@ -140,6 +140,7 @@ struct ComputeCharacterHitEvent : public EventBase
 struct BeforeCharacterApplyDamageEvent : public EventBase
 {
 	esv::Character* Target;
+	IEoCServerObject* AttackerEntity;
 	stats::ObjectInstance* Attacker;
 	stats::HitDamageInfo* Hit;
 	CauseType Cause;

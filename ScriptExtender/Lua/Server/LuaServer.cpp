@@ -1034,14 +1034,17 @@ namespace dse::esv::lua
 			CauseType causeType, glm::vec3& impactDirection, bool enterCombat, PendingHit* context)
 	{
 		stats::ObjectInstance* attacker{ nullptr };
+		IEoCServerObject* attackerEntity{ nullptr };
 		if (attackerHandle) {
 			auto attackerChar = GetEntityWorld()->GetComponent<Character>(attackerHandle, false);
 			if (attackerChar) {
 				attacker = attackerChar->Stats;
+				attackerEntity = attackerChar;
 			} else {
 				auto attackerItem = GetEntityWorld()->GetComponent<Item>(attackerHandle, false);
 				if (attackerItem) {
 					attacker = attackerItem->Stats;
+					attackerEntity = attackerItem;
 				} else {
 					OsiError("Could not resolve attacker handle: " << std::hex << attackerHandle.Handle);
 				}
@@ -1050,7 +1053,8 @@ namespace dse::esv::lua
 
 		BeforeCharacterApplyDamageEvent evt{
 			.Target = target, 
-			.Attacker = attacker, 
+			.AttackerEntity = attackerEntity,
+			.Attacker = attacker,
 			.Hit = &hit, 
 			.Cause = causeType, 
 			.ImpactDirection = impactDirection, 
