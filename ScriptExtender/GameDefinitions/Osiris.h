@@ -9,6 +9,7 @@
 #include <cassert>
 #include <glm/vec3.hpp>
 #include <GameDefinitions/Base/Base.h>
+#include <GameDefinitions/CommonTypes.h>
 
 namespace dse
 {
@@ -301,20 +302,17 @@ struct BufferPool : public ProtectedGameObject<BufferPool>
 	char const * Name;
 };
 
-template <typename T>
-struct BaseArray
+struct OsirisTypeInfo : public ProtectedGameObject<OsirisTypeInfo>
 {
-	void * VMT;
-	T * Buffer;
-	uint32_t Capacity;
-	uint32_t Size;
-	uint32_t Free;
-
-
+	char const* Name;
+	ValueType Type;
+	uint16_t BuiltinTypeId;
+	uint32_t Unknown;
+	uint64_t SizeInBytes;
+	void* Context;
+	void* TypeFunc1;
+	void* TypeFunc2;
 };
-
-struct OsirisInterface;
-struct OsirisManager;
 
 enum class FunctionArgumentDirection : uint32_t
 {
@@ -359,74 +357,6 @@ struct OsirisFunctionHandle
 	{
 		return Handle >> 30;
 	}
-};
-
-struct OsirisFunction : public ProtectedGameObject<OsirisFunction>
-{
-	void * VMT;
-	char const * Name;
-	FunctionArgument * Arguments;
-	uint32_t NumArguments;
-	uint64_t ArgumentSize;
-	OsirisFunctionHandle Handle;
-	OsirisManager * Manager;
-	uint32_t Unknown;
-	void * StoryImplementation;
-	void * HandlerProc;
-	uint64_t Unknown2;
-};
-
-struct OsirisTypeInfo : public ProtectedGameObject<OsirisTypeInfo>
-{
-	char const * Name;
-	ValueType Type;
-	uint16_t Alias;
-	uint32_t Unknown;
-	uint64_t SizeInBytes;
-	uint64_t Unknown2;
-	void * TypeFunc1;
-	void * TypeFunc2;
-};
-
-struct FixedStringMap
-{
-	uint32_t Capacity;
-	uint32_t Unknown;
-	void ** Buffer;
-	uint32_t Size;
-};
-
-struct OsirisManager : public ProtectedGameObject<OsirisManager>
-{
-	void * Allocator;
-	OsirisInterface * Interface;
-	void * Osiris;
-	BaseArray<OsirisFunction *> Functions;
-	uint32_t CallbackBufIncrement;
-	BaseArray<void *> Objects;
-	uint32_t Unknown1;
-	FixedStringMap StringMap;
-	uint32_t Unknown2;
-	std::array<OsirisTypeInfo, 16> BuiltinTypes;
-	uint32_t Unknown3[2];
-	uint64_t Unknown4[3];
-	uint64_t NotificationBufferSize;
-	BaseArray<char *> NotificationBuffer;
-	uint32_t Unknown5;
-	uint32_t NotificationBufferClampedSize;
-	uint32_t NotificationBufferTotalSize;
-	uint64_t Unknown6[3];
-};
-
-struct OsirisInterface : public ProtectedGameObject<OsirisInterface>
-{
-	void * Osiris;
-	OsirisManager * Manager;
-	BufferPool ParamBufferPool;
-	BufferPool ExecutionContextPool;
-	void * Unknown1;
-	void * Unknown2;
-	void * Unknown3;
 };
 
 struct VariableItem
@@ -1226,23 +1156,71 @@ struct OsirisDynamicGlobals
 
 BEGIN_NS(osi)
 
-struct TypeInfo
+struct BaseOsirisFunction : public ProtectedGameObject<BaseOsirisFunction>
 {
+	struct Param
+	{
+		char const* Name;
+		int TypeId;
+	};
+
+	void* VMT;
 	char const* Name;
-	uint16_t TypeId;
-	uint16_t TypeId2;
-	uint64_t Flags;
-	void* ValueContext;
-	void* GetValueFunc;
-	void* SetValueFunc;
+	Param* Params;
+	uint32_t NumParams;
+	uint64_t ParamsSizeInBytes;
+	OsirisFunctionHandle Handle;
+	OsirisManager* Manager;
+	uint32_t FunctionType; // 1=call, 2=query, 3=event
 };
 
+struct OsirisFunction : public BaseOsirisFunction
+{
+	StoryImplementation* Implementation;
+	void* HandlerProc;
+	uint64_t Unknown2;
+};
+
+struct OsirisNotification : public BaseOsirisFunction
+{
+	OsiArgumentDesc* ArgumentDescs;
+};
+
+struct OsirisInterface : public ProtectedGameObject<OsirisInterface>
+{
+	void* Osiris;
+	OsirisManager* Manager;
+	Pool ParamChunkPool;
+	Pool ExecutionContextPool;
+	STDString field_30;
+};
+
+struct OsirisManager : public ProtectedGameObject<OsirisManager>
+{
+	void* Allocator;
+	OsirisInterface* Interface;
+	void* Osiris;
+	Array<BaseOsirisFunction*> Functions;
+	ObjectSet<void*> OsirisObjects;
+	Map<FixedString, void*> OsirisObjectMap;
+	std::array<OsirisTypeInfo, 16> BuiltinTypes;
+	Random Random;
+	std::array<uint8_t, 16> ParameterTypes;
+	std::array<uint8_t, 16> ParameterTypes2;
+	uint64_t MaxParamSize;
+	Array<char*> NotificationBuffer;
+	uint32_t StartOffset;
+	uint32_t EndOffset;
+
+	void ExpandNotificationBuffer(uint32_t size);
+	void QueueNotification(OsirisNotification* fun);
+};
 
 struct ExecutionContext
 {
 	struct Param
 	{
-		TypeInfo* Type;
+		OsirisTypeInfo* Type;
 		union {
 			int32_t Int;
 			int64_t Int64;
@@ -1257,5 +1235,41 @@ struct ExecutionContext
 };
 
 using OsirisCallHandlerProc = bool (void* proc, ExecutionContext* cxt);
+
+
+struct OsirisFunctionGroup
+{
+    OsirisManager * OsirisManager;
+    ScratchBuffer Scratch;
+};
+
+struct OsirisGameFunctions
+{
+	void* VMT;
+	OsirisManager* OsirisManager;
+	ScratchBuffer Scratch;
+	void* Timer;
+};
+
+struct StoryImplementation : public ProtectedGameObject<StoryImplementation>
+{
+	void* VMT;
+	OsirisManager* Manager;
+	OsirisManager* MathFunctions;
+	OsirisFunctionGroup CharacterFunctions;
+	OsirisFunctionGroup StringFunctions;
+	OsirisFunctionGroup DialogFunctions2;
+	OsirisFunctionGroup ItemFunctions;
+	OsirisFunctionGroup DialogFunctions;
+	OsirisGameFunctions GameFunctions;
+	OsirisManager* TriggerFunctions;
+	void* TextEventSetNotification;
+	bool IsEditorReload;
+	bool Synced_M;
+	Map<FixedString, glm::vec3> LastCharacterPositions;
+	bool Loaded;
+	ObjectSet<STDString> TextEventArgs;
+};
+
 
 END_NS()

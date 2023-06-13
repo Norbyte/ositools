@@ -3,6 +3,7 @@ local table = table
 local error = error
 local pairs = pairs
 local Ext = Ext
+local Osi = Osi
 
 Game = {
     Math = {}
@@ -1544,6 +1545,15 @@ function ApplyDying(target, deathType, damageType, attackDirection, impactDirect
     end
 end
 
+--- @param object EsvCharacter|EsvItem|nil
+function MakeNameGuid(object)
+    if object ~= nil then
+        return object.CurrentTemplate.Name .. "_" .. object.MyGuid
+    else
+        return "NULL_00000000-0000-0000-0000-000000000000"
+    end
+end
+
 --- @param target EsvCharacter
 --- @param hit StatsHitDamageInfo
 --- @param attacker EsvCharacter|EsvItem
@@ -1688,8 +1698,11 @@ function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCom
         if newVitality ~= initialVitality then
             stats.CurrentVitality = newVitality
             hit.DamagedVitality = true
-            -- FIXME!
-            -- esv::StoryCharacterEventManager::ThrowCharacterVitalityChangedEvent
+
+            if not target.IsGameMaster then
+                local changePercent = math.round((newVitality - initialVitality) / stats.MaxVitality)
+                Osi.CharacterVitalityChanged:Defer(MakeNameGuid(target), changePercent)
+            end
         end
 
         local combatComp = Ext.Entity.GetCombatComponent(target.Base.Entity:GetComponent("Combat"))
@@ -1705,29 +1718,29 @@ function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCom
 
                 if damage.Amount > 0 then
                     -- FIXME
-                -- esv::PlanManager::ThrowOnDamage(this->PlanManager, damage.DamageType, damage.Amount / maxVitality, attacker)
-                if combatComp ~= nil and combatComp.CombatData ~= nil then
-                    local found = false
-                    local hasBeenHitBy = combatComp.CombatData.HasBeenHitBy
-                    for i,damageType in pairs(hasBeenHitBy) do
-                        if damageType == damage.DamageType then
-                            found = true
+                    -- esv::PlanManager::ThrowOnDamage(this->PlanManager, damage.DamageType, damage.Amount / maxVitality, attacker)
+                    if combatComp ~= nil and combatComp.CombatData ~= nil then
+                        local found = false
+                        local hasBeenHitBy = combatComp.CombatData.HasBeenHitBy
+                        for i,damageType in pairs(hasBeenHitBy) do
+                            if damageType == damage.DamageType then
+                                found = true
+                            end
+                        end
+
+                        if not found then
+                            hasBeenHitBy[3] = hasBeenHitBy[2]
+                            hasBeenHitBy[2] = hasBeenHitBy[1]
+                            hasBeenHitBy[1] = damage.DamageType
                         end
                     end
 
-                    if not found then
-                        hasBeenHitBy[3] = hasBeenHitBy[2]
-                        hasBeenHitBy[2] = hasBeenHitBy[1]
-                        hasBeenHitBy[1] = damage.DamageType
+                    throwReceivedDamage = true
+
+                    behaviorVitality = behaviorVitality - damage.Amount
+                    if behaviorVitality <= 0 then
+                        break
                     end
-                end
-
-                throwReceivedDamage = true
-
-                behaviorVitality = behaviorVitality - damage.Amount
-                if behaviorVitality <= 0 then
-                    break
-                end
                 end
             end
         end
@@ -1786,9 +1799,8 @@ function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCom
         end
 
         if throwReceivedDamage then
-            local vitalityPercent = totalDamageDone / stats.MaxVitality
-            -- FIXME
-            -- esv::StoryCharacterEventManager::ThrowCharacterReceivedDamageEvent(v152, target.Handle, attacker or attacker.Handle, v104);
+            local vitalityPercent = math.round(totalDamageDone / stats.MaxVitality)
+            Osi.CharacterReceivedDamage:Defer(MakeNameGuid(target), vitalityPercent, MakeNameGuid(attacker))
         end
 
         -- FIXME "and false"
@@ -1826,12 +1838,10 @@ function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCom
             --end
 
             if not IsSurfaceCauseType(causeType) or not attacker.IsPlayer or not target.IsPlayer then
-                -- FIXME implement
-                -- StoryGameEventManager__ThrowAttackedByObject(target, attackerOwner, 0, causeType, attacker)
+                Osi.AttackedByObject:Defer(MakeNameGuid(target), MakeNameGuid(attackerOwner), "", causeType, MakeNameGuid(attacker))
             end
         elseif attacker ~= nil then
-            -- FIXME implement
-            -- StoryGameEventManager__ThrowAttackedByObject(target, attacker, 0, causeType, nil)
+            Osi.AttackedByObject:Defer(MakeNameGuid(target), MakeNameGuid(attacker), "", causeType, MakeNameGuid(nil))
         end
     end
   

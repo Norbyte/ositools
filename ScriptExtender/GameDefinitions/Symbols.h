@@ -419,7 +419,7 @@ namespace dse
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;
 
 		uint8_t const * ServerRegisterFuncs[50]{ nullptr };
-		uint8_t const ** ServerGlobals[50]{ nullptr };
+		uint8_t * const * ServerGlobals[50]{ nullptr };
 		uint8_t const * EocRegisterFuncs[6]{ nullptr };
 		uint8_t const ** EocGlobals[6]{ nullptr };
 
@@ -461,6 +461,20 @@ namespace dse
 				return nullptr;
 			}
 #endif
+		}
+
+		inline osi::StoryImplementation * GetStoryImplementation() const
+		{
+#if defined(OSI_EOCAPP)
+			auto global = ServerGlobals[(unsigned)EsvGlobalEoCApp::StoryImplementation];
+#else
+			auto global = ServerGlobals[(unsigned)EsvGlobalEoCPlugin::StoryImplementation];
+#endif
+			if (global) {
+				return *reinterpret_cast<osi::StoryImplementation* const *>(global);
+			} else {
+				return nullptr;
+			}
 		}
 
 		inline esv::InventoryFactory * GetServerInventoryFactory() const

@@ -69,6 +69,14 @@ struct PlayerManager;
 
 class ScriptExtenderMessage;
 
+namespace osi
+{
+	struct BaseOsirisFunction;
+	struct OsirisInterface;
+	struct OsirisManager;
+	struct StoryImplementation;
+}
+
 namespace aspk
 {
 	struct Effect;

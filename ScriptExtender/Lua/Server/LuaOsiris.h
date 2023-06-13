@@ -56,7 +56,7 @@ using namespace dse::lua;
 
 void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil = false);
 TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType, bool allowNil = false);
-void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil = false);
+void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil = false, bool reuseStrings = false);
 void OsiToLua(lua_State * L, OsiArgumentValue const & arg);
 void OsiToLua(lua_State * L, TypedValue const & tv);
 Function const* LookupOsiFunction(STDString const& name, uint32_t arity);
@@ -80,6 +80,7 @@ public:
 	int LuaCall(lua_State * L);
 	int LuaGet(lua_State * L);
 	int LuaDelete(lua_State * L);
+	int LuaDeferredNotification(lua_State * L);
 
 private:
 	Function const * function_{ nullptr };
@@ -87,6 +88,7 @@ private:
 	ServerState * state_;
 
 	void OsiCall(lua_State * L);
+	void OsiDeferredNotification(lua_State * L);
 	void OsiInsert(lua_State * L, bool deleteTuple);
 	int OsiQuery(lua_State * L);
 	int OsiUserQuery(lua_State * L);
@@ -118,6 +120,7 @@ private:
 
 	static int LuaGet(lua_State * L);
 	static int LuaDelete(lua_State * L);
+	static int LuaDeferredNotification(lua_State * L);
 	bool BeforeCall(lua_State * L);
 	OsiFunction * TryGetFunction(uint32_t arity);
 	OsiFunction * CreateFunctionMapping(uint32_t arity, Function const * func);

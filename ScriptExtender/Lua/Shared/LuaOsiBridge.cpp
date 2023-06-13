@@ -42,11 +42,18 @@ namespace dse::esv::lua
 		return 0;
 	}
 
-	char * LuaToString(lua_State* L, int i, int type)
+	char * LuaToString(lua_State* L, int i, int type, char* reuseString)
 	{
 		if (type == LUA_TSTRING) {
-			// TODO - not sure if we're the owners of the string or the TypedValue is
-			return _strdup(lua_tostring(L, i));
+			if (reuseString != nullptr) {
+				size_t len;
+				auto s = lua_tolstring(L, i, &len);
+				strncpy_s(reuseString, 0x100, s, len);
+				return reuseString;
+			} else {
+				// TODO - not sure if we're the owners of the string or the TypedValue is
+				return _strdup(lua_tostring(L, i));
+			}
 		} else if (type == LUA_TLIGHTCPPOBJECT) {
 			auto enumVal = EnumValueMetatable::TryGet(L, i);
 			if (enumVal) {
@@ -106,7 +113,7 @@ namespace dse::esv::lua
 		case ValueType::TriggerGuid:
 		case ValueType::SplineGuid:
 		case ValueType::LevelTemplateGuid:
-			tv.Value.Val.String = LuaToString(L, i, type);
+			tv.Value.Val.String = LuaToString(L, i, type, nullptr);
 			break;
 
 		default:
@@ -122,7 +129,7 @@ namespace dse::esv::lua
 		return tv;
 	}
 
-	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil)
+	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil, bool reuseStrings)
 	{
 		arg.TypeId = osiType;
 		auto type = lua_type(L, i);
@@ -163,7 +170,11 @@ namespace dse::esv::lua
 		case ValueType::TriggerGuid:
 		case ValueType::SplineGuid:
 		case ValueType::LevelTemplateGuid:
-			arg.String = LuaToString(L, i, type);
+			if (reuseStrings) {
+				arg.String = LuaToString(L, i, type, const_cast<char*>(arg.String));
+			} else {
+				arg.String = LuaToString(L, i, type, nullptr);
+			}
 			break;
 
 		default:
@@ -427,6 +438,29 @@ namespace dse::esv::lua
 		return 0;
 	}
 
+	int OsiFunction::LuaDeferredNotification(lua_State * L)
+	{
+		if (function_ == nullptr) {
+			return luaL_error(L, "Attempted to call an unbound Osiris function");
+		}
+
+		int numArgs = lua_gettop(L);
+		if (numArgs < 1) {
+			return luaL_error(L, "Called Osi function without 'self' argument?");
+		}
+
+		if (state_->RestrictionFlags & State::RestrictOsiris) {
+			return luaL_error(L, "Attempted to call Osiris function in restricted context");
+		}
+
+		if (function_->Type == FunctionType::Event) {
+			OsiDeferredNotification(L);
+			return 0;
+		} else {
+			return luaL_error(L, "Cannot queue deferred events on function of type %d", function_->Type);
+		}
+	}
+
 	bool OsiFunction::MatchTuple(lua_State * L, int firstIndex, TupleVec const & tuple)
 	{
 		for (auto i = 0; i < tuple.Size; i++) {
@@ -519,6 +553,43 @@ namespace dse::esv::lua
 		}
 
 		gExtender->GetServer().Osiris().GetWrappers().Call.CallWithHooks(function_->GetHandle(), funcArgs == 0 ? nullptr : args.Args());
+	}
+
+	void OsiFunction::OsiDeferredNotification(lua_State * L)
+	{
+		auto funcArgs = function_->Signature->Params->Params.Size;
+		int numArgs = lua_gettop(L);
+		if (numArgs - 1 != funcArgs) {
+			luaL_error(L, "Incorrect number of arguments for '%s'; expected %d, got %d",
+				function_->Signature->Name, funcArgs, numArgs - 1);
+			return;
+		}
+
+		auto story = GetStaticSymbols().GetStoryImplementation();
+		if (story == nullptr || story->Manager == nullptr) {
+			luaL_error(L, "Called when Osiris is not yet initialized");
+			return;
+		}
+
+		auto key = function_->Key;
+		if (key[0] != 3 || key[1] != 0 || key[2] >= story->Manager->Functions.size() || key[3] != 1) {
+			luaL_error(L, "No engine function found with this Osiris function ID");
+		}
+
+		auto func = story->Manager->Functions[key[2]];
+		if (func->FunctionType != 3) {
+			luaL_error(L, "Attempted to defer notification on something that is not an event");
+		}
+
+		auto notification = static_cast<osi::OsirisNotification*>(func);
+
+		auto arg = notification->ArgumentDescs;
+		for (uint32_t i = 0; i < funcArgs; i++) {
+			LuaToOsi(L, i + 2, arg->Value, (ValueType)arg->Value.TypeId, false, true);
+			arg = arg->NextParam;
+		}
+
+		story->Manager->QueueNotification(notification);
 	}
 
 	void OsiFunction::OsiInsert(lua_State * L, bool deleteTuple)
@@ -697,6 +768,9 @@ namespace dse::esv::lua
 		lua_pushcfunction(L, &LuaDelete);
 		lua_setfield(L, -2, "Delete");
 
+		lua_pushcfunction(L, &LuaDeferredNotification);
+		lua_setfield(L, -2, "Defer");
+
 		lua_setfield(L, -2, "__index");
 	}
 
@@ -776,6 +850,22 @@ namespace dse::esv::lua
 		}
 
 		return func->LuaDelete(L);
+	}
+
+	int OsiFunctionNameProxy::LuaDeferredNotification(lua_State * L)
+	{
+		auto self = OsiFunctionNameProxy::CheckUserData(L, 1);
+		if (!self->BeforeCall(L)) return 1;
+
+		auto arity = (uint32_t)lua_gettop(L) - 1;
+
+		auto func = self->TryGetFunction(arity);
+		if (func == nullptr) {
+			return luaL_error(L, "No function named '%s' exists that can be called with %d parameters.",
+				self->name_.c_str(), arity);
+		}
+
+		return func->LuaDeferredNotification(L);
 	}
 
 	OsiFunction * OsiFunctionNameProxy::TryGetFunction(uint32_t arity)

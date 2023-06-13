@@ -209,6 +209,16 @@ public:
 		return size_ == 0;
 	}
 
+	T const* data() const
+	{
+		return buf_;
+	}
+
+	T* data()
+	{
+		return buf_;
+	}
+
 	inline T const& operator [] (size_type index) const
 	{
 		return buf_[index];
@@ -583,6 +593,16 @@ public:
 	void set_grow_size(uint32_t size)
 	{
 		growSize_ = size;
+	}
+
+	T const* data() const
+	{
+		return buf_;
+	}
+
+	T* data()
+	{
+		return buf_;
 	}
 
 	inline T const & operator [] (size_type index) const

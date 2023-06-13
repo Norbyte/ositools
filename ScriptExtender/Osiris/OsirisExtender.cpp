@@ -351,3 +351,61 @@ void OsirisExtender::RuleActionCall(void (*next)(RuleActionNode*, void*, void*, 
 }
 
 END_SE()
+
+BEGIN_NS(osi)
+
+void OsirisManager::ExpandNotificationBuffer(uint32_t size)
+{
+	auto oldSize = EndOffset - StartOffset;
+	auto oldCapacity = NotificationBuffer.capacity();
+	if (oldSize + size > NotificationBuffer.capacity()) {
+		NotificationBuffer.resize(oldCapacity + size);
+		for (auto i = oldCapacity; i < NotificationBuffer.capacity(); i++) {
+			NotificationBuffer[i] = GameAllocArray<char>(MaxParamSize);
+		}
+	}
+
+	auto oldStartOffset = StartOffset;
+	auto oldEndOffset = EndOffset;
+	if (oldEndOffset <= oldStartOffset) {
+		ObjectSet<char*> reorderBuf;
+		reorderBuf.resize(oldCapacity);
+
+		auto curOff = oldStartOffset;
+		for (uint32_t i = 0; i < oldCapacity; i++) {
+			curOff = (curOff + 1) % oldCapacity;
+			reorderBuf[i] = NotificationBuffer[curOff];
+		}
+
+		memcpy(NotificationBuffer.data(), reorderBuf.data(), sizeof(char*) * oldCapacity);
+		EndOffset = oldSize;
+		StartOffset = 0;
+	}
+}
+
+void OsirisManager::QueueNotification(OsirisNotification* fun)
+{
+	ExpandNotificationBuffer(fun->NumParams + 1);
+
+	*reinterpret_cast<OsirisNotification**>(NotificationBuffer[EndOffset]) = fun;
+	EndOffset = (EndOffset + 1) % NotificationBuffer.capacity();
+
+	auto param = fun->ArgumentDescs;
+	while (param != nullptr) {
+		auto typeId = param->Value.TypeId;
+		if (typeId > ValueType::GuidString) {
+			typeId = (ValueType)BuiltinTypes[(unsigned)typeId].BuiltinTypeId;
+		}
+
+		if (typeId == ValueType::String || typeId == ValueType::GuidString) {
+			strncpy_s(NotificationBuffer[EndOffset], MaxParamSize, param->Value.String, strlen(param->Value.String));
+		} else {
+			*reinterpret_cast<int32_t*>(NotificationBuffer[EndOffset]) = param->Value.Int32;
+		}
+
+		EndOffset = (EndOffset + 1) % NotificationBuffer.capacity();
+		param = param->NextParam;
+	}
+}
+
+END_NS()

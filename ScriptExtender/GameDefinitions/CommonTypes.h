@@ -42,6 +42,17 @@ struct NumberDividers
 	ObjectSet<NumberDivider> DamageDividers;
 };
 
+struct Random
+{
+	int* List;
+	uint32_t ListOffset;
+	uint32_t ListCapacity;
+	uint32_t Seed1;
+	uint32_t Seed2;
+	bool Initialized;
+	bool RegenerateAtEnd; 
+};
+
 END_NS()
 
 BEGIN_NS(eoc)
