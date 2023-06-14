@@ -1545,6 +1545,7 @@ function ApplyDying(target, deathType, damageType, attackDirection, impactDirect
     end
 end
 
+
 --- @param object EsvCharacter|EsvItem|nil
 function MakeNameGuid(object)
     if object ~= nil then
@@ -1553,6 +1554,103 @@ function MakeNameGuid(object)
         return "NULL_00000000-0000-0000-0000-000000000000"
     end
 end
+
+
+--- @param status EsvStatusHeal
+--- @param target EsvCharacter
+function HealEffectZombie(status, target)
+    if target.Stats.TALENT_Zombie then
+        status.HealEffect = "Decaying"
+    end
+end
+
+--- @param status EsvStatusHeal
+--- @param target EsvCharacter
+function HealEffectDecaying(status, target)
+    if target:GetStatusByType("DECAYING_TOUCH") ~= nil then
+        status.HealEffect = "Decaying"
+    end
+end
+
+HealEffectTable = {
+    [Ext.Enums.HealEffect.Heal] = HealEffectZombie,
+    [Ext.Enums.HealEffect.Behavior] = HealEffectZombie,
+    [Ext.Enums.HealEffect.Unknown4] = HealEffectZombie,
+    [Ext.Enums.HealEffect.NegativeDamage] = HealEffectDecaying,
+    [Ext.Enums.HealEffect.HealSharing] = HealEffectZombie,
+    [Ext.Enums.HealEffect.Necromantic] = HealEffectDecaying
+}
+
+
+--- @param character CDivinityStatsCharacter
+function ComputeHydrosophistHealBonus(character)
+    return character.WaterSpecialist * Ext.ExtraData.SkillAbilityVitalityRestoredPerPoint
+end
+
+--- @param character CDivinityStatsCharacter
+function ComputePhysicalArmorHealBonus(character)
+    return character.EarthSpecialist * Ext.ExtraData.SkillAbilityArmorRestoredPerPoint
+end
+
+--- @param character CDivinityStatsCharacter
+function ComputeMagicArmorHealBonus(character)
+    return character.WaterSpecialist * Ext.ExtraData.SkillAbilityArmorRestoredPerPoint
+end
+
+
+HealBonusTable = {
+    [Ext.Enums.HealType.Vitality] = function (caster)
+        return ComputeHydrosophistHealBonus(caster.Stats)
+    end,
+    [Ext.Enums.HealType.PhysicalArmor] = function (caster)
+        return ComputePhysicalArmorHealBonus(caster.Stats)
+    end,
+    [Ext.Enums.HealType.MagicArmor] = function (caster)
+        return ComputeMagicArmorHealBonus(caster.Stats)
+    end,
+}
+
+
+--- @param amount number
+--- @param healType StatusHealType
+--- @param source CDivinityStatsCharacter
+function ComputeHealBonus(amount, healType, source)
+    if source ~= nil and Ext.Types.GetObjectType(source) == "CDivinityStatsCharacter" then
+        local computeBonus = HealBonusTable[healType]
+        if computeBonus ~= nil then
+            return math.ceil(computeBonus(source) * amount / 100)
+        end
+    end
+
+    return 0
+end
+
+
+--- @param target EsvCharacter|EsvItem
+--- @param amount number
+--- @param healType StatusHealType
+--- @param healEffect HealEffect
+--- @param causeType CauseType
+--- @param source EsvCharacter|EsvItem
+function ApplyHeal(target, amount, healType, healEffect, causeType, source)
+    --- @type EsvStatusHeal
+    local heal = Ext.PrepareStatus(target.Handle, "HEAL", -1.0)
+    if source ~= nil then
+        heal.StatusSourceHandle = source.Handle
+    end
+    heal.CauseType = causeType
+    heal.HealAmount = amount + ComputeHealBonus(amount, healType, source and source.Stats)
+    heal.HealEffect = healEffect
+    heal.HealType = healType
+
+    local applyEffect = HealEffectTable[healEffect]
+    if applyEffect ~= nil then
+        applyEffect(heal, target)
+    end
+
+    Ext.ApplyStatus(heal)
+end
+
 
 --- @param target EsvCharacter
 --- @param hit StatsHitDamageInfo
@@ -1678,18 +1776,7 @@ function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCom
     end
 
     if totalDamageDone < 0 then
-        --- @type EsvStatusHeal
-        local heal = Ext.PrepareStatus(target.Handle, "HEAL", -1.0)
-        heal.StatusSourceHandle = target.Handle
-        heal.CauseType = causeType
-        heal.HealAmount = -totalDamageDone
-        heal.HealEffect = "NegativeDamage"
-        heal.HealType = "Vitality"
-
-        -- FIXME apply heal logic
-        -- esv::StatusHeal::ApplyHeal(this)
-
-        Ext.ApplyStatus(heal)
+        ApplyHeal(target, -totalDamageDone, "Vitality", "NegativeDamage", causeType, target)
     else
 
         local overDamage = math.max(totalDamageDone - initialVitality, 0)
@@ -1769,23 +1856,14 @@ function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCom
                     end
                 end
             else
-                local heal = Ext.PrepareStatus(target.Handle, "HEAL", -1.0)
                 local healAmount
-
                 if isResistingDeath then
                     healAmount = 1
                 else
                     healAmount = math.max(math.round(stats.MaxVitality / 100.0 * Ext.ExtraData.TalentResistDeathVitalityPercentage), 1)
                 end
 
-                heal.HealAmount = healAmount
-                heal.HealEffect = "ResistDeath"
-                heal.HealType = "Vitality"
-        
-                -- FIXME apply heal logic
-                -- esv::StatusHeal::ApplyHeal(heal)
-
-                Ext.ApplyStatus(heal)
+                ApplyHeal(target, healAmount, "Vitality", "ResistDeath", "None", nil)
 
                 if not isResistingDeath then
                     local text = Ext.L10N.GetTranslatedString("hf5114b41g1b8ag4d6dgb571gf9417296a15f", "[1] resisted Death!")
