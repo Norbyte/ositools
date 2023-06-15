@@ -637,7 +637,7 @@ namespace dse
 
 		bool StopDragging(PlayerId playerId);
 		bool StartDraggingName(PlayerId playerId, FixedString const& objectId);
-		bool StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle);
+		bool StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle, std::optional<bool> uiOnly);
 	};
 
 	
@@ -779,7 +779,7 @@ namespace dse
 		{
 			ComponentHandle DragObject;
 			EntityHandle DragEgg;
-			bool IsDragging;
+			bool PreventWorldDrag;
 		};
 
 		struct DragDropManager

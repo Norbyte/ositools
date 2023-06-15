@@ -988,11 +988,11 @@ namespace dse
 		return GetStaticSymbols().ls__DragDropManager__StartDragString(this, playerId, objectId, true, 0x7F7FFFFF7F7FFFFFull);
 	}
 
-	bool DragDropManager::StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle)
+	bool DragDropManager::StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle, std::optional<bool> uiOnly)
 	{
 		auto controller = (*GetStaticSymbols().ecl__DragDropManager)->PlayerControllers.try_get_ptr(playerId);
 		if (controller && controller->UIDragController) {
-			controller->UIDragController->IsDragging = true;
+			controller->UIDragController->PreventWorldDrag = uiOnly && *uiOnly;
 		}
 
 		glm::vec2 mousePos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
