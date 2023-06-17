@@ -10,23 +10,25 @@ BEGIN_SE()
 template <class TActionState>
 struct ActionMachineBase : public ProtectedGameObject<ActionMachineBase<TActionState>>
 {
-	using UpdateSyncStateProc = void(ActionMachineBase* self, uint8_t actionLayer, TActionState* actionState, bool force, bool setLayer);
-	using SetStateProc = bool(ActionMachineBase* self, uint64_t actionLayer, TActionState* actionState, int* somePtr, bool force, bool setLayer);
+	static constexpr unsigned NumLayers = 3;
+
+	using UpdateSyncStateProc = void(ActionMachineBase* self, uint8_t actionLayer, TActionState* actionState, bool force, bool sync);
+	using SetStateProc = bool(ActionMachineBase* self, uint64_t actionLayer, TActionState* actionState, int* transactionId, bool force, bool sync);
 	using ResetStateProc = bool(ActionMachineBase* self, bool force);
 	
 	struct Layer : public ProtectedGameObject<Layer>
 	{
 		TActionState* State;
-		uint64_t Unknown;
-		uint8_t Flags1;
-		uint8_t Flags2;
-		uint8_t Flags3;
+		TActionState* SyncState;
+		bool Force;
+		bool NeedsSync;
+		bool HasValidState;
 	};
 
 	ComponentHandle CharacterHandle;
-	std::array<Layer, 3> Layers;
-	bool IsEntering[4];
-	uint16_t Unknown;
+	std::array<Layer, NumLayers> Layers;
+	std::array<bool, NumLayers> IsEntering;
+	std::array<bool, NumLayers> ExitRequested;
 	TActionState* CachedActions[24];
 };
 

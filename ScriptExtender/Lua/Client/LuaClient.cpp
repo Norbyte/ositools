@@ -293,7 +293,7 @@ void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 
 void ClientState::OnCustomClientUIObjectCreated(char const * name, ComponentHandle handle)
 {
-	clientUI_.insert(std::make_pair(name, handle));
+	clientUI_.insert_or_assign(name, handle);
 }
 
 

@@ -462,7 +462,7 @@ namespace dse
 	void PendingStatuses::Add(esv::Status * status)
 	{
 		PendingStatus pend { status, false };
-		statuses_.insert(std::make_pair(std::make_pair(status->OwnerHandle, status->StatusHandle), pend));
+		statuses_.insert_or_assign(std::make_pair(status->OwnerHandle, status->StatusHandle), pend);
 	}
 
 	void PendingStatuses::Remove(esv::Status * status)

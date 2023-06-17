@@ -107,7 +107,7 @@ std::optional<uint32_t> NetworkManager::GetPeerVersion(PeerId peerId) const
 
 void NetworkManager::AllowExtenderMessages(PeerId peerId, uint32_t version)
 {
-	extenderPeerVersions_.insert(std::make_pair(peerId, version));
+	extenderPeerVersions_.insert_or_assign(peerId, version);
 }
 
 

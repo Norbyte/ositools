@@ -346,7 +346,7 @@ void ScriptExtender::AddPathOverride(STDString const & path, STDString const & o
 	auto absoluteOverriddenPath = GetStaticSymbols().ToPath(overriddenPath, PathRootType::Data);
 
 	std::unique_lock lock(pathOverrideMutex_);
-	pathOverrides_.insert(std::make_pair(absolutePath, absoluteOverriddenPath));
+	pathOverrides_.insert_or_assign(absolutePath, absoluteOverriddenPath);
 }
 
 std::optional<STDString> ScriptExtender::GetPathOverride(STDString const & path)

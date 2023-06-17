@@ -23,7 +23,7 @@ bool StatusHelpers::OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped
 		.Status = status,
 		.PendingDelete = false
 	};
-	pendingApply_.insert(std::make_pair(EntityStatusHandle{ status->OwnerHandle, status->StatusHandle }, applyData));
+	pendingApply_.insert_or_assign(EntityStatusHandle{ status->OwnerHandle, status->StatusHandle }, applyData);
 
 	auto done = wrapped(self, status);
 
