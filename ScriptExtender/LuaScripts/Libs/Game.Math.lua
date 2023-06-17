@@ -1599,13 +1599,13 @@ end
 
 
 HealBonusTable = {
-    [Ext.Enums.HealType.Vitality] = function (caster)
+    [Ext.Enums.StatusHealType.Vitality] = function (caster)
         return ComputeHydrosophistHealBonus(caster.Stats)
     end,
-    [Ext.Enums.HealType.PhysicalArmor] = function (caster)
+    [Ext.Enums.StatusHealType.PhysicalArmor] = function (caster)
         return ComputePhysicalArmorHealBonus(caster.Stats)
     end,
-    [Ext.Enums.HealType.MagicArmor] = function (caster)
+    [Ext.Enums.StatusHealType.MagicArmor] = function (caster)
         return ComputeMagicArmorHealBonus(caster.Stats)
     end,
 }

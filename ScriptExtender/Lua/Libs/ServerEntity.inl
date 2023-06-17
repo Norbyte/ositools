@@ -418,6 +418,11 @@ AlignmentContainer* GetAlignmentManager()
 	return *GetStaticSymbols().esv__AlignmentContainer;
 }
 
+TurnManager* GetTurnManager()
+{
+	return GetEntityWorld()->GetTurnManager();
+}
+
 ComponentHandle NullHandle()
 {
 	return ComponentHandle(ComponentHandle::NullHandle);
@@ -444,6 +449,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetCurrentLevelData)
 	MODULE_FUNCTION(GetCurrentLevel)
 	MODULE_FUNCTION(GetAlignmentManager)
+	MODULE_FUNCTION(GetTurnManager)
 
 	// Level iterator functions
 	// FIXME - need by-ref array return to return object ptrs
