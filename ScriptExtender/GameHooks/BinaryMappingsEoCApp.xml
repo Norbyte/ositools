@@ -802,6 +802,20 @@
       <Target Type="Absolute" Offset="0" Symbol="esv__TurnManager__UpdateTurnOrder" /> <!-- esv::TurnManager::UpdateTurnOrder -->
     </Mapping>
 
+    <Mapping Name="esv::TurnManager::TryEnterCombat">
+      48 8b 08 // mov     rcx, [rax]
+      80 65 70 f8 // and     [rbp+270h+targetEntity.Flags], 0F8h
+      48 89 4d 50 // mov     [rbp+270h+targetEntity.EntityHandle], rcx
+      48 85 db // test    rbx, rbx
+      48 8d 4b f8 // lea     rcx, [rbx-8]
+      4c 89 65 68 // mov     [rbp+270h+targetEntity.Item], r12
+      49 0f 44 cc // cmovz   rcx, r12; this
+      f3 0f 7f 45 58 // movdqu  xmmword ptr [rbp+270h+targetEntity.CombatComponentPtr], xmm0
+      @ref1 e8 ?? ?? ?? ?? // call    esv__TurnManager__TryEnterCombat
+      4c 8b 74 24 70 // mov     r14, [rsp+370h+var_300]
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__TurnManager__TryEnterCombat" />
+    </Mapping>
+
     <Mapping Name="GlobalSwitches">
       48 81 c2 80 01 00 00 // add     rdx, 180h
       48 8b 01 // mov     rax, [rcx]

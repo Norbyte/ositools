@@ -321,7 +321,7 @@ namespace dse::eoc
         ObjectSet<glm::vec2> OS_Vector2f;
         ObjectSet<glm::vec2> OS_Vector2f_2;
         AiGrid* AiGrid;
-        ShroudObject* ShroudObjects[8];
+        std::array<ShroudObject*, 8> ShroudObjects;
         float OffsetX;
         float OffsetY;
         float OffsetZ;
@@ -411,7 +411,7 @@ namespace dse::ecl
 
         void* VMT;
         void* LevelAllocator;
-        ObjectSet<glm::vec2> OS_Vector2f;
+        ObjectSet<glm::vec2> FrustumUpdateShape;
         Level* Level;
         eoc::AiGrid* AiGrid;
         eoc::VisionGrid* VisionGrid;
@@ -425,7 +425,7 @@ namespace dse::ecl
         char field_8A;
         int VisionGridSize_M[2];
         int field_94;
-        RefMap<int, FixedString> ShroudTriggers_int_FS;
+        RefMap<int, FixedString> ShroudTriggers;
         ObjectSet<void*> OS_SightTileData;
         ObjectSet<ComponentHandle> OS_ObjectHandle;
         ObjectSet<ComponentHandle> OS_ObjectHandle2;

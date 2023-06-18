@@ -100,15 +100,13 @@ namespace dse
 
 		struct TurnManager : public ProtectedGameObject<TurnManager>
 		{
-			using UpdateTurnOrderProc = void (esv::TurnManager * self, uint8_t combatId);
-
 			struct EntityWrapper
 			{
 				EntityHandle Handle;
-				eoc::CombatComponent *CombatComponentPtr;
-				Character * Character;
-				struct Item * Item;
-				uint8_t Flags;
+				eoc::CombatComponent* CombatComponentPtr{ nullptr };
+				Character * Character{ nullptr };
+				struct Item * Item{ nullptr };
+				uint8_t Flags{ 0 };
 
 				inline esv::Character * GetCharacter() const
 				{
@@ -221,6 +219,9 @@ namespace dse
 				ComponentHandleWithType Handle;
 				float Timeout;
 			};
+
+			using UpdateTurnOrderProc = void(esv::TurnManager* self, uint8_t combatId);
+			using TryEnterCombatProc = bool(esv::TurnManager* self, EntityWrapper* targetEntity, EntityWrapper* attackerEntity, bool recursive, bool markAlliesHostile);
 
 			void * VMT;
 			BaseComponentProcessingSystem<EntityWorld> Base;

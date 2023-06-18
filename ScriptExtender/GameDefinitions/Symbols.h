@@ -262,6 +262,7 @@ namespace dse
 		stats::StatusPrototype::FormatDescriptionParamProc* StatusPrototype__FormatDescriptionParam{ nullptr };
 
 		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
+		esv::TurnManager::TryEnterCombatProc* esv__TurnManager__TryEnterCombat{ nullptr };
 		eoc::AiGrid::SearchForCellProc* eoc__AiGrid__SearchForCell{ nullptr };
 		eoc::VisionGrid::RaycastProc* eoc__VisionGrid__Raycast{ nullptr };
 		eoc::VisionGrid::Check3DLineProc* eoc__VisionGrid__Check3DLine{ nullptr };

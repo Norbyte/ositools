@@ -73,11 +73,25 @@ TurnManager* GetTurnManager()
 	return GetEntityWorld()->GetTurnManager();
 }
 
+bool TryEnterCombat(ProxyParam<Character> target, ProxyParam<Character> attacker, std::optional<bool> recursive, std::optional<bool> markAlliesHostile)
+{
+	TurnManager::EntityWrapper targetEntity;
+	targetEntity.Handle = target->Base.Entity;
+
+	TurnManager::EntityWrapper attackerEntity;
+	attackerEntity.Handle = attacker->Base.Entity;
+
+	auto enter = GetStaticSymbols().esv__TurnManager__TryEnterCombat;
+	return enter(GetEntityWorld()->GetTurnManager(), &targetEntity, &attackerEntity,
+		recursive.value_or(true), markAlliesHostile.value_or(true));
+}
+
 void RegisterCombatLib()
 {
 	DECLARE_MODULE(Combat, Server)
 	BEGIN_MODULE()
 	MODULE_FUNCTION(GetTurnManager)
+	MODULE_FUNCTION(TryEnterCombat)
 	END_MODULE()
 }
 

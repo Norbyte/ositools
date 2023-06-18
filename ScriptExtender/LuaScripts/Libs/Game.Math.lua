@@ -1881,17 +1881,13 @@ function ApplyDamage(target, hit, attacker, causeType, impactDirection, enterCom
             Osi.CharacterReceivedDamage:Defer(MakeNameGuid(target), vitalityPercent, MakeNameGuid(attacker))
         end
 
-        -- FIXME "and false"
-        if enterCombat and false then
+        if enterCombat then
             local level = Ext.Entity.GetCurrentLevel()
             if level ~= nil and level.ShroudManager ~= nil and not isDying and attacker ~= nil and not attacker.Dead and not attacker.OffStage then
-                -- FIXME implement
-                local targetRegion = level.ShroudManager:Get("RegionMask", target.WorldPos[1], target.WorldPos[3])
-                -- FIXME implement
-                local attackerRegion = level.ShroudManager:Get("RegionMask", attacker.WorldPos[1], attacker.WorldPos[3])
+                local targetRegion = level.ShroudManager.ShroudData:GetByteAtPos("RegionMask", target.WorldPos[1], target.WorldPos[3])
+                local attackerRegion = level.ShroudManager.ShroudData:GetByteAtPos("RegionMask", attacker.WorldPos[1], attacker.WorldPos[3])
                 if targetRegion == attackerRegion then
-                -- FIXME implement
-                    -- esv::TurnManager::TryEnterCombat(TurnManager, target, attacker, 1, 1)
+                    Ext.Combat.TryEnterCombat(target, attacker, true, true)
                 end
             end
         end

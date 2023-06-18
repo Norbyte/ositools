@@ -226,6 +226,7 @@ namespace dse
 		SYM_OFF(StatusPrototype__FormatDescriptionParam);
 
 		SYM_OFF(esv__TurnManager__UpdateTurnOrder);
+		SYM_OFF(esv__TurnManager__TryEnterCombat);
 		SYM_OFF(eoc__AiGrid__SearchForCell);
 		SYM_OFF(eoc__VisionGrid__Raycast);
 		SYM_OFF(eoc__VisionGrid__Check3DLine);

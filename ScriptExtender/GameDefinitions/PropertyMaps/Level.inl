@@ -163,6 +163,15 @@ P_REF(ForgottenEffects)
 END_CLS()
 
 
+BEGIN_CLS(esv::ShroudManager)
+P_REF(FrustumUpdateShape)
+P_REF(ShroudData)
+P_REF(RegionTriggers)
+P(UpdateTimer)
+P(IsEnabled)
+END_CLS()
+
+
 BEGIN_CLS(esv::Level)
 INHERIT(Level)
 P_REF(EntityManager)
@@ -175,7 +184,7 @@ P_REF(ProjectileManager)
 P_REF(SurfaceManager)
 P_REF(GameActionManager)
 P_REF(EffectManager)
-// P_REF(ShroudManager)
+P_REF(ShroudManager)
 P_REF(EnvironmentalStatusManager)
 P_REF(LevelCacheTemplateManager)
 END_CLS()
@@ -238,6 +247,9 @@ END_CLS()
 
 
 BEGIN_CLS(ecl::ShroudManager)
+P_REF(FrustumUpdateShape)
+P_REF(ShroudData)
+P_REF(ShroudTriggers)
 P_FUN(RebuildHeightMapTexture, RebuildHeightMapTexture)
 END_CLS()
 
