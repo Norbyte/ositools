@@ -361,7 +361,18 @@ struct PropertyList
 
 struct RenderableObject : public MoveableObject
 {
-	void* Model; // rf::Model*
+	virtual void Render(rf::RenderObjectData const&, rf::RenderContext const&) = 0;
+	virtual void NotifyTextureMapAdded(TextureMap const*) = 0;
+	virtual void NotifyTextureMapRemoved(TextureMap const*) = 0;
+	virtual void SetupTransform(rf::RendererCommandBuffer*) = 0;
+	virtual void SetupTransformOverrideWorld(rf::RendererCommandBuffer*, glm::mat4 const&) = 0;
+	virtual void SetupTransformOverrideLocal(rf::RendererCommandBuffer*, glm::mat4 const&) = 0;
+	virtual bool GetAnimatableTransform(glm::mat3x4 const*&, uint64_t&) = 0;
+	virtual void CalculateRenderPass() = 0;
+	virtual rf::FormatDesc* GetVertexFormatDesc() = 0;
+	virtual uint32_t GetVertexFormatNumAttributes() = 0;
+
+	rf::Model* Model;
 	void* ClothModel;
 	bool IsSimulatedCloth;
 	uint32_t _Pad;
@@ -374,7 +385,7 @@ struct RenderableObject : public MoveableObject
 	PhysicsShape* ClothPhysicsShape;
 	uint8_t LOD;
 	uint32_t _Pad2;
-	float MeshRandomData[4];
+	std::array<float, 4> MeshRandomData;
 	void* RenderCallback;
 };
 
@@ -382,7 +393,7 @@ struct AnimatableObject : public RenderableObject
 {
 	void* Unknown;
 	MeshBinding* MeshBinding;
-	char field_260;
+	bool IsRigid;
 	uint64_t NumOverrideTransforms;
 	Transform* OverrideTransforms;
 };
@@ -402,7 +413,7 @@ struct Light : public MoveableObject
 	glm::vec3 TranslateOffset;
 	glm::vec3 TranslateOffset2;
 	glm::vec3 Color;
-	float SpotLightAngles[2];
+	std::array<float, 2> SpotLightAngles;
 	float Radius;
 	float Intensity;
 	float IntensityOffset;
@@ -417,14 +428,80 @@ struct Light : public MoveableObject
 	bool CastShadow;
 	bool LightVolume;
 	bool IsEnabled;
-	int LightType;
-	int LightVolumeSamples;
-	void* LightVolumeTexture;
+	uint32_t LightType;
+	uint32_t LightVolumeSamples;
+	ComponentHandle LightVolumeTexture;
 	int LightVolumeMapping;
-	uint8_t field_24C;
-	void* Template; // LightTemplate*
+	bool HasLightVolumeTexture;
+	LightTemplate* Template;
 	Scene* AssociatedScene;
 	bool IsUpdateJobRunning;
+};
+
+
+struct LightProbeCapture
+{
+	FixedString Atmosphere;
+	uint64_t DiffuseIBLTextureHandle;
+	uint64_t DiffuseAlphaIBLTextureHandle;
+	uint64_t SpecularIBLTextureHandle;
+	uint64_t SpecularAlphaIBLTextureHandle;
+	bool IsSpecular;
+	LightProbe* LightProbe;
+};
+
+
+struct LightProbe : public MoveableObject
+{
+	BaseComponent Component;
+	FixedString ID;
+	FixedString AtmosphereTriggerID;
+	float Intensity;
+	float Radius;
+	glm::vec3 Size;
+	float TransitionDistance;
+	bool InfiniteCapture;
+	uint32_t LightProbeType;
+	uint32_t LightProbeShape;
+	uint32_t CaptureType;
+	bool Enabled;
+	ObjectSet<LightProbeCapture> Captures;
+	LightProbeTemplate* Template;
+	Scene* Scene;
+	uint8_t CaptureFlags;
+};
+
+
+struct DecalBasicObject : public RenderableObject
+{
+	bool IsDirty;
+	glm::vec3 Dimensions;
+	glm::vec2 TilingUV;
+	glm::vec2 OffsetUV;
+	rf::CameraController* CameraController;
+	FixedString CameraControllerID;
+};
+
+
+struct NodeObjectDescription
+{
+	MoveableObject* Object;
+	uint32_t CullFlags;
+};
+
+
+struct RenderNode : public ProtectedGameObject<RenderNode>
+{
+	void* VMT;
+	std::array<RenderNode*, 4> ChildNodes;
+	ObjectSet<NodeObjectDescription> Objects;
+	float OuterSize;
+	float InnerSize;
+	int Depth;
+	bool NonLeaf;
+	bool IsDirty;
+	Bound StrictWorldBound;
+	Bound LooseWorldBound;
 };
 
 
@@ -441,5 +518,71 @@ struct VisualFactory : public ComponentFactory<Visual, ObjectFactoryRWLocker>
 
 using EffectsManager__DestroyEffect = bool (void* self, ComponentHandle const& handle);
 using EffectsManager__GetInstanceProc = void* ();
+
+
+struct InstanceGroupPaintParams
+{
+	float Slow;
+	bool RandomRotX;
+	bool RandomRotY;
+	bool RandomRotZ;
+	bool AlignNormal;
+	float ScaleMin;
+	float ScaleMax;
+};
+
+struct InstanceGroup
+{
+	int Width;
+	int Height;
+	FixedString ModName;
+	FixedString field_10;
+	__int64 field_18;
+	ObjectSet<InstanceBatch*> Batches;
+	ObjectSet<InstanceBatch*> DirtyBatches;
+	Array<void*> BurnRequests;
+	InstanceManager* InstanceManager;
+	Visual* Visual;
+	float BurnRadius;
+	float BurnTimeMin;
+	float BurnTimeMax;
+	float BurnFadeOut;
+	Guid FileID;
+	FixedString VisualID;
+	FixedString DestroyVisualID;
+	FixedString BurnEffectID;
+	uint16_t GridSize;
+	uint8_t Visible;
+	bool CastShadow;
+	bool ShouldUpdateEmptyBatches;
+	bool HasChanges;
+	bool CanEverSave;
+	LevelTemplate* LevelTemplate;
+	glm::mat4 LevelTemplateWorldOffset;
+	InstanceGroupPaintParams PaintParams;
+};
+
+struct InstanceBatch : public RenderableObject
+{
+	void* FileFormatIOVMT;
+	FixedString ModName;
+	FixedString ActiveModName;
+	bool IsOverride;
+	Array<glm::mat4x3> InstanceTransforms;
+	ObjectSet<int> DestroyInstanceIndices;
+	InstanceGroup* ParentGroup;
+	rf::RendererBase* Renderer;
+	rf::Line* BoundLine;
+	void* InstanceBatchFormatDesc;
+	uint32_t VertexFormatNumAttributes;
+	ComponentHandle VertexBufferHandle;
+	glm::vec3 GridIndexes;
+	uint16_t GridSize;
+	bool HasDirtyBatches;
+	bool HasChanges;
+	Bound Bounds;
+	uint16_t CullFlags;
+};
+
 
 END_SE()

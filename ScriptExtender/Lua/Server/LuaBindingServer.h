@@ -42,6 +42,8 @@ LUA_POLYMORPHIC(stats::PropertyData)
 LUA_POLYMORPHIC(aspk::Input)
 LUA_POLYMORPHIC(aspk::Property)
 LUA_POLYMORPHIC(aspk::FloatKeyFrameData)
+LUA_POLYMORPHIC(MoveableObject)
+LUA_POLYMORPHIC(RenderableObject)
 
 void RegisterLibraries();
 void RegisterSharedMetatables(lua_State* L);

@@ -18,6 +18,13 @@ struct WallBase : public Scenery
 {
     static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientWallBase;
 
+    virtual WallBase* Clone() = 0;
+    virtual void SetWallPieceVisuals(FixedString const& visuals) = 0;
+    virtual FixedString const& GetWallPieceVisuals() = 0;
+    virtual void LoadWallPiecePhysics() = 0;
+    virtual FixedString const& GetWallPiecePhysics() = 0;
+    virtual bool VisitWallPieceData(ObjectVisitor&) = 0;
+
     EntityHandle EntityHandle_;
     WallConstruction* WallConstruction;
     FixedString WallPieceVisuals;
@@ -31,6 +38,13 @@ struct WallIntersection : public WallBase
     int field_D8;
     OverrideableProperty<Array<Wall*>> Walls;
     Array<int> WallConnectionIds;
+};
+
+struct WallBuildingLayer : public WallBase
+{
+    WallBuildingLayerData BuildingLayerData;
+    Visual* Visual;
+    bool Walkable;
 };
 
 struct Wall
@@ -51,7 +65,7 @@ struct WallConstruction
     FixedString LevelName;
     OverrideableProperty<Array<Wall*>> Walls;
     OverrideableProperty<Array<WallIntersection*>> WallIntersections;
-    __int64 field_58;
+    WallBuildingLayer* BuildingLayer;
     WallConstructionTemplate* Template;
 };
 

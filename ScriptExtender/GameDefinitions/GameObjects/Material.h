@@ -5,8 +5,6 @@
 
 BEGIN_SE()
 
-struct TextureMap;
-
 struct MaterialParameter
 {
 	FixedString Parameter;

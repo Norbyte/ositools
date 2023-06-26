@@ -22,6 +22,8 @@ struct SurfaceTemplate;
 struct TriggerTemplate;
 struct LevelTemplate;
 struct WallConstructionTemplate;
+struct LightProbeTemplate;
+struct LightTemplate;
 
 struct IGameObject;
 struct IEoCServerObject;
@@ -51,8 +53,17 @@ struct PhysicsScene;
 struct Skeleton;
 struct Scene;
 struct MoveableObject;
-struct Visual;
 struct RenderableObject;
+struct AnimatableObject;
+struct Visual;
+struct InstanceManager;
+struct InstanceGroup;
+struct InstanceBatch;
+struct Light;
+struct LightProbe;
+struct DecalBasicObject;
+struct RenderNode;
+struct TextureMap;
 
 struct Material;
 struct AppliedMaterial;
@@ -202,6 +213,7 @@ namespace ecl
 	struct WallConstructionStruct;
 	struct WallConstruction;
 	struct WallIntersection;
+	struct WallBuildingLayer;
 	struct Wall;
 	struct WallManager;
 
@@ -251,7 +263,13 @@ namespace ig
 
 namespace rf
 {
+	struct RenderObjectData;
+	struct RenderContext;
+	struct FormatDesc;
 	struct RendererCommandBuffer;
+	struct RendererBase;
+	struct Line;
+	struct Model;
 
 	struct Camera;
 	struct CameraController;

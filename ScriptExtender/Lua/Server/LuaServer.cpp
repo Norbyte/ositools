@@ -668,6 +668,61 @@ void LuaPolymorphic<aspk::Property>::MakeRef(lua_State* L, aspk::Property* o, Li
 
 #undef MAKE_REF
 
+void LuaPolymorphic<MoveableObject>::MakeRef(lua_State* L, MoveableObject* o, LifetimeHandle const& lifetime)
+{
+	auto rtti = o->GetRTTI();
+	if ((rtti & (uint32_t)VisualRTTI::InstanceBatch)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<InstanceBatch*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::LightProbe)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<LightProbe*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::Light)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<Light*>(o));
+	}
+
+	// Not mapped: Shape, TerrainLayer, TerrainPatch, Terrain
+
+	if ((rtti & (uint32_t)VisualRTTI::Decal)) {
+		// TODO - figure out how to differentiate DecalObject, VolumeObject, PaintedObject
+		return MakeDirectObjectRef(L, lifetime, static_cast<DecalBasicObject*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::Effect)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<fx::Effect*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::Node)) {
+		return MakeDirectObjectRef(L, lifetime, reinterpret_cast<RenderNode*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::Visual)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<Visual*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::Animatable)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<AnimatableObject*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::Renderable)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<RenderableObject*>(o));
+	}
+
+	if ((rtti & (uint32_t)VisualRTTI::Moveable)) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<MoveableObject*>(o));
+	}
+
+	OsiError("Visual has unknown RTTI:" << rtti);
+	push(L, nullptr);
+}
+
+void LuaPolymorphic<RenderableObject>::MakeRef(lua_State* L, RenderableObject* o, LifetimeHandle const& lifetime)
+{
+	LuaPolymorphic<MoveableObject>::MakeRef(L, o, lifetime);
+}
+
 template <>
 esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get(lua_State* L) const
 {

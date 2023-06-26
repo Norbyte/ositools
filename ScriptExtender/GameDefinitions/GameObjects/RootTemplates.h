@@ -578,15 +578,20 @@ namespace dse
         OverrideableProperty<ObjectSet<TerrainLayerSetting>> Layers;
     };
 
+    struct WallBuildingLayerData
+    {
+        ObjectSet<glm::vec3> Vertices;
+        ObjectSet<uint16_t> Indices;
+        glm::vec3 BoundMin;
+        glm::vec3 BoundMax;
+    };
+
     struct WallConstructionTemplate : public EoCGameObjectTemplate
     {
         OverrideableProperty<Array<ecl::WallConstructionStruct*>> WallTiles;
         OverrideableProperty<Array<ecl::WallIntersection*>> WallIntersections;
         OverrideableProperty<Array<ecl::Wall*>> Walls;
-        ObjectSet<void*> BuildingLayerVertex;
-        ObjectSet<uint16_t> BuildingLayerIndices;
-        glm::vec3 BuildingLayerBoundMin;
-        glm::vec3 BuildingLayerBoundMax;
+        WallBuildingLayerData BuildingLayer;
         bool field_460;
         OverrideableProperty<FixedString> BuildingLayerMaterial;
         OverrideableProperty<float> BuildingLayer1Height;
@@ -599,7 +604,7 @@ namespace dse
         OverrideableProperty<bool> WalkOn;
         OverrideableProperty<bool> CanSeeThrough;
         OverrideableProperty<bool> CanShootThrough;
-        bool field_4B0;
+        bool NotInUse;
     };
 
 }

@@ -430,6 +430,12 @@ struct Character : public IEoCClientReplicatedObject
 	using CheckSkillRequirementsProc = uint64_t (Character* self, FixedString const& skillId, Item* item);
 	using GetSkillRequirementsProc = void (Character* character, FixedString const& skillId, Item* item, uint32_t checkRequirementFlags, eoc::Text& requirementsText);
 
+	virtual void SetLight(FixedString*) = 0;
+	virtual void* GetLight() = 0;
+	virtual void RemoveLight() = 0;
+	virtual FixedString* GetPlayerRace(bool returnPolymorph, bool excludeUninitialized) = 0;
+	virtual FixedString* GetPlayerOrigin(bool returnPolymorph, bool excludeUninitialized) = 0;
+
 	Status* GetStatus(ComponentHandle statusHandle) const;
 	Status* GetStatus(NetId handle) const;
 
