@@ -365,7 +365,7 @@ function Generator:Build(opts)
             table.insert(self.Enumerations, type)
         elseif type.Kind == "Boolean" or type.Kind == "Integer" or type.Kind == "Float" or type.Kind == "String" or type.Kind == "Any" then
             table.insert(self.Intrinsics, type)
-        elseif typeName == "vec2" or typeName == "vec3" or typeName == "vec4" or typeName == "ivec2" or typeName == "ivec3" or typeName == "mat3" or typeName == "mat4" or typeName == "Version" then
+        elseif typeName == "vec2" or typeName == "vec3" or typeName == "vec4" or typeName == "ivec2" or typeName == "ivec3" or typeName == "mat3" or typeName == "mat3x4" or typeName == "mat4x3" or typeName == "mat4" or typeName == "Version" then
             table.insert(self.Builtins, type)
         end
     end

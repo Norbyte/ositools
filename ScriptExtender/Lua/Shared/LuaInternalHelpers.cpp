@@ -177,6 +177,42 @@ glm::mat3 get_raw(lua_State* L, Table* arr, Overload<glm::mat3>)
 	};
 }
 
+glm::mat3x4 get_raw(lua_State* L, Table* arr, Overload<glm::mat3x4>)
+{
+	return glm::mat3x4{
+		lua_val_get_float(L, arr->array),
+		lua_val_get_float(L, arr->array + 1),
+		lua_val_get_float(L, arr->array + 2),
+		lua_val_get_float(L, arr->array + 3),
+		lua_val_get_float(L, arr->array + 4),
+		lua_val_get_float(L, arr->array + 5),
+		lua_val_get_float(L, arr->array + 6),
+		lua_val_get_float(L, arr->array + 7),
+		lua_val_get_float(L, arr->array + 8),
+		lua_val_get_float(L, arr->array + 9),
+		lua_val_get_float(L, arr->array + 10),
+		lua_val_get_float(L, arr->array + 11),
+	};
+}
+
+glm::mat4x3 get_raw(lua_State* L, Table* arr, Overload<glm::mat4x3>)
+{
+	return glm::mat4x3{
+		lua_val_get_float(L, arr->array),
+		lua_val_get_float(L, arr->array + 1),
+		lua_val_get_float(L, arr->array + 2),
+		lua_val_get_float(L, arr->array + 3),
+		lua_val_get_float(L, arr->array + 4),
+		lua_val_get_float(L, arr->array + 5),
+		lua_val_get_float(L, arr->array + 6),
+		lua_val_get_float(L, arr->array + 7),
+		lua_val_get_float(L, arr->array + 8),
+		lua_val_get_float(L, arr->array + 9),
+		lua_val_get_float(L, arr->array + 10),
+		lua_val_get_float(L, arr->array + 11),
+	};
+}
+
 glm::mat4 get_raw(lua_State* L, Table* arr, Overload<glm::mat4>)
 {
 	return glm::mat4{
@@ -241,6 +277,38 @@ void set_raw(Table* tab, glm::mat3 const& m)
 	setfltvalue(tab->array + 8, m[2].z);
 }
 
+void set_raw(Table* tab, glm::mat3x4 const& m)
+{
+	setfltvalue(tab->array + 0, m[0].x);
+	setfltvalue(tab->array + 1, m[0].y);
+	setfltvalue(tab->array + 2, m[0].z);
+	setfltvalue(tab->array + 3, m[0].w);
+	setfltvalue(tab->array + 4, m[1].x);
+	setfltvalue(tab->array + 5, m[1].y);
+	setfltvalue(tab->array + 6, m[1].z);
+	setfltvalue(tab->array + 7, m[1].w);
+	setfltvalue(tab->array + 8, m[2].x);
+	setfltvalue(tab->array + 9, m[2].y);
+	setfltvalue(tab->array + 10, m[2].z);
+	setfltvalue(tab->array + 11, m[2].w);
+}
+
+void set_raw(Table* tab, glm::mat4x3 const& m)
+{
+	setfltvalue(tab->array + 0, m[0].x);
+	setfltvalue(tab->array + 1, m[0].y);
+	setfltvalue(tab->array + 2, m[0].z);
+	setfltvalue(tab->array + 3, m[1].x);
+	setfltvalue(tab->array + 4, m[1].y);
+	setfltvalue(tab->array + 5, m[1].z);
+	setfltvalue(tab->array + 6, m[2].x);
+	setfltvalue(tab->array + 7, m[2].y);
+	setfltvalue(tab->array + 8, m[2].z);
+	setfltvalue(tab->array + 9, m[3].x);
+	setfltvalue(tab->array + 10, m[3].y);
+	setfltvalue(tab->array + 11, m[3].z);
+}
+
 void set_raw(Table* tab, glm::mat4 const& m)
 {
 	setfltvalue(tab->array + 0, m[0].x);
@@ -294,6 +362,20 @@ glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>)
 	auto i = lua_absindex(L, index);
 	auto arr = lua_get_array_n(L, i, 9);
 	return get_raw(L, arr, Overload<glm::mat3>{});
+}
+
+glm::mat3x4 do_get(lua_State* L, int index, Overload<glm::mat3x4>)
+{
+	auto i = lua_absindex(L, index);
+	auto arr = lua_get_array_n(L, i, 12);
+	return get_raw(L, arr, Overload<glm::mat3x4>{});
+}
+
+glm::mat4x3 do_get(lua_State* L, int index, Overload<glm::mat4x3>)
+{
+	auto i = lua_absindex(L, index);
+	auto arr = lua_get_array_n(L, i, 12);
+	return get_raw(L, arr, Overload<glm::mat4x3>{});
 }
 
 glm::mat4 do_get(lua_State* L, int index, Overload<glm::mat4>)
@@ -364,6 +446,20 @@ void push(lua_State* L, glm::quat const& v)
 void push(lua_State* L, glm::mat3 const& m)
 {
 	lua_createtable(L, 9, 0);
+	auto tab = lua_get_top_table_unsafe(L);
+	set_raw(tab, m);
+}
+
+void push(lua_State* L, glm::mat3x4 const& m)
+{
+	lua_createtable(L, 12, 0);
+	auto tab = lua_get_top_table_unsafe(L);
+	set_raw(tab, m);
+}
+
+void push(lua_State* L, glm::mat4x3 const& m)
+{
+	lua_createtable(L, 12, 0);
 	auto tab = lua_get_top_table_unsafe(L);
 	set_raw(tab, m);
 }
@@ -448,6 +544,12 @@ void assign(lua_State* L, int idx, glm::quat const& v)
 void assign(lua_State* L, int idx, glm::mat3 const& m)
 {
 	auto tab = lua_get_array_n(L, idx, 9);
+	set_raw(tab, m);
+}
+
+void assign(lua_State* L, int idx, glm::mat3x4 const& m)
+{
+	auto tab = lua_get_array_n(L, idx, 12);
 	set_raw(tab, m);
 }
 

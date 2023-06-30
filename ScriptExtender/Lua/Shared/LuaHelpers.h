@@ -274,6 +274,8 @@ void push(lua_State* L, glm::vec3 const& v);
 void push(lua_State* L, glm::vec4 const& v);
 void push(lua_State* L, glm::quat const& v);
 void push(lua_State* L, glm::mat3 const& m);
+void push(lua_State* L, glm::mat3x4 const& m);
+void push(lua_State* L, glm::mat4x3 const& m);
 void push(lua_State* L, glm::mat4 const& m);
 void push(lua_State* L, ig::InvokeDataValue const& v);
 void push(lua_State* L, Ref const& v);
@@ -286,6 +288,8 @@ void assign(lua_State* L, int idx, glm::vec3 const& v);
 void assign(lua_State* L, int idx, glm::vec4 const& v);
 void assign(lua_State* L, int idx, glm::quat const& v);
 void assign(lua_State* L, int idx, glm::mat3 const& m);
+void assign(lua_State* L, int idx, glm::mat3x4 const& m);
+void assign(lua_State* L, int idx, glm::mat4x3 const& m);
 void assign(lua_State* L, int idx, glm::mat4 const& m);
 
 template <class T>
@@ -469,6 +473,8 @@ glm::vec3 do_get(lua_State* L, int index, Overload<glm::vec3>);
 glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>);
 glm::quat do_get(lua_State* L, int index, Overload<glm::quat>);
 glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>);
+glm::mat3x4 do_get(lua_State* L, int index, Overload<glm::mat3x4>);
+glm::mat4x3 do_get(lua_State* L, int index, Overload<glm::mat4x3>);
 glm::mat4 do_get(lua_State* L, int index, Overload<glm::mat4>);
 MathParam do_get(lua_State* L, int index, Overload<MathParam>);
 
