@@ -148,7 +148,7 @@ namespace dse
 			FixedString Key;
 			uint32_t LockLevel; // Saved
 			void * ItemMachine; // Saved
-			void * PlanMachine; // Saved
+			PlanManager* PlanManager; // Saved
 			void * VariableManager; // Saved
 			StatusMachine * StatusMachine; // Saved
 			FixedString VisualResourceID;

@@ -498,6 +498,9 @@
     <ClInclude Include="GameDefinitions\GameObjects\Wall.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Plan.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

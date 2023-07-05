@@ -180,6 +180,7 @@ namespace esv
 	struct EntityManager;
 	struct CombineManager;
 	struct LevelManager;
+	struct PlanManager;
 	struct AlignmentContainer;
 
 	struct ItemFactory;

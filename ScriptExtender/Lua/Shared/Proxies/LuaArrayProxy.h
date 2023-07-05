@@ -335,10 +335,10 @@ public:
 		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByRefImpl<Set<T, Allocator, StoreSize>, T>>());
 	}
 
-	template <class T, class Allocator>
-	inline static auto MakeByRef(lua_State* L, PrimitiveSmallSet<T, Allocator>* object, LifetimeHandle const& lifetime)
+	template <class T, class TSizeType, class Allocator>
+	inline static auto MakeByRef(lua_State* L, PrimitiveSmallSet<T, TSizeType, Allocator>* object, LifetimeHandle const& lifetime)
 	{
-		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByRefImpl<PrimitiveSmallSet<T, Allocator>, T>>());
+		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByRefImpl<PrimitiveSmallSet<T, TSizeType, Allocator>, T>>());
 	}
 
 	template <class T>
@@ -377,10 +377,10 @@ public:
 		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByValImpl<Set<T, Allocator, StoreSize>, T>>());
 	}
 
-	template <class T, class Allocator>
-	inline static auto MakeByVal(lua_State* L, PrimitiveSmallSet<T, Allocator>* object, LifetimeHandle const& lifetime)
+	template <class T, class TSizeType, class Allocator>
+	inline static auto MakeByVal(lua_State* L, PrimitiveSmallSet<T, TSizeType, Allocator>* object, LifetimeHandle const& lifetime)
 	{
-		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByValImpl<PrimitiveSmallSet<T, Allocator>, T>>());
+		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByValImpl<PrimitiveSmallSet<T, TSizeType, Allocator>, T>>());
 	}
 
 	template <class T>
@@ -422,8 +422,8 @@ struct IsArrayLike<Set<T, Allocator, StoreSize>> { static constexpr bool Value =
 template <class T, class Allocator, bool StoreSize>
 struct IsArrayLike<ObjectSet<T, Allocator, StoreSize>> { static constexpr bool Value = true; using TElement = T; };
 
-template <class T, class Allocator>
-struct IsArrayLike<PrimitiveSmallSet<T, Allocator>> { static constexpr bool Value = true; using TElement = T; };
+template <class T, class TSizeType, class Allocator>
+struct IsArrayLike<PrimitiveSmallSet<T, TSizeType, Allocator>> { static constexpr bool Value = true; using TElement = T; };
 
 template <class T>
 struct IsArrayLike<Queue<T>> { static constexpr bool Value = true; using TElement = T; };

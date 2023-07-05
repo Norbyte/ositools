@@ -8,6 +8,7 @@
 #include <GameDefinitions/Sound.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 #include <GameDefinitions/GameObjects/Ai.h>
+#include <GameDefinitions/GameObjects/Plan.h>
 
 BEGIN_NS(eoc)
 
@@ -229,7 +230,7 @@ struct Character : public IEoCServerObject
 	ObjectSet<ComponentHandle> EnemyHandles;
 	ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
 	ObjectSet<ComponentHandle> SummonHandles;
-	void * PlanManager;
+	PlanManager* PlanManager;
 	float PartialAP;
 	uint8_t AnimType;
 	uint8_t DelayDeathCount;

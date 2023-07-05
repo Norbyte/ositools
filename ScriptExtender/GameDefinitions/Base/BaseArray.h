@@ -103,7 +103,7 @@ private:
 	T const* ptr_;
 };
 
-template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
+template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false, class TSizeType = uint32_t>
 class CompactSet
 {
 public:
@@ -113,7 +113,7 @@ public:
 	using iterator = ContiguousIterator<T>;
 	using const_iterator = ContiguousConstIterator<T>;
 	using difference_type = int32_t;
-	using size_type = uint32_t;
+	using size_type = TSizeType;
 
 	inline CompactSet() {}
 
@@ -399,13 +399,13 @@ private:
 	uint64_t capacityIncrementSize_{ 0 };
 };
 
-template <class T, class Allocator = GameMemoryAllocator>
-class PrimitiveSmallSet : public CompactSet<T, Allocator, false>
+template <class T, class TSizeType = uint32_t, class Allocator = GameMemoryAllocator>
+class PrimitiveSmallSet : public CompactSet<T, Allocator, false, TSizeType>
 {
 public:
 	virtual ~PrimitiveSmallSet() {}
 
-	CompactSet<T, Allocator, false>::size_type capacity_increment() const
+	CompactSet<T, Allocator, false, TSizeType>::size_type capacity_increment() const
 	{
 		if (this->capacity_ > 0) {
 			return 2 * this->capacity_;
