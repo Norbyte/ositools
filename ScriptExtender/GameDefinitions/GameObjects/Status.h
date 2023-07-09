@@ -876,7 +876,7 @@ struct StatusClean : public Status
 
 struct StatusCombat : public Status
 {
-	eoc::CombatTeamId CombatTeamId;
+	eoc::CombatTeamId OwnerTeamId;
 };
 
 struct StatusHeal : public Status

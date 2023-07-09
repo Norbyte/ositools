@@ -699,7 +699,7 @@ END_CLS()
 
 BEGIN_CLS(ecl::StatusCombat)
 INHERIT(ecl::Status)
-P_REF(CombatTeamId)
+P_REF(OwnerTeamId)
 END_CLS()
 
 
