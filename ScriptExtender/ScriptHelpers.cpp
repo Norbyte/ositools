@@ -69,6 +69,33 @@ ObjectSet<FixedString> EnumerateDirectory(std::string_view directoryPath, PathRo
 	return paths;
 }
 
+bool IsFile(std::string_view path, PathRootType root)
+{
+	if (root == PathRootType::GameStorage) {
+		auto absolutePath = GetPathForExternalIo(path, PathRootType::GameStorage);
+		if (!absolutePath) return false;
+
+		return std::filesystem::is_regular_file(absolutePath.value());
+	} else {
+		LuaError("Unsupported file context");
+		return false;
+	}
+}
+
+bool IsDirectory(std::string_view path, PathRootType root)
+{
+	if (root == PathRootType::GameStorage) {
+		auto absolutePath = GetPathForExternalIo(path, PathRootType::GameStorage);
+		if (!absolutePath) return false;
+
+		return std::filesystem::is_directory(absolutePath.value());
+	}
+	else {
+		LuaError("Unsupported file context");
+		return false;
+	}
+}
+
 std::optional<STDString> LoadExternalFile(std::string_view path, PathRootType root)
 {
 	if (!IsSafeRelativePath(STDString(path))) {
