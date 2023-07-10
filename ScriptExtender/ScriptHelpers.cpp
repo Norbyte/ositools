@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "ScriptHelpers.h"
 #include <Extender/ScriptExtender.h>
+#include <filesystem>
 #include <fstream>
 
 namespace dse::script {
@@ -33,6 +34,39 @@ std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath, Path
 	}
 
 	return FromUTF8(storageRoot + "/" + path);
+}
+
+ObjectSet<FixedString> EnumerateDirectory(std::string_view directoryPath, PathRootType root)
+{
+	ObjectSet<FixedString> paths;
+
+	if (root == PathRootType::GameStorage) {
+		auto rawAbsolutePath = GetPathForExternalIo(directoryPath, PathRootType::GameStorage);
+		if (!rawAbsolutePath) return {};
+		auto absolutePath = std::filesystem::path(rawAbsolutePath.value());
+
+		if (!std::filesystem::exists(absolutePath) || !std::filesystem::is_directory(absolutePath)) {
+			LuaError("Path does not exist or is not a directory");
+			return {};
+		}
+
+		try {
+			for (const auto& entry : std::filesystem::directory_iterator(absolutePath)) {
+				auto entryAbsolutePath = FixedString(entry.path().generic_string());
+				auto relativePath = std::filesystem::proximate(entry, absolutePath);
+
+				paths.push_back(FixedString(relativePath.generic_string()));
+			}
+		}
+		catch (std::filesystem::filesystem_error& e) {
+			LuaError("Could not read directory: " << e.what());
+			return {};
+		}
+	} else {
+		LuaError("Unsupported file context");
+	}
+
+	return paths;
 }
 
 std::optional<STDString> LoadExternalFile(std::string_view path, PathRootType root)
