@@ -134,10 +134,9 @@ bool SaveExternalFile(std::string_view path, PathRootType root, std::string_view
 	if (dirEnd == std::string::npos) return false;
 
 	auto storageDir = absolutePath->substr(0, dirEnd);
-	BOOL created = CreateDirectoryW(storageDir.c_str(), NULL);
-	if (created == FALSE) {
-		DWORD lastError = GetLastError();
-		if (lastError != ERROR_ALREADY_EXISTS) {
+	if (!std::filesystem::exists(storageDir) || !std::filesystem::is_directory(storageDir)) {
+		bool created = std::filesystem::create_directories(storageDir);
+		if (!created) {
 			OsiError("Could not create storage directory: " << ToUTF8(storageDir));
 			return {};
 		}
