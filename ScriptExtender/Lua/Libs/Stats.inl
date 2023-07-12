@@ -111,7 +111,7 @@ struct CustomLevelMap : public stats::LevelMap
 		OsiError("Not supported!");
 	}
 
-	int64_t GetScaledValue(int attributeValue, int level) override
+	int32_t GetScaledValue(int attributeValue, int level) override
 	{
 		auto value = LuaGetScaledValue(attributeValue, level);
 		if (value) {
@@ -121,7 +121,7 @@ struct CustomLevelMap : public stats::LevelMap
 		}
 	}
 
-	std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
+	std::optional<int32_t> LuaGetScaledValue(int attributeValue, int level)
 	{
 		auto state = gExtender->GetCurrentExtensionState();
 		if (!state || !state->GetLua()) return {};
@@ -156,7 +156,7 @@ struct CustomLevelMap : public stats::LevelMap
 
 		auto value = lua_tointeger(L, -1);
 		lua_pop(L, 1); // stack: -
-		return value;
+		return (int32_t)value;
 	}
 };
 

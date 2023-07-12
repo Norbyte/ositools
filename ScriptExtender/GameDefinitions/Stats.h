@@ -464,9 +464,9 @@ struct LevelMap : public Noncopyable<LevelMap>
 	virtual ~LevelMap() {}
 	virtual void SetModifierList(int modifierListIndex, int modifierIndex) = 0;
 	virtual void SetModifierList(FixedString const& modifierListName, FixedString const& modifierName) = 0;
-	virtual int64_t GetScaledValue(int value, int level) = 0;
+	virtual int32_t GetScaledValue(int value, int level) = 0;
 	
-	int64_t LuaGetScaledValue(int value, int level);
+	int32_t LuaGetScaledValue(int value, int level);
 
 	int ModifierListIndex{ -1 };
 	int ModifierIndex{ -1 };

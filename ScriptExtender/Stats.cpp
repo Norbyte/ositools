@@ -692,7 +692,7 @@ void PropertyList::FromProtobuf(StatPropertyList const& msg)
 	}
 }
 
-int64_t LevelMap::LuaGetScaledValue(int value, int level)
+int32_t LevelMap::LuaGetScaledValue(int value, int level)
 {
 	return GetScaledValue(value, level);
 }
