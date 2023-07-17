@@ -804,7 +804,7 @@ public:
 
 	void push_back(T const& value)
 	{
-		if (size_ == 0 || readIndex_ == writeIndex_) {
+		if (capacity_ == 0 || (size_ > 0 && readIndex_ == writeIndex_)) {
 			resize(capacity_increment());
 		}
 
@@ -826,7 +826,7 @@ public:
 
 	T pop()
 	{
-		assert(size_ > 0 && readIndex_ != writeIndex_);
+		assert(size_ > 0);
 
 		T val = buf_[readIndex_];
 		size_--;
