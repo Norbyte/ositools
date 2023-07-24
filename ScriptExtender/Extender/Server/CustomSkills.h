@@ -106,7 +106,7 @@ public:
 	bool ExitAction(CustomSkillEventParams& e);
 	std::optional<float> GetTargetDistance(CustomSkillEventParams& e);
 	bool Reset(CustomSkillEventParams& e);
-	bool Finish(CustomSkillEventParams& e);
+	bool Finish(CustomSkillEventParams& e, bool force);
 
 private:
 	SkillState* state_;
@@ -143,7 +143,7 @@ private:
 	float OnGetTargetDistance(SkillState::GetTargetDistanceProc* wrapped, SkillState* self);
 
 	void OnReset(SkillState::ResetProc* wrapped, SkillState* self);
-	bool OnFinish(SkillState::FinishProc* wrapped, SkillState* self);
+	bool OnFinish(SkillState::FinishProc* wrapped, SkillState* self, bool force);
 
 	void ConstructUserState(SkillState* self);
 	void DestroyUserState(SkillState* self);

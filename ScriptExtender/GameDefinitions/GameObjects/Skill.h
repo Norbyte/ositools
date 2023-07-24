@@ -60,7 +60,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	using GetTargetDistanceProc = float(SkillState* self);
 	using CloneProc = SkillState * (SkillState* self);
 	using ResetProc = void(SkillState* self);
-	using FinishProc = bool(SkillState* self);
+	using FinishProc = bool(SkillState* self, bool force);
 
 	struct VMT
 	{

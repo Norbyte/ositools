@@ -171,9 +171,9 @@ std::optional<float> UserspaceSkillStateClass::GetTargetDistance(CustomSkillEven
 	return CallOptionalMethod("GetTargetDistance", Overload<float>{}, &e, state_);
 }
 
-bool UserspaceSkillStateClass::Finish(CustomSkillEventParams& e)
+bool UserspaceSkillStateClass::Finish(CustomSkillEventParams& e, bool force)
 {
-	return CallOptionalMethod("Finish", Overload<void>{}, &e, state_);
+	return CallOptionalMethod("Finish", Overload<void>{}, &e, state_, force);
 }
 
 void ConstructState(lua_State* L, SkillState* skill, Vector<GameUniquePtr<UserspaceSkillStateClass>>& states, lua::UserObjectConstructor<UserspaceSkillStateClass>& ctor)
@@ -226,20 +226,24 @@ void CustomSkillStateManager::DestroyUserState(SkillState* self)
 	}
 }
 
-#define DISPATCH_SKILL_EVENT(fun, ret, defval, ...) \
-	LuaServerPin lua(ExtensionState::Get()); \
+#define HANDLE_SKILL_EVENT(fun, ret, ...) \
 	CustomSkillEventParams ev; \
 	std::optional<ret> result; \
-	auto states = userStates_.find(self); \
-	if (states != userStates_.end()) { \
-		for (auto& state : states.Value()) { \
-			result = state->fun(ev, __VA_ARGS__); \
-			if (ev.StopEvent) { \
-				break; \
+	{ \
+		LuaServerPin lua(ExtensionState::Get()); \
+		auto states = userStates_.find(self); \
+		if (states != userStates_.end()) { \
+			for (auto& state : states.Value()) { \
+				result = state->fun(ev, __VA_ARGS__); \
+				if (ev.StopEvent) { \
+					break; \
+				} \
 			} \
 		} \
 	} \
- \
+
+#define DISPATCH_SKILL_EVENT(fun, ret, defval, ...) \
+	HANDLE_SKILL_EVENT(fun, ret, __VA_ARGS__) \
 	if (ev.PreventDefault) { \
 		return result ? *result : defval; \
 	} else { \
@@ -247,14 +251,16 @@ void CustomSkillStateManager::DestroyUserState(SkillState* self)
 	}
 
 #define DISPATCH_SKILL_FUN(fun, ...) \
-	LuaServerPin lua(ExtensionState::Get()); \
 	CustomSkillEventParams ev; \
-	auto states = userStates_.find(self); \
-	if (states != userStates_.end()) { \
-		for (auto& state : states.Value()) { \
-			state->fun(ev, __VA_ARGS__); \
-			if (ev.StopEvent) { \
-				break; \
+	{ \
+		LuaServerPin lua(ExtensionState::Get()); \
+		auto states = userStates_.find(self); \
+		if (states != userStates_.end()) { \
+			for (auto& state : states.Value()) { \
+				state->fun(ev, __VA_ARGS__); \
+				if (ev.StopEvent) { \
+					break; \
+				} \
 			} \
 		} \
 	} \
@@ -350,12 +356,21 @@ void CustomSkillStateManager::OnReset(SkillState::ResetProc* wrapped, SkillState
 	ConstructUserState(self);
 }
 
-bool CustomSkillStateManager::OnFinish(SkillState::FinishProc* wrapped, SkillState* self)
+bool CustomSkillStateManager::OnFinish(SkillState::FinishProc* wrapped, SkillState* self, bool force)
 {
-	DISPATCH_SKILL_FUN(Finish)
+	HANDLE_SKILL_EVENT(Finish, bool, force)
 
-	DestroyUserState(self);
-	return true;
+	if (!ev.PreventDefault) {
+		result = wrapped(self, force);
+	} else if (!result) {
+		result = false;
+	}
+
+	if (*result) {
+		DestroyUserState(self);
+	}
+
+	return *result;
 }
 
 
