@@ -343,6 +343,8 @@ void CustomSkillStateManager::OnTickAction(SkillState::TickActionProc* wrapped, 
 void CustomSkillStateManager::OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self)
 {
 	DISPATCH_SKILL_FUN(ExitAction)
+
+	DestroyUserState(self);
 }
 
 float CustomSkillStateManager::OnGetTargetDistance(SkillState::GetTargetDistanceProc* wrapped, SkillState* self)

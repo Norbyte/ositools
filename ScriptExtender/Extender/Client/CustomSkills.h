@@ -50,7 +50,7 @@
 	FOR_ECL_SKILL_FUNC(ty, GetTargetRadius) \
 	FOR_ECL_SKILL_FUNC(ty, ValidateTargetSight) \
 	FOR_ECL_SKILL_FUNC(ty, ValidateTarget) \
-	FOR_ECL_SKILL_FUNC(ty, FinishSkillState)
+	FOR_ECL_SKILL_FUNC(ty, Finish)
 
 BEGIN_NS(ecl)
 
@@ -96,9 +96,9 @@ public:
 
 	std::optional<bool> Enter(CustomSkillEventParams& e);
 	std::optional<bool> Continue(CustomSkillEventParams& e);
-	std::optional<bool> Update(CustomSkillEventParams& e);
+	bool Update(CustomSkillEventParams& e);
 	bool Tick(CustomSkillEventParams& e);
-	std::optional<bool> Exit(CustomSkillEventParams& e);
+	bool Exit(CustomSkillEventParams& e);
 	bool OnInputEvent(CustomSkillEventParams& e, uint16_t* eventRetVal, InputEvent const& inputEvent);
 	std::optional<bool> EnterBehaviour(CustomSkillEventParams& e);
 	std::optional<bool> ContinueBehaviour(CustomSkillEventParams& e);
@@ -107,16 +107,16 @@ public:
 	std::optional<bool> ExitBehaviour(CustomSkillEventParams& e);
 	std::optional<bool> EnterAction(CustomSkillEventParams& e);
 	std::optional<bool> ContinueAction(CustomSkillEventParams& e);
-	std::optional<bool> UpdateAction(CustomSkillEventParams& e, GameTime const& time);
+	bool UpdateAction(CustomSkillEventParams& e, GameTime const& time);
 	bool TickAction(CustomSkillEventParams& e);
-	std::optional<bool> ExitAction(CustomSkillEventParams& e);
+	bool ExitAction(CustomSkillEventParams& e);
 	std::optional<bool> GetTarget(CustomSkillEventParams& e, ComponentHandle& target, glm::vec3& targetPosition);
 	std::optional<bool> GetTargetPosition(CustomSkillEventParams& e, glm::vec3& targetPosition);
 	std::optional<float> GetTargetMoveDistance(CustomSkillEventParams& e);
 	std::optional<float> GetTargetRadius(CustomSkillEventParams& e);
 	std::optional<int32_t> ValidateTargetSight(CustomSkillEventParams& e, glm::vec3 const& target);
 	std::optional<uint32_t> ValidateTarget(CustomSkillEventParams& e, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight);
-	bool FinishSkillState(CustomSkillEventParams& e);
+	bool Finish(CustomSkillEventParams& e, bool force);
 
 private:
 	SkillState* state_;
@@ -135,9 +135,9 @@ public:
 private:
 	bool OnEnter(SkillState::EnterProc* wrapped, SkillState* self);
 	bool OnContinue(SkillState::ContinueProc* wrapped, SkillState* self);
-	bool OnUpdate(SkillState::UpdateProc* wrapped, SkillState* self);
+	void OnUpdate(SkillState::UpdateProc* wrapped, SkillState* self);
 	void OnTick(SkillState::TickProc* wrapped, SkillState* self);
-	bool OnExit(SkillState::ExitProc* wrapped, SkillState* self);
+	void OnExit(SkillState::ExitProc* wrapped, SkillState* self);
 
 	uint16_t* OnOnInputEvent(SkillState::OnInputEventProc* wrapped, SkillState* self, uint16_t* eventRetVal, InputEvent const& inputEvent);
 	bool OnEnterBehaviour(SkillState::EnterBehaviourProc* wrapped, SkillState* self);
@@ -148,9 +148,9 @@ private:
 
 	bool OnEnterAction(SkillState::EnterActionProc* wrapped, SkillState* self);
 	bool OnContinueAction(SkillState::ContinueActionProc* wrapped, SkillState* self);
-	bool OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time);
+	void OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time);
 	void OnTickAction(SkillState::TickActionProc* wrapped, SkillState* self);
-	bool OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self);
+	void OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self);
 
 	bool OnGetTarget(SkillState::GetTargetProc* wrapped, SkillState* self, ComponentHandle& target, glm::vec3& targetPosition);
 	bool OnGetTargetPosition(SkillState::GetTargetPositionProc* wrapped, SkillState* self, glm::vec3& targetPosition);
@@ -160,7 +160,7 @@ private:
 	int32_t OnValidateTargetSight(SkillState::ValidateTargetSightProc* wrapped, SkillState* self, glm::vec3 const& target);
 	uint32_t OnValidateTarget(SkillState::ValidateTargetProc* wrapped, SkillState* self, uint64_t targetHandle, glm::vec3 const* targetPos, bool snapToGrid, bool fillInHeight);
 
-	void OnFinishSkillState(SkillState::FinishSkillStateProc* wrapped, SkillState* self);
+	void OnFinish(SkillState::FinishProc* wrapped, SkillState* self, bool force);
 
 	void ConstructUserState(SkillState* self);
 	void DestroyUserState(SkillState* self);

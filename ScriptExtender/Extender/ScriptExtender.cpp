@@ -26,6 +26,7 @@ BEGIN_SE()
 
 void InitCrashReporting();
 void ShutdownCrashReporting();
+void DumpCurrentStack();
 
 END_SE()
 

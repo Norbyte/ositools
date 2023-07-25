@@ -101,9 +101,9 @@ std::optional<bool> UserspaceSkillStateClass::Continue(CustomSkillEventParams& e
 	return CallOptionalMethod("Continue", Overload<bool>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::Update(CustomSkillEventParams& e)
+bool UserspaceSkillStateClass::Update(CustomSkillEventParams& e)
 {
-	return CallOptionalMethod("Update", Overload<bool>{}, &e, state_);
+	return CallOptionalMethod("Update", Overload<void>{}, &e, state_);
 }
 
 bool UserspaceSkillStateClass::Tick(CustomSkillEventParams& e)
@@ -111,9 +111,9 @@ bool UserspaceSkillStateClass::Tick(CustomSkillEventParams& e)
 	return CallOptionalMethod("Tick", Overload<void>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::Exit(CustomSkillEventParams& e)
+bool UserspaceSkillStateClass::Exit(CustomSkillEventParams& e)
 {
-	return CallOptionalMethod("Exit", Overload<bool>{}, &e, state_);
+	return CallOptionalMethod("Exit", Overload<void>{}, &e, state_);
 }
 
 bool UserspaceSkillStateClass::OnInputEvent(CustomSkillEventParams& e, uint16_t* eventRetVal, InputEvent const& inputEvent)
@@ -156,9 +156,9 @@ std::optional<bool> UserspaceSkillStateClass::ContinueAction(CustomSkillEventPar
 	return CallOptionalMethod("ContinueAction", Overload<bool>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::UpdateAction(CustomSkillEventParams& e, GameTime const& time)
+bool UserspaceSkillStateClass::UpdateAction(CustomSkillEventParams& e, GameTime const& time)
 {
-	return CallOptionalMethod("UpdateAction", Overload<bool>{}, &e, state_);
+	return CallOptionalMethod("UpdateAction", Overload<void>{}, &e, state_);
 }
 
 bool UserspaceSkillStateClass::TickAction(CustomSkillEventParams& e)
@@ -166,9 +166,9 @@ bool UserspaceSkillStateClass::TickAction(CustomSkillEventParams& e)
 	return CallOptionalMethod("TickAction", Overload<void>{}, &e, state_);
 }
 
-std::optional<bool> UserspaceSkillStateClass::ExitAction(CustomSkillEventParams& e)
+bool UserspaceSkillStateClass::ExitAction(CustomSkillEventParams& e)
 {
-	return CallOptionalMethod("ExitAction", Overload<bool>{}, &e, state_);
+	return CallOptionalMethod("ExitAction", Overload<void>{}, &e, state_);
 }
 
 std::optional<bool> UserspaceSkillStateClass::GetTarget(CustomSkillEventParams& e, ComponentHandle& target, glm::vec3& targetPosition)
@@ -201,9 +201,9 @@ std::optional<uint32_t> UserspaceSkillStateClass::ValidateTarget(CustomSkillEven
 	return CallOptionalMethod("ValidateTarget", Overload<uint32_t>{}, &e, state_, ComponentHandle{targetHandle}, targetPos ? *targetPos : std::optional<glm::vec3>{}, snapToGrid, fillInHeight);
 }
 
-bool UserspaceSkillStateClass::FinishSkillState(CustomSkillEventParams& e)
+bool UserspaceSkillStateClass::Finish(CustomSkillEventParams& e, bool force)
 {
-	return CallOptionalMethod("FinishSkillState", Overload<void>{}, &e, state_);
+	return CallOptionalMethod("Finish", Overload<void>{}, &e, state_, force);
 }
 
 void ConstructState(lua_State* L, SkillState* skill, Vector<GameUniquePtr<UserspaceSkillStateClass>>& states, lua::UserObjectConstructor<UserspaceSkillStateClass>& ctor)
@@ -257,15 +257,17 @@ void CustomSkillStateManager::DestroyUserState(SkillState* self)
 }
 
 #define DISPATCH_SKILL_EVENT(fun, ret, defval, ...) \
-	LuaClientPin lua(ExtensionState::Get()); \
 	CustomSkillEventParams ev; \
 	std::optional<ret> result; \
-	auto states = userStates_.find(self); \
-	if (states != userStates_.end()) { \
-		for (auto& state : states.Value()) { \
-			result = state->fun(ev, __VA_ARGS__); \
-			if (ev.StopEvent) { \
-				break; \
+	{ \
+		LuaClientPin lua(ExtensionState::Get()); \
+		auto states = userStates_.find(self); \
+		if (states != userStates_.end()) { \
+			for (auto& state : states.Value()) { \
+				result = state->fun(ev, __VA_ARGS__); \
+				if (ev.StopEvent) { \
+					break; \
+				} \
 			} \
 		} \
 	} \
@@ -277,14 +279,16 @@ void CustomSkillStateManager::DestroyUserState(SkillState* self)
 	}
 
 #define DISPATCH_SKILL_FUN(fun, ...) \
-	LuaClientPin lua(ExtensionState::Get()); \
 	CustomSkillEventParams ev; \
-	auto states = userStates_.find(self); \
-	if (states != userStates_.end()) { \
-		for (auto& state : states.Value()) { \
-			state->fun(ev, __VA_ARGS__); \
-			if (ev.StopEvent) { \
-				break; \
+	{ \
+		LuaClientPin lua(ExtensionState::Get()); \
+		auto states = userStates_.find(self); \
+		if (states != userStates_.end()) { \
+			for (auto& state : states.Value()) { \
+				state->fun(ev, __VA_ARGS__); \
+				if (ev.StopEvent) { \
+					break; \
+				} \
 			} \
 		} \
 	} \
@@ -306,9 +310,9 @@ bool CustomSkillStateManager::OnContinue(SkillState::ContinueProc* wrapped, Skil
 	DISPATCH_SKILL_EVENT(Continue, bool, false)
 }
 
-bool CustomSkillStateManager::OnUpdate(SkillState::UpdateProc* wrapped, SkillState* self)
+void CustomSkillStateManager::OnUpdate(SkillState::UpdateProc* wrapped, SkillState* self)
 {
-	DISPATCH_SKILL_EVENT(Update, bool, false)
+	DISPATCH_SKILL_FUN(Update)
 }
 
 void CustomSkillStateManager::OnTick(SkillState::TickProc* wrapped, SkillState* self)
@@ -316,9 +320,9 @@ void CustomSkillStateManager::OnTick(SkillState::TickProc* wrapped, SkillState* 
 	DISPATCH_SKILL_FUN(Tick)
 }
 
-bool CustomSkillStateManager::OnExit(SkillState::ExitProc* wrapped, SkillState* self)
+void CustomSkillStateManager::OnExit(SkillState::ExitProc* wrapped, SkillState* self)
 {
-	DISPATCH_SKILL_EVENT(Exit, bool, false)
+	DISPATCH_SKILL_FUN(Exit)
 }
 
 uint16_t* CustomSkillStateManager::OnOnInputEvent(SkillState::OnInputEventProc* wrapped, SkillState* self, uint16_t* eventRetVal, InputEvent const& inputEvent)
@@ -363,9 +367,9 @@ bool CustomSkillStateManager::OnContinueAction(SkillState::ContinueActionProc* w
 	DISPATCH_SKILL_EVENT(ContinueAction, bool, false)
 }
 
-bool CustomSkillStateManager::OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time)
+void CustomSkillStateManager::OnUpdateAction(SkillState::UpdateActionProc* wrapped, SkillState* self, GameTime const& time)
 {
-	DISPATCH_SKILL_EVENT(UpdateAction, bool, false, time)
+	DISPATCH_SKILL_FUN(UpdateAction, time)
 }
 
 void CustomSkillStateManager::OnTickAction(SkillState::TickActionProc* wrapped, SkillState* self)
@@ -373,9 +377,12 @@ void CustomSkillStateManager::OnTickAction(SkillState::TickActionProc* wrapped, 
 	DISPATCH_SKILL_FUN(TickAction)
 }
 
-bool CustomSkillStateManager::OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self)
+void CustomSkillStateManager::OnExitAction(SkillState::ExitActionProc* wrapped, SkillState* self)
 {
-	DISPATCH_SKILL_EVENT(ExitAction, bool, false)
+	DISPATCH_SKILL_FUN(ExitAction)
+
+	wrapped(self);
+	DestroyUserState(self);
 }
 
 bool CustomSkillStateManager::OnGetTarget(SkillState::GetTargetProc* wrapped, SkillState* self, ComponentHandle& target, glm::vec3& targetPosition)
@@ -408,9 +415,9 @@ uint32_t CustomSkillStateManager::OnValidateTarget(SkillState::ValidateTargetPro
 	DISPATCH_SKILL_EVENT(ValidateTarget, uint32_t, 0, targetHandle, targetPos, snapToGrid, fillInHeight)
 }
 
-void CustomSkillStateManager::OnFinishSkillState(SkillState::FinishSkillStateProc* wrapped, SkillState* self)
+void CustomSkillStateManager::OnFinish(SkillState::FinishProc* wrapped, SkillState* self, bool force)
 {
-	DISPATCH_SKILL_FUN(FinishSkillState)
+	DISPATCH_SKILL_FUN(Finish, false)
 
 	DestroyUserState(self);
 }

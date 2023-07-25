@@ -610,4 +610,10 @@ void ShutdownCrashReporting()
 	CrashReporter::Shutdown();
 }
 
+void DumpCurrentStack()
+{
+	CrashReporter::Dumper.SnapshotThread();
+	DEBUG("%s\r\n", CrashReporter::Dumper.DumpBacktrace().c_str());
+}
+
 END_SE()

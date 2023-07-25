@@ -127,7 +127,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	virtual float GetTargetDistance() = 0;
 	virtual SkillState* Clone() = 0;
 	virtual void Reset() = 0;
-	virtual bool Finish() = 0;
+	virtual bool Finish(bool force) = 0;
 
 	SkillType LuaGetType();
 
@@ -406,10 +406,10 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	using GetTypeProc = SkillType (SkillState* self);
 	using EnterProc = bool (SkillState* self);
 	using ContinueProc = bool (SkillState* self);
-	using UpdateProc = bool (SkillState* self);
+	using UpdateProc = void (SkillState* self);
 	using TickProc = void (SkillState* self);
 	using CanExitProc = bool (SkillState* self);
-	using ExitProc = bool (SkillState* self);
+	using ExitProc = void (SkillState* self);
 	using IsFinishedProc = bool (SkillState* self);
 	using OnInputEventProc = uint16_t* (SkillState* self, uint16_t* eventRetVal, InputEvent const& inputEvent);
 	using EnterBehaviourProc = bool (SkillState* self);
@@ -421,10 +421,10 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	using IsFinishedBehaviourProc = bool (SkillState* self);
 	using EnterActionProc = bool (SkillState* self);
 	using ContinueActionProc = bool (SkillState* self);
-	using UpdateActionProc = bool (SkillState* self, GameTime const& time);
+	using UpdateActionProc = void (SkillState* self, GameTime const& time);
 	using TickActionProc = void (SkillState* self);
 	using CanExitActionProc = bool (SkillState* self);
-	using ExitActionProc = bool (SkillState* self);
+	using ExitActionProc = void (SkillState* self);
 	using IsFinishedActionProc = bool (SkillState* self);
 	using GetSyncDataProc = bool (SkillState* self, ScratchBuffer&);
 	using SyncDataProc = bool (SkillState* self, ScratchBuffer&);
@@ -445,7 +445,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	using Unknown_150Proc = void (SkillState* self);
 	using SyncSurfaceCellsProc = bool (SkillState* self);
 	using CanExitCharacterTaskProc = bool (SkillState* self);
-	using FinishSkillStateProc = void (SkillState* self);
+	using FinishProc = void (SkillState* self, bool force);
 	using CloneProc = SkillState* (SkillState* self);
 	using ResetProc = void (SkillState* self);
 	using ClearHighlightsProc = void (SkillState* self);
@@ -503,7 +503,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 		Unknown_150Proc* Unknown_150;
 		SyncSurfaceCellsProc* SyncSurfaceCells;
 		CanExitCharacterTaskProc* CanExitCharacterTask;
-		FinishSkillStateProc* FinishSkillState;
+		FinishProc* Finish;
 		CloneProc* Clone;
 		ResetProc* Reset;
 		ClearHighlightsProc* ClearHighlights;
@@ -521,10 +521,10 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	virtual SkillType GetType() = 0;
 	virtual bool Enter() = 0;
 	virtual bool Continue() = 0;
-	virtual bool Update() = 0;
+	virtual void Update() = 0;
 	virtual void Tick() = 0;
 	virtual bool CanExit() = 0;
-	virtual bool Exit() = 0;
+	virtual void Exit() = 0;
 	virtual bool IsFinished() = 0;
 	virtual uint16_t* OnInputEvent(uint16_t* eventRetVal, InputEvent const& inputEvent) = 0;
 	virtual bool EnterBehaviour() = 0;
@@ -536,10 +536,10 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	virtual bool IsFinishedBehaviour() = 0;
 	virtual bool EnterAction() = 0;
 	virtual bool ContinueAction() = 0;
-	virtual bool UpdateAction(GameTime const& time) = 0;
+	virtual void UpdateAction(GameTime const& time) = 0;
 	virtual void TickAction() = 0;
 	virtual bool CanExitAction() = 0;
-	virtual bool ExitAction() = 0;
+	virtual void ExitAction() = 0;
 	virtual bool IsFinishedAction() = 0;
 	virtual bool GetSyncData(ScratchBuffer&) = 0;
 	virtual bool SyncData(ScratchBuffer&) = 0;
@@ -560,7 +560,7 @@ struct SkillState : public ProtectedGameObject<SkillState>
 	virtual void Unknown_150() = 0;
 	virtual bool SyncSurfaceCells() = 0;
 	virtual bool CanExitCharacterTask() = 0;
-	virtual void FinishSkillState() = 0;
+	virtual void Finish(bool force) = 0;
 	virtual SkillState* Clone() = 0;
 	virtual void Reset() = 0;
 	virtual void ClearHighlights() = 0;
