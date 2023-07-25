@@ -417,7 +417,7 @@ uint32_t CustomSkillStateManager::OnValidateTarget(SkillState::ValidateTargetPro
 
 void CustomSkillStateManager::OnFinish(SkillState::FinishProc* wrapped, SkillState* self, bool force)
 {
-	DISPATCH_SKILL_FUN(Finish, false)
+	DISPATCH_SKILL_FUN(Finish, force)
 
 	DestroyUserState(self);
 }
