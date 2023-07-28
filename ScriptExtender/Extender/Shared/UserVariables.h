@@ -117,6 +117,7 @@ private:
 	UserVariableInterface* vars_;
 	ObjectSet<SyncRequest> deferredSyncs_;
 	ObjectSet<SyncRequest> nextTickSyncs_;
+	Map<FixedString, NetId> syncedGuids_;
 	ScriptExtenderMessage* syncMsg_{ nullptr };
 	size_t syncMsgBudget_{ 0 };
 	bool isServer_;

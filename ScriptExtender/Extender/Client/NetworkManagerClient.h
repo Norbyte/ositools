@@ -11,6 +11,8 @@ protected:
 
 private:
 	void SyncNetworkStrings(MsgS2CSyncNetworkFixedStrings const& msg);
+	void SyncEntityGuids(MsgUserVars const& msg);
+	void SyncEntityGuid(Character* character, FixedString const& guid);
 };
 
 class NetworkManager

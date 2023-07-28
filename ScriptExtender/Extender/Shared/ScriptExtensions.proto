@@ -97,9 +97,16 @@ message UserVar {
   };
 }
 
+message EntityGuidMapping {
+  NetIdType net_id_type = 1;
+  uint32 net_id = 2;
+  string guid = 3;
+}
+
 // Synchronizes user variables between server and client
 message MsgUserVars {
   repeated UserVar vars = 1;
+  repeated EntityGuidMapping guids = 2;
 }
 
 message MessageWrapper {

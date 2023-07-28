@@ -38,6 +38,39 @@ void ExtenderProtocol::SyncNetworkStrings(MsgS2CSyncNetworkFixedStrings const& m
 	}
 }
 
+void ExtenderProtocol::SyncEntityGuids(MsgUserVars const& msg)
+{
+	auto state = gExtender->GetCurrentExtensionState();
+	for (auto const& guidMap : msg.guids()) {
+		switch (guidMap.net_id_type()) {
+		case NETID_CHARACTER:
+		{
+			auto character = GetEntityWorld()->GetComponent<Character>(NetId(guidMap.net_id()));
+			if (character != nullptr) {
+				SyncEntityGuid(character, FixedString(guidMap.guid()));
+			}
+			break;
+		}
+
+		default:
+			ERR("Received entity guid sync for unknown NetID class %d!", guidMap.net_id_type());
+			break;
+		}
+	}
+}
+
+void ExtenderProtocol::SyncEntityGuid(Character* character, FixedString const& guid)
+{
+	if (!character->GetGuid() || !*character->GetGuid()->GetStringOrDefault()) {
+		auto pool = GetEntityWorld()->Components[(uint32_t)Character::ComponentPoolIndex].Pool;
+		auto factory = reinterpret_cast<NetworkComponentFactory<Character>*>((std::intptr_t)pool + 8);
+		factory->Guids.insert(guid, character);
+		character->SetGuid(guid);
+
+		WARN("Character %s has no GUID on client. Repaired.", guid.GetStringOrDefault());
+	}
+}
+
 void ExtenderProtocol::ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg)
 {
 	switch (msg.msg_case()) {
@@ -86,6 +119,7 @@ void ExtenderProtocol::ProcessExtenderMessage(net::MessageContext& context, Mess
 
 	case MessageWrapper::kUserVars:
 	{
+		SyncEntityGuids(msg.user_vars());
 		SyncUserVars(msg.user_vars());
 		break;
 	}

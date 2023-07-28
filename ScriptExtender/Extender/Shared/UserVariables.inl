@@ -236,6 +236,18 @@ void UserVariableSyncWriter::AppendToSyncMessage(FixedString const& gameObject, 
 	var->set_key(key.GetStringOrDefault());
 	value.ToNetMessage(*var);
 	syncMsgBudget_ += value.Budget() + key.GetMetadata()->Length;
+
+	if (netId->first == NetIdType::NETID_CHARACTER) {
+		auto it = syncedGuids_.find(gameObject);
+		if (it == syncedGuids_.end() || it.Value() != netId->second.Id) {
+			auto guidMap = syncMsg_->GetMessage().mutable_user_vars()->add_guids();
+			guidMap->set_net_id_type(netId->first);
+			guidMap->set_net_id(netId->second.Id);
+			guidMap->set_guid(gameObject.GetStringOrDefault());
+			syncMsgBudget_ += 4 + gameObject.GetMetadata()->Length;
+			syncedGuids_.insert(gameObject, netId->second.Id);
+		}
+	}
 }
 
 void UserVariableSyncWriter::FlushSyncQueue(ObjectSet<SyncRequest>& queue)
