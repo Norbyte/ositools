@@ -490,13 +490,15 @@ _I.DoConsoleCommand = function (cmd)
 	end
 
 	local listeners = _I._ConsoleCommandListeners[params[1]]
-	if listeners ~= nil then
-		for i,callback in pairs(listeners) do
+	if listeners ~= nil and listeners[1] then
+		for _,callback in ipairs(listeners) do
 			local status, result = xpcall(callback, debug.traceback, table.unpack(params))
 			if not status then
 				Ext.PrintError("Error during console command callback: ", result)
 			end
 		end
+	else
+		Ext.PrintError("Unregistered console command:", params[1])
 	end
 end
 
