@@ -260,7 +260,8 @@ void DebugConsole::ConsoleThread()
 			continue;
 		}
 
-		DEBUG("Entering server Lua console.");
+		std::string message = "Entering " + std::string(serverContext_ ? "server" : "client") + " Lua console.";
+		DEBUG(&message[0]);
 
 		while (consoleRunning_) {
 			inputEnabled_ = true;
