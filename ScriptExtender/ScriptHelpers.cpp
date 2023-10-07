@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "ScriptHelpers.h"
 #include <Extender/ScriptExtender.h>
+#include <filesystem>
 #include <fstream>
 
 namespace dse::script {
@@ -33,6 +34,66 @@ std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath, Path
 	}
 
 	return FromUTF8(storageRoot + "/" + path);
+}
+
+ObjectSet<FixedString> EnumerateDirectory(std::string_view directoryPath, PathRootType root)
+{
+	ObjectSet<FixedString> paths;
+
+	if (root == PathRootType::GameStorage) {
+		auto rawAbsolutePath = GetPathForExternalIo(directoryPath, PathRootType::GameStorage);
+		if (!rawAbsolutePath) return {};
+		auto absolutePath = std::filesystem::path(rawAbsolutePath.value());
+
+		if (!std::filesystem::exists(absolutePath) || !std::filesystem::is_directory(absolutePath)) {
+			LuaError("Path does not exist or is not a directory");
+			return {};
+		}
+
+		try {
+			for (const auto& entry : std::filesystem::directory_iterator(absolutePath)) {
+				auto entryAbsolutePath = FixedString(entry.path().generic_string());
+				auto relativePath = std::filesystem::proximate(entry, absolutePath);
+
+				paths.push_back(FixedString(relativePath.generic_string()));
+			}
+		}
+		catch (std::filesystem::filesystem_error& e) {
+			LuaError("Could not read directory: " << e.what());
+			return {};
+		}
+	} else {
+		LuaError("Unsupported file context");
+	}
+
+	return paths;
+}
+
+bool IsFile(std::string_view path, PathRootType root)
+{
+	if (root == PathRootType::GameStorage) {
+		auto absolutePath = GetPathForExternalIo(path, PathRootType::GameStorage);
+		if (!absolutePath) return false;
+
+		return std::filesystem::is_regular_file(absolutePath.value());
+	} else {
+		LuaError("Unsupported file context");
+		return false;
+	}
+}
+
+bool IsDirectory(std::string_view path, PathRootType root)
+{
+	if (root == PathRootType::GameStorage) {
+		auto absolutePath = GetPathForExternalIo(path, PathRootType::GameStorage);
+		if (!absolutePath) return false;
+
+		return std::filesystem::is_directory(absolutePath.value());
+	}
+	else {
+		LuaError("Unsupported file context");
+		return false;
+	}
 }
 
 std::optional<STDString> LoadExternalFile(std::string_view path, PathRootType root)
@@ -73,10 +134,9 @@ bool SaveExternalFile(std::string_view path, PathRootType root, std::string_view
 	if (dirEnd == std::string::npos) return false;
 
 	auto storageDir = absolutePath->substr(0, dirEnd);
-	BOOL created = CreateDirectoryW(storageDir.c_str(), NULL);
-	if (created == FALSE) {
-		DWORD lastError = GetLastError();
-		if (lastError != ERROR_ALREADY_EXISTS) {
+	if (!std::filesystem::exists(storageDir) || !std::filesystem::is_directory(storageDir)) {
+		bool created = std::filesystem::create_directories(storageDir);
+		if (!created) {
 			OsiError("Could not create storage directory: " << ToUTF8(storageDir));
 			return {};
 		}

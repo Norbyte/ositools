@@ -6,6 +6,21 @@
 /// <lua_module>IO</lua_module>
 BEGIN_NS(lua::io)
 
+ObjectSet<FixedString> Enumerate(std::optional<STDString> path)
+{
+	return script::EnumerateDirectory(path.value_or(""), PathRootType::GameStorage);
+}
+
+bool IsFile(char const* path)
+{
+	return script::IsFile(path, PathRootType::GameStorage);
+}
+
+bool IsDirectory(char const* path)
+{
+	return script::IsDirectory(path, PathRootType::GameStorage);
+}
+
 std::optional<STDString> LoadFile(char const* path, std::optional<FixedString> context)
 {
 	if (!context || *context == GFS.struser) {
@@ -37,6 +52,9 @@ void RegisterIOLib()
 {
 	DECLARE_MODULE(IO, Both)
 	BEGIN_MODULE()
+	MODULE_FUNCTION(Enumerate)
+	MODULE_FUNCTION(IsFile)
+	MODULE_FUNCTION(IsDirectory)
 	MODULE_FUNCTION(LoadFile)
 	MODULE_FUNCTION(SaveFile)
 	MODULE_FUNCTION(AddPathOverride)
