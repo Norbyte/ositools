@@ -12,6 +12,9 @@ local extMetatable = {
 	end
 }
 
+-- Special bool to allow conditioning logic to avoid forcing hard-dependency with Pip's fork for mods
+Ext.IsPipFork = true
+
 local oldExt = Ext
 Ext = {}
 setmetatable(Ext, extMetatable)
