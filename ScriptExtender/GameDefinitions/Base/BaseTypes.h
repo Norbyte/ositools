@@ -57,6 +57,7 @@ struct NetId
 
 	inline constexpr NetId() : Id(Unassigned) {}
 	inline constexpr NetId(uint32_t id) : Id(id) {}
+	inline constexpr NetId(int32_t id) : Id(id) {}
 	inline constexpr NetId(NetId const & id) : Id(id.Id) {}
 
 	inline bool operator !=(NetId const& o) const
