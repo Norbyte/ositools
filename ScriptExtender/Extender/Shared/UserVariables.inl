@@ -553,7 +553,8 @@ std::optional<std::pair<NetIdType, NetId>> UserVariableManager::GuidToNetId(Fixe
 		}
 	}
 
-	ERR("Tried to sync variables of unknown game object %s!", gameObject.GetStringOrDefault());
+	// Not a useful error message; this is a valid scenario if UserVars are stored for game objects that are not on the current level.
+	//ERR("Tried to sync variables of unknown game object %s!", gameObject.GetStringOrDefault());
 	return {};
 }
 
