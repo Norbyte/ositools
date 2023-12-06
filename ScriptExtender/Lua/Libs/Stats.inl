@@ -1457,11 +1457,11 @@ float GetDamageBoostByType(ProxyParam<Character> self, DamageType damageType)
 #endif
 }
 
-int32_t GetSkillAPCost(lua_State* L, ProxyParam<Character> self, FixedString const& skillID, glm::vec3 pos, float radius, std::optional<int32_t> elementalAffinity)
+std::tuple<int32_t, bool> GetSkillAPCost(lua_State* L, ProxyParam<Character> self, FixedString const& skillID, glm::vec3 pos, float radius)
 {
 	auto skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.try_get(skillID);
 	auto level = GetStaticSymbols().GetCurrentClientLevel();
-	int32_t elementalAffinityValue = elementalAffinity.value_or(0);
+	int32_t elementalAffinity = 0;
 	if (!skillProto)
 	{
 		luaL_error(L, "Skill ID '%s' does not exist", skillID.GetStringOrDefault());
@@ -1473,9 +1473,9 @@ int32_t GetSkillAPCost(lua_State* L, ProxyParam<Character> self, FixedString con
 		return {};
 	}
 
-	int32_t apCost = gExtender->GetEngineHooks().SkillPrototype__GetAttackAPCost.CallWithHooks(skillProto, self, level->AiGrid, &pos, &radius, &elementalAffinityValue);
+	int32_t apCost = gExtender->GetEngineHooks().SkillPrototype__GetAttackAPCost.CallWithHooks(skillProto, self, level->AiGrid, &pos, &radius, &elementalAffinity);
 
-	return apCost;
+	return { apCost, elementalAffinity > 0 };
 }
 
 void RegisterStatsLib()
