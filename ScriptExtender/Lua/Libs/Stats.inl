@@ -1457,6 +1457,27 @@ float GetDamageBoostByType(ProxyParam<Character> self, DamageType damageType)
 #endif
 }
 
+int32_t GetSkillAPCost(lua_State* L, ProxyParam<Character> self, FixedString const& skillID, glm::vec3 pos, float radius, std::optional<int32_t> elementalAffinity)
+{
+	auto skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.try_get(skillID);
+	auto level = GetStaticSymbols().GetCurrentClientLevel();
+	int32_t elementalAffinityValue = elementalAffinity.value_or(0);
+	if (!skillProto)
+	{
+		luaL_error(L, "Skill ID '%s' does not exist", skillID.GetStringOrDefault());
+		return {};
+	}
+	if (!level)
+	{
+		luaL_error(L, "Cannot fetch skill AP cost without a level & AI grid");
+		return {};
+	}
+
+	int32_t apCost = gExtender->GetEngineHooks().SkillPrototype__GetAttackAPCost.CallWithHooks(skillProto, self, level->AiGrid, &pos, &radius, &elementalAffinityValue);
+
+	return apCost;
+}
+
 void RegisterStatsLib()
 {
 	DECLARE_MODULE(Stats, Both)
@@ -1503,6 +1524,7 @@ void RegisterStatsLib()
 	BEGIN_MODULE()
 	MODULE_NAMED_FUNCTION("GetResistance", GetResistance)
 	MODULE_NAMED_FUNCTION("GetDamageBoostByType", GetDamageBoostByType)
+	MODULE_NAMED_FUNCTION("GetSkillAPCost", GetSkillAPCost)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, SkillSet, Both)
