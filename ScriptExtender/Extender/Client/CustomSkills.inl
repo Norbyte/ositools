@@ -238,7 +238,7 @@ void CustomSkillStateManager::ConstructUserState(SkillState* self)
 
 	auto idIt = idConstructors_.find(self->SkillId);
 	if (idIt != idConstructors_.end()) {
-		for (auto& ctor : it.Value()) {
+		for (auto& ctor : idIt.Value()) {
 			ConstructState(L, self, states, ctor);
 		}
 	}
