@@ -347,6 +347,9 @@ namespace dse
 		ecl::MaterialManager::AddFadingOverlayMaterialProc* ecl__MaterialManager__AddFadingOverlayMaterial{ nullptr };
 		ecl::MaterialManager::AddReplacementMaterialProc* ecl__MaterialManager__AddReplacementMaterial{ nullptr };
 
+		void** ecl_HighlightManager{ nullptr };
+		ecl::HighlightManager::SetHighlightProc* ecl_HighlightManager_SetHighlight{ nullptr };
+
 		ecl::GameControl** ecl_GameControl{ nullptr };
 
 		Visual::AddAttachmentProc* ls__Visual__AddAttachment{ nullptr };

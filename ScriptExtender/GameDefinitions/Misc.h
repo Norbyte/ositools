@@ -443,11 +443,17 @@ namespace dse
 
 	namespace ecl
 	{
+
 	struct GameControl
 	{
 		void* VMT;
 		bool Unknown;
 		bool CanSendToLadyVengeance;
+	};
+
+	struct HighlightManager
+	{
+		using SetHighlightProc = void(void* manager, short playerID, uint64_t objectHandle, int highlightType, bool unknown4);
 	};
 	}
 

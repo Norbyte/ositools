@@ -2264,6 +2264,21 @@
       <Target Type="Indirect" Offset="@ref1" NextSymbol="CDivinityStats_Item::ComputeDamage" NextSymbolSeekSize="0x100" />
       <Target Type="Indirect" Offset="@ref1" NextSymbol="CDivinityStats_Character::ComputeScaledDamageInternals" NextSymbolSeekSize="0x200" />
     </Mapping>
+      
+    <Mapping Name="ecl::HighlightManager">
+		@ref 48 8b ?? ?? ?? ?? ?? //      MOV        RBX,qword ptr [ecl_HighlightManager_m]           = ??
+		48 8b ce //       MOV        param_1,RSI
+		e8 ?? ?? ?? ?? //      CALL       FUN_1416070e0                                    undefined FUN_1416070e0()
+		41 b9 03 00 00 00 //      MOV        param_4,0x3
+		4d 8b 06 //       MOV        param_3,qword ptr [R14]
+		0f b7 d0 //       MOVZX      param_2,AX
+		0f b6 84 24 90 00 00 00 //      MOVZX      EAX,byte ptr [RSP + param_5]
+		48 8b cb //       MOV        param_1,RBX
+		88 44 24 20 //    MOV        byte ptr [RSP + local_48],AL
+		@call e8 ?? ?? ?? ?? //      CALL       ecl::HighlightManager::SetHighlight              undefined SetHighlight(undefined
+	  <Target Type="Indirect" Offset="@ref" Symbol="ecl_HighlightManager" />
+      <Target Type="Indirect" Offset="@call" Symbol="ecl_HighlightManager_SetHighlight" />
+    </Mapping>
 
     <Mapping Name="ecl::GameControl">
       @ref 48 8b ?? ?? ?? ?? ?? //      MOV        cVar7,qword ptr [ecl_GameControl]                = ??

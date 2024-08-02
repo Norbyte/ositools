@@ -271,6 +271,10 @@ TurnManager* GetTurnManager()
 	return GetEntityWorld()->GetTurnManager();
 }
 
+void SetHighlight(short playerID, ComponentHandle handle, int highlightType, bool something)
+{
+	GetStaticSymbols().ecl_HighlightManager_SetHighlight(*GetStaticSymbols().ecl_HighlightManager, playerID, handle.Handle, highlightType, something);
+}
 
 ComponentHandle NullHandle()
 {
@@ -298,6 +302,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetCurrentLevel)
 	MODULE_FUNCTION(GetPlayerManager)
 	MODULE_FUNCTION(GetTurnManager)
+	MODULE_FUNCTION(SetHighlight)
 	END_MODULE()
 }
 
