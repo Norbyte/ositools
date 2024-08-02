@@ -441,6 +441,16 @@ namespace dse
 		};
 	}
 
+	namespace ecl
+	{
+	struct GameControl
+	{
+		void* VMT;
+		bool Unknown;
+		bool CanSendToLadyVengeance;
+	};
+	}
+
 	namespace esv
 	{
 

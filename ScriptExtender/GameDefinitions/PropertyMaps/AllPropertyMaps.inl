@@ -540,3 +540,7 @@ P(HDRMaxNits)
 P(PostProcessingInjectTexture)
 P(ShowHDRCalibration)
 END_CLS()
+
+BEGIN_CLS(ecl::GameControl)
+P(CanSendToLadyVengeance)
+END_CLS()

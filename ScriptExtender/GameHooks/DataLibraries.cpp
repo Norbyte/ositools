@@ -308,6 +308,7 @@ namespace dse
 		SYM_OFF(ecl__MaterialManager__AddFadingOverlayMaterial);
 		SYM_OFF(ecl__MaterialManager__AddReplacementMaterial);
 
+		SYM_OFF(ecl_GameControl);
 		SYM_OFF(ls__Visual__AddAttachment);
 
 		SYM_OFF(osi__ShowNotification);

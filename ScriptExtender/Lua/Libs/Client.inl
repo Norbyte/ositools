@@ -38,6 +38,11 @@ rf::CameraManager* GetCameraManager()
 	return GetStaticSymbols().GetCameraManager();
 }
 
+ecl::GameControl* GetGameControl()
+{
+	return *GetStaticSymbols().ecl_GameControl;
+}
+
 void RegisterClientLib()
 {
 	DECLARE_MODULE(Client, Client)
@@ -46,6 +51,7 @@ void RegisterClientLib()
 	MODULE_FUNCTION(GetModManager)
 	MODULE_FUNCTION(UpdateShroud)
 	MODULE_FUNCTION(GetCameraManager)
+	MODULE_FUNCTION(GetGameControl)
 	END_MODULE()
 }
 

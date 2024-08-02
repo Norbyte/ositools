@@ -2265,6 +2265,18 @@
       <Target Type="Indirect" Offset="@ref1" NextSymbol="CDivinityStats_Character::ComputeScaledDamageInternals" NextSymbolSeekSize="0x200" />
     </Mapping>
 
+    <Mapping Name="ecl::GameControl">
+      @ref 48 8b ?? ?? ?? ?? ?? //      MOV        cVar7,qword ptr [ecl_GameControl]                = ??
+      80 78 09 00 //    CMP        byte ptr [cVar7 + 0x9],0x0
+      0f 84 e0 00 00 00 //      JZ         LAB_1416d8148
+      48 8d ?? ?? ?? ?? ?? //      LEA        item,[s_h4e0fd129g61efg4766ga765g3bc94bf_14215   = "h4e0fd129g61efg4766ga765g3bc9
+      48 8d ?? ?? ?? //      LEA        ui=>local_2f8,[RSP + 0x70]
+      e8 ?? ?? ?? ?? //      CALL       GetTranslatedStringByHandle                      undefined GetTranslatedStringByH
+      48 8b ?? ?? ?? ?? ?? //      MOV        ui,qword ptr [TSKManagerMaybe]                   = ??
+      4c 8d ?? ?? ?? ?? ?? //      LEA        R9,[s_Store_on_Lady_Vengeance_14215d548]         = "Store on Lady Vengeance"
+      <Target Type="Indirect" Offset="@ref" Symbol="ecl_GameControl" />
+    </Mapping>
+
     <Mapping Name="fmt::GetColorCodeDmg">
       83 3e 00 // cmp     dword ptr [rsi], 0
       8b 5e 04 // mov     ebx, [rsi+4]
