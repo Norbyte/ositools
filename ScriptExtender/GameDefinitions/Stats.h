@@ -70,6 +70,7 @@ using ColorCodeAndTypeDmgProc = void (eoc::Text* text, unsigned int amount, bool
 #else
 using ColorCodeAndTypeDmgProc = void (eoc::Text* text, DamageType& damageType, unsigned int amount, bool reflected);
 #endif
+using CDivinityStats_Character_GetWeaponAnimationSetTypeProc = int(Character* character);
 
 struct TDamagePair
 {

@@ -80,6 +80,17 @@
       <Target Type="Indirect" Offset="@free" Symbol="EoCFree" /> <!-- EoCFree -->
     </Mapping>
 
+	<Mapping Name="CDivinityStats_Character::GetWeaponAnimationSetType">
+		48 8b 05 ?? ?? ?? ?? //      MOV        RAX,qword ptr [DAT_142554400]                    = 00002B992DDFA232h
+		48 33 c4 //       XOR        RAX,RSP
+		48 89 45 2f //    MOV        qword ptr [RBP + local_30],RAX
+		4c 8b f9 //       MOV        R15,RCX
+		48 89 4d bf //    MOV        qword ptr [RBP + local_a0],RCX
+		48 8b 89 ?? ?? ?? ?? //      MOV        RCX,qword ptr [RCX + 0x138]
+		@call e8 ?? ?? ?? ?? //      CALL       GetWeaponAnimationSetType                        undefined GetWeaponAnimationSetT
+		<Target Type="Indirect" Offset="@call" Symbol="CDivinityStats_Character_GetWeaponAnimationSetType" />
+	</Mapping>
+
     <Mapping Name="ls::FixedString::Create" Critical="true" >
       48 8B F0  // mov     rsi, rax
       48 85 C0  // test    rax, rax

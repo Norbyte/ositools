@@ -66,6 +66,12 @@ P(AP)
 P(ElementalAffinity)
 END_CLS()
 
+BEGIN_CLS(lua::CharacterGetWeaponAnimationSetTypeEvent)
+INHERIT(lua::EventBase)
+P_REF(Character)
+P(AnimationSetType)
+END_CLS()
+
 BEGIN_CLS(esv::lua::GameStateChangedEvent)
 INHERIT(lua::EventBase)
 P_RO(FromState)

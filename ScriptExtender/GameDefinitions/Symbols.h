@@ -185,6 +185,7 @@ namespace dse
 		stats::DamageTypeToTranslateStringExtendedProc* eoc__DamageTypeToTranslateStringExtended{ nullptr };
 		stats::GetColorCodeDmgProc* fmt__GetColorCodeDmg{ nullptr };
 		stats::ColorCodeAndTypeDmgProc* fmt__ColorCodeAndTypeDmg{ nullptr };
+		stats::CDivinityStats_Character_GetWeaponAnimationSetTypeProc* CDivinityStats_Character_GetWeaponAnimationSetType{ nullptr };
 
 		esv::ServerConditionCheck::ProcessConditionProc* esv__ServerConditionCheck__ProcessCondition{ nullptr };
 		ecl::ClientConditionCheck::ProcessConditionProc* ecl__ClientConditionCheck__ProcessCondition{ nullptr };

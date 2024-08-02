@@ -92,6 +92,7 @@ public:
 
 	bool OnSkillManagerCanMemorize(esv::SkillManager::CanMemorizeProc* wrapped, esv::SkillManager* self, stats::SkillPrototype* skill, bool checkMemoryRequirement);
 	bool OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRequirementsProc* wrapped, ecl::SkillManager* self, stats::SkillPrototype* proto);
+	int OnGetWeaponAnimationSetType(stats::CDivinityStats_Character_GetWeaponAnimationSetTypeProc* next, stats::Character* character);
 
 private:
 	bool loaded_{ false };

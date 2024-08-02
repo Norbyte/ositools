@@ -123,6 +123,12 @@ namespace dse::lua
 		std::optional<bool> ElementalAffinity;
 	};
 
+	struct CharacterGetWeaponAnimationSetTypeEvent : public EventBase
+	{
+		stats::Character* Character;
+		std::optional<int> AnimationSetType;
+	};
+
 	class ExtensionLibrary
 	{
 	public:
@@ -274,6 +280,7 @@ namespace dse::lua
 			glm::vec3 const& targetPosition, stats::DeathType * pDeathType, int level, bool noRandomization);
 		std::optional<std::pair<int, bool>> GetSkillAPCost(stats::SkillPrototype* skill, stats::Character* character, eoc::AiGrid* aiGrid,
 			glm::vec3* position, float* radius);
+		std::optional<int> GetCharacterWeaponAnimationSetType(stats::Character* character);
 		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
 
 		template <class TEvent>

@@ -155,6 +155,7 @@ namespace dse
 		SYM_OFF(eoc__DamageTypeToTranslateStringExtended);
 		SYM_OFF(fmt__GetColorCodeDmg);
 		SYM_OFF(fmt__ColorCodeAndTypeDmg);
+		SYM_OFF(CDivinityStats_Character_GetWeaponAnimationSetType);
 
 		SYM_OFF(esv__ServerConditionCheck__ProcessCondition);
 		SYM_OFF(ecl__ClientConditionCheck__ProcessCondition);

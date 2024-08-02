@@ -70,6 +70,7 @@ void Hooks::Startup()
 	lib.GetSkillRequirements.SetWrapper(&Hooks::OnGetSkillRequirements, this);
 	lib.esv__SkillManager__CanMemorize.SetWrapper(&Hooks::OnSkillManagerCanMemorize, this);
 	lib.ecl__SkillManager__CheckSkillRequirements.SetWrapper(&Hooks::OnSkillManagerCheckSkillRequirements, this);
+	lib.CDivinityStats_Character_GetWeaponAnimationSetType.SetWrapper(&Hooks::OnGetWeaponAnimationSetType, this);
 
 	auto ccr = &gExtender->GetCustomConditionRegistry();
 	lib.esv__ServerConditionCheck__ProcessCondition.SetWrapper(&CustomConditionRegistry::ServerConditionCheckProcess, ccr);
@@ -783,6 +784,18 @@ bool Hooks::OnSkillManagerCheckSkillRequirements(ecl::SkillManager::CheckSkillRe
 	return result;
 }
 
+int Hooks::OnGetWeaponAnimationSetType(stats::CDivinityStats_Character_GetWeaponAnimationSetTypeProc* next, stats::Character* character)
+{
+	LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+	if (lua) {
+		auto animType = lua->GetCharacterWeaponAnimationSetType(character);
+		if (animType) {
+			return animType.value();
+		}
+	}
+
+	return next(character);
+}
 
 bool Hooks::OnPeerModuleLoaded(esv::LoadProtocol::HandleModuleLoadedProc* next, esv::LoadProtocol* self,
 	esv::LoadProtocol::PeerModSettings& peerModSettings, ModuleSettings& hostModSettings)

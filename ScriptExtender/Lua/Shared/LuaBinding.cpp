@@ -679,6 +679,20 @@ namespace dse::lua
 		}
 	}
 
+	std::optional<int> State::GetCharacterWeaponAnimationSetType(stats::Character* character)
+	{
+		CharacterGetWeaponAnimationSetTypeEvent params{
+			.Character = character,
+		};
+		ThrowEvent("GetCharacterWeaponAnimationSetType", params, false, RestrictAll);
+		if (params.AnimationSetType) {
+			return std::optional(params.AnimationSetType);
+		}
+		else {
+			return {};
+		}
+	}
+
 	void State::OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId)
 	{
 		NetMessageEvent params;

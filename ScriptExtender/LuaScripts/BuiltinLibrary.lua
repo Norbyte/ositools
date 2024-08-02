@@ -23,7 +23,8 @@ _I._PublishedSharedEvents = {
 	"GetSkillDamage",
 	"GetSkillAPCost",
 	"GetAttackAPCost",
-	"GetHitChance"
+	"GetHitChance",
+	"GetCharacterWeaponAnimationSetType",
 }
 
 _I._WarningShown = {}
