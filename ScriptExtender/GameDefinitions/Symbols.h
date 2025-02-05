@@ -369,6 +369,7 @@ namespace dse
 		GlobalTemplateManager::GetGlobalTemplateBankProc* GlobalTemplateManager__GetGlobalTemplateBank{ nullptr };
 		VisualFactory::DestroyVisualProc* ls__VisualFactory__DestroyVisual{ nullptr };
 		ecl::EquipmentVisualsSystem::CreateVisualsProc* ecl__EquipmentVisualsSystem__CreateVisuals{ nullptr };
+		ecl::Character::RefreshEquipmentVisualsProc* ecl__Character__RefreshEquipmentVisuals{ nullptr };
 
 		osi::OsirisCallHandlerProc* osi__ShowNotification{ nullptr };
 

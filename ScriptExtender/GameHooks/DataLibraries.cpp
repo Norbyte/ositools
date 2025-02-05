@@ -332,6 +332,7 @@ namespace dse
 
 		SYM_OFF(ls__VisualFactory__DestroyVisual);
 		SYM_OFF(ecl__EquipmentVisualsSystem__CreateVisuals);
+		SYM_OFF(ecl__Character__RefreshEquipmentVisuals);
 		SYM_OFF(ls__GlobalSwitches);
 		SYM_OFF(ls__GraphicSettings);
 		SYM_OFF(ls__CoreGlobals);

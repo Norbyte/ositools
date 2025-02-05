@@ -1953,6 +1953,15 @@
       <Target Type="Indirect" Offset="@ref1" Symbol="ecl__EquipmentVisualsSystem__CreateVisuals" />
     </Mapping>
 
+	<Mapping Name="ecl::Character::RefreshEquipmentVisuals">
+		e8 ?? ?? ?? ?? //      CALL       FUN_1416424f0                                    undefined FUN_1416424f0()
+		48 8b cf //       MOV        param_1,RDI
+		c6 46 3d 01 //    MOV        byte ptr [RSI + 0x3d],0x1
+		@call e8 ?? ?? ?? ?? //      CALL       ecl::Character::RefreshEquipmentVisuals          undefined RefreshEquipmentVisual
+		80 bc 24 e0 00 00 00 00 //      CMP        byte ptr [RSP + param_5],0x0
+		<Target Type="Indirect" Offset="@call" Symbol="ecl__Character__RefreshEquipmentVisuals" />
+	</Mapping>
+
     <Mapping Name="ecl::ShroudManager::InitObjects">
       89 4d c8 // mov     [rbp+1A0h+loadCmd.field_8], ecx
       89 4d f8 // mov     [rbp+1A0h+loadCmd.Format], ecx

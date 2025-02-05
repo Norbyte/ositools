@@ -276,6 +276,13 @@ void SetHighlight(short playerID, ComponentHandle handle, int highlightType, boo
 	GetStaticSymbols().ecl_HighlightManager_SetHighlight(*GetStaticSymbols().ecl_HighlightManager, playerID, handle.Handle, highlightType, something);
 }
 
+void RefreshEquipmentVisuals(lua_State* L)
+{
+	auto character = LuaGetCharacter(L, 1);
+	if (character == nullptr) return;
+	GetStaticSymbols().ecl__Character__RefreshEquipmentVisuals(character);
+}
+
 ComponentHandle NullHandle()
 {
 	return ComponentHandle(ComponentHandle::NullHandle);
@@ -303,6 +310,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetPlayerManager)
 	MODULE_FUNCTION(GetTurnManager)
 	MODULE_FUNCTION(SetHighlight)
+	MODULE_FUNCTION(RefreshEquipmentVisuals)
 	END_MODULE()
 }
 

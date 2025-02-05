@@ -430,6 +430,7 @@ struct Character : public IEoCClientReplicatedObject
 
 	using CheckSkillRequirementsProc = uint64_t (Character* self, FixedString const& skillId, Item* item);
 	using GetSkillRequirementsProc = void (Character* character, FixedString const& skillId, Item* item, uint32_t checkRequirementFlags, eoc::Text& requirementsText);
+	using RefreshEquipmentVisualsProc = void(Character* character);
 
 	virtual void SetLight(FixedString*) = 0;
 	virtual void* GetLight() = 0;
