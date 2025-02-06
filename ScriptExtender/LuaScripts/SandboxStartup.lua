@@ -14,7 +14,7 @@ local extMetatable = {
 
 -- Special bool to allow conditioning logic to avoid forcing hard-dependency with Pip's fork for mods
 Ext.IsPipFork = true
-Ext.PipForkVersion = 2
+Ext.PipForkVersion = 3
 
 local oldExt = Ext
 Ext = {}
