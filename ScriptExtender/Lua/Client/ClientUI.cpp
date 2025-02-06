@@ -660,6 +660,61 @@ bool CustomDrawHelper::SetCustomIcon(UIObject* ui, STDWString const& element, ST
 	return true;
 }
 
+bool CustomDrawHelper::SetCustomPortraitIcon(UIObject* ui, STDWString const& element, ComponentHandle characterHandle, int width, int height, std::optional<STDString> materialGuid, std::optional<bool> zeroSaturation)
+{
+	if (width < 1 || height < 1 || width > 1024 || height > 1024) {
+		OsiError("Invalid icon size");
+		return false;
+	}
+
+	auto const& sym = GetStaticSymbols();
+	auto vmt = sym.ls__CustomDrawStruct__VMT;
+	auto clear = sym.ls__UIHelper__UIClearIcon;
+	auto create = sym.ecl__EocUIHelper__UICreateIconMesh;
+	auto draw = sym.ls__UIHelper__CustomDrawObject;
+	auto character = GetEntityWorld()->GetComponent<ecl::Character>(characterHandle);
+
+	if (!vmt || !clear || !create || !draw) {
+		OsiError("Not all UIHelper symbols are available");
+		return false;
+	}
+	if (!character) {
+		OsiError("Character not found");
+		return false;
+	}
+
+	auto customIcons = icons_.find(ui->UIObjectHandle);
+	if (customIcons == icons_.end()) {
+		icons_.insert(std::make_pair(ui->UIObjectHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>()));
+	}
+
+	customIcons = icons_.find(ui->UIObjectHandle);
+	auto curIcon = customIcons->second.find(element);
+	if (curIcon != customIcons->second.end()) {
+		clear(curIcon->second.get());
+		customIcons->second.erase(curIcon);
+	}
+
+	auto newIcon = std::make_unique<CustomDrawStruct>();
+	newIcon->VMT = vmt;
+	FixedString material(materialGuid ? *materialGuid : "9169b076-6e8d-44a4-bb52-95eedf9eab63");
+	create(character, newIcon.get(), width, height, material, zeroSaturation.value_or(false));
+
+	if (!newIcon->IconMesh) {
+		OsiError("Failed to load icon");
+		return false;
+	}
+
+	if (!newIcon->IconMesh->ActiveAppliedMaterial) {
+		OsiError("Failed to load material: " << material.GetStringOrDefault());
+		return false;
+	}
+
+	customIcons->second.insert(std::make_pair(element, std::move(newIcon)));
+	EnableCustomDraw(ui);
+	return true;
+}
+
 void CustomDrawHelper::ClearCustomIcon(UIObject* ui, STDWString const& element)
 {
 	auto customIcons = icons_.find(ui->UIObjectHandle);
@@ -1036,6 +1091,14 @@ void UIObject::SetCustomIcon(STDWString const& element, STDString const& icon, i
 	ecl::LuaClientPin lua(gExtender->GetClient().GetExtensionState());
 	if (lua) {
 		lua->GetCustomDrawHelper().SetCustomIcon(this, element, icon, width, height, materialGuid);
+	}
+}
+
+void UIObject::SetCustomPortraitIcon(STDWString const& element, ComponentHandle characterHandle, int width, int height, std::optional<STDString> materialGuid, std::optional<bool> zeroSaturation)
+{
+	ecl::LuaClientPin lua(gExtender->GetClient().GetExtensionState());
+	if (lua) {
+		lua->GetCustomDrawHelper().SetCustomPortraitIcon(this, element, characterHandle, width, height, materialGuid, zeroSaturation);
 	}
 }
 

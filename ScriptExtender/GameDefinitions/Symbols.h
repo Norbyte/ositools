@@ -283,6 +283,7 @@ namespace dse
 		void* ls__CustomDrawStruct__VMT{ nullptr };
 		CustomDrawStruct::UIClearIcon* ls__UIHelper__UIClearIcon{ nullptr };
 		CustomDrawStruct::UICreateIconMesh* ls__UIHelper__UICreateIconMesh{ nullptr };
+		CustomDrawStruct::UICreateCharacterIconMesh* ecl__EocUIHelper__UICreateIconMesh{ nullptr };
 		ecl::FlashCustomDrawCallback::CustomDrawObject* ls__UIHelper__CustomDrawObject{ nullptr };
 
 		DragDropManager** ls__DragDropManager{ nullptr };

@@ -248,6 +248,7 @@ namespace dse
 		SYM_OFF(ls__UIHelper__UIClearIcon);
 		SYM_OFF(ls__UIHelper__UICreateIconMesh);
 		SYM_OFF(ls__UIHelper__CustomDrawObject);
+		SYM_OFF(ecl__EocUIHelper__UICreateIconMesh);
 
 		SYM_OFF(ls__DragDropManager);
 		SYM_OFF(ls__DragDropManager__GetInstance);

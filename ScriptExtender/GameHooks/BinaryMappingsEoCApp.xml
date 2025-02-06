@@ -1538,6 +1538,14 @@
       <Target Type="Indirect" Offset="@func" Symbol="ls__UIHelper__UICreateIconMesh" /> <!-- ls::UIHelper::UICreateIconMesh -->
     </Mapping>
 
+	<Mapping Name="ecl::EocUIHelper::UICreateIconMesh">
+		44 8b 86 18 02 00 00 //      MOV        R8D,dword ptr [RSI + 0x218]
+		@call e8 ?? ?? ?? ?? //      CALL       ecl::EocUIHelper::UICreateIconMesh               undefined UICreateIconMesh(undef
+		eb 03 //          JMP        LAB_14153c9e5
+		45 32 e4 //       XOR        R12B,R12B
+		<Target Type="Indirect" Offset="@call" Symbol="ecl__EocUIHelper__UICreateIconMesh" />
+	</Mapping>
+
     <Mapping Name="esv::CacheTemplateManager">
       49 8B D1 // mov     rdx, r9
       E9 ?? ?? ?? ?? // jmp     sub_141E5ACC0

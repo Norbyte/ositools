@@ -140,6 +140,7 @@ public:
 	static void sDrawCallback(UIObject* self, void* callback);
 	void EnableCustomDraw(UIObject* ui);
 	bool SetCustomIcon(UIObject* ui, STDWString const& element, STDString const& icon, int width, int height, std::optional<STDString> materialGuid);
+	bool SetCustomPortraitIcon(UIObject* ui, STDWString const& element, ComponentHandle characterHandle, int width, int height, std::optional<STDString> materialGuid, std::optional<bool> zeroSaturation);
 	void ClearCustomIcon(UIObject* ui, STDWString const& element);
 
 private:

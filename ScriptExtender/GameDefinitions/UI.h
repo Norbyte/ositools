@@ -536,6 +536,7 @@ namespace dse
 		void CaptureInvokes();
 		void EnableCustomDraw();
 		void SetCustomIcon(STDWString const& element, STDString const& icon, int width, int height, std::optional<STDString> materialGuid);
+		void SetCustomPortraitIcon(STDWString const& element, ComponentHandle characterHandle, int width, int height, std::optional<STDString> materialGuid, std::optional<bool> zeroSaturation);
 		void ClearCustomIcon(STDWString const& element);
 		float GetUIScaleMultiplier();
 		void SetMovieClipSize(float width, float height, std::optional<float> scale);
@@ -545,6 +546,8 @@ namespace dse
 	{
 		using UIClearIcon = void (CustomDrawStruct* drawStruct);
 		using UICreateIconMesh = void (FixedString const& iconName, CustomDrawStruct* drawStruct, int width, int height, FixedString const& materialGuid);
+		using UICreateCharacterIconMesh = void(ecl::Character* character, CustomDrawStruct* drawStruct, int width, int height,
+			FixedString const& materialGUID, bool zeroSaturation); // Actually in ecl::EocUIHelper
 
 		void* VMT{ nullptr };
 		RenderableObject* IconMesh{ nullptr };
