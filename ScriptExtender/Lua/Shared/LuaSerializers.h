@@ -130,6 +130,7 @@ namespace dse::lua
 	inline LuaSerializer& operator << (LuaSerializer& s, PersistentRegistryEntry& v) { return s.Visit(v); }
 
 	LuaSerializer& operator << (LuaSerializer& s, TranslatedString& v);
+	LuaSerializer& operator << (LuaSerializer& s, std::string_view& v);
 	LuaSerializer& operator << (LuaSerializer& s, char const*& v);
 	LuaSerializer& operator << (LuaSerializer& s, ig::InvokeDataValue& v);
 	LuaSerializer& operator << (LuaSerializer& s, TypeInformationRef& v);

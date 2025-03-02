@@ -1,6 +1,8 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/GameObjects/Player.h>
+#include <filesystem>
+#include <fstream>
 
 BEGIN_SE()
 
@@ -283,6 +285,66 @@ void RefreshEquipmentVisuals(lua_State* L)
 	GetStaticSymbols().ecl__Character__RefreshEquipmentVisuals(character);
 }
 
+bool SetPortrait(lua_State* L)
+{
+	auto character = LuaGetCharacter(L, 1);
+	if (!character || !character->PlayerData || !character->PlayerData->CustomData.Initialized)
+	{
+		OsiError("Character doesn't exist or has no PlayerData & CustomData initialized");
+		return false;
+	}
+
+	// Write DDS to CustomData portrait buffer
+	ScratchBuffer& buff = character->PlayerData->CustomData.CustomIconImg;
+	int64_t width = lua_tointeger(L, 2);
+	int64_t height = lua_tointeger(L, 3);
+	int32_t SIZE = 128 + (width * height * 8 / 16);
+	lua_len(L, 4);
+	int64_t streamLen = lua_tointegerx(L, -1, 0);
+	if (streamLen != SIZE) {
+		OsiError("DDS has wrong stream size");
+		return false;
+	}
+
+	// Write portrait to a new buffer
+	char* newBuffer = (char*)GameAllocRaw(SIZE, "CustomPortrait");
+	int i = 0;
+	auto stream = lua_tostring(L, 4);
+	while (i < streamLen) {
+		char byte = stream[i];
+		newBuffer[i] = byte;
+		i++;
+	}
+	std::string test = std::to_string(i);
+	LogOsirisWarning(test);
+
+	GameFree(buff.Buffer);
+	buff.Buffer = newBuffer;
+	buff.Size = SIZE;
+	//buff.Size = i;
+	// TODO set other fields?
+	buff.Capacity = SIZE;
+	buff.WritePosition = 0;
+	buff.ReadPosition = 0;
+	//buff.GrowSize = 10;
+
+	return true;
+}
+
+STDString GetPortrait(lua_State* L)
+{
+	auto character = LuaGetCharacter(L, 1);
+	if (!character || !character->PlayerData)
+	{
+		OsiError("Character doesn't exist or has no PlayerData")
+		return "";
+	}
+	auto icon = character->PlayerData->CustomData.CustomIconImg;
+	std::string str = std::string((char*)icon.Buffer, (char*)icon.Buffer + icon.Size);
+	STDString newStr = STDString(str);
+	return newStr;
+}
+
 ComponentHandle NullHandle()
 {
 	return ComponentHandle(ComponentHandle::NullHandle);
@@ -311,6 +373,8 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetTurnManager)
 	MODULE_FUNCTION(SetHighlight)
 	MODULE_FUNCTION(RefreshEquipmentVisuals)
+	MODULE_FUNCTION(SetPortrait)
+	MODULE_FUNCTION(GetPortrait)
 	END_MODULE()
 }
 

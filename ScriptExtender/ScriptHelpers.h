@@ -11,6 +11,7 @@ namespace dse::script {
 	bool IsDirectory(std::string_view path, PathRootType root);
 	std::optional<STDString> LoadExternalFile(std::string_view path, PathRootType root);
 	bool SaveExternalFile(std::string_view path, PathRootType root, std::string_view contents);
+	bool CreateGameStorageDirectories(std::string_view path);
 
 	bool GetTranslatedString(char const* handle, STDWString& translated);
 	bool GetTranslatedString(char const* handle, char const* fallback, TranslatedString& translated);

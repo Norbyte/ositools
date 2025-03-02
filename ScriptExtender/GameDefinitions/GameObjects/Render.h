@@ -69,6 +69,28 @@ END_SE()
 
 BEGIN_NS(rf)
 
+struct D3DInitStruct
+{
+	ID3D11Device* Device;
+	ID3D11DeviceContext* Context;
+};
+
+struct D3DInitStructParent
+{
+	void* VMT;
+	void* SomePtr;
+	void* unknown3;
+	D3DInitStruct* DevicePtrs;
+};
+
+struct AppMaybe
+{
+	using AnotherD3DInitProc = void* (void* param1, void* initStruct);
+	void* VMT;
+	char unknown[16];
+	D3DInitStructParent* D3DStuff;
+};
+
 struct Texture
 {
 	ID3D11Resource* Resource;
@@ -99,7 +121,6 @@ struct Texture
 	int field_84;
 	__int64 field_88;
 };
-
 
 struct RendererBase
 {

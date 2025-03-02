@@ -152,6 +152,29 @@ bool SaveExternalFile(std::string_view path, PathRootType root, std::string_view
 	return true;
 }
 
+bool CreateGameStorageDirectories(std::string_view path)
+{
+	// Partially copied from ScriptHelpers::SaveExternalFile() - TODO consolidate
+	auto absolutePath = script::GetPathForExternalIo(path, PathRootType::GameStorage);
+	if (!absolutePath) {
+		OsiError("Failed to get temporary storage path");
+		return false;
+	}
+
+	auto dirEnd = absolutePath->find_last_of('/');
+	if (dirEnd == std::string::npos) return false;
+
+	auto storageDir = absolutePath->substr(0, dirEnd);
+	if (!std::filesystem::exists(storageDir) || !std::filesystem::is_directory(storageDir)) {
+		bool created = std::filesystem::create_directories(storageDir);
+		if (!created) {
+			OsiError("Could not create storage directory: " << ToUTF8(storageDir));
+			return false;
+		}
+	}
+	return true;
+}
+
 bool GetTranslatedString(char const* handle, STDWString& translated)
 {
 	auto repo = GetStaticSymbols().GetTranslatedStringRepository();

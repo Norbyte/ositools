@@ -20,6 +20,12 @@ namespace dse::lua
 		return s;
 	}
 
+	LuaSerializer& operator << (LuaSerializer& s, std::string_view& v)
+	{
+		push(s.L, v);
+		return s;
+	}
+
 	LuaSerializer& operator << (LuaSerializer& s, char const*& v)
 	{
 		if (s.IsWriting) {

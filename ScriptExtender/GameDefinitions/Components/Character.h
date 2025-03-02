@@ -30,7 +30,7 @@ struct PlayerUpgrade : public ProtectedGameObject<PlayerUpgrade>
 struct PlayerCustomData : public ProtectedGameObject<PlayerCustomData>
 {
 	void* VMT;
-	bool Initialized;
+	bool Initialized; // If true, CustomIconImg will be used
 	bool CustomLookEnabled;
 	STDWString Name;
 	TranslatedString NameTranslated;
@@ -354,7 +354,7 @@ struct PlayerData : public ProtectedGameObject<PlayerData>
 	Map<ComponentHandle, int> AttitudeOverrideMap;
 	uint8_t SelectedSkillSet;
 	__int64 field_60;
-	char field_68;
+	bool HasLevelUpMarker;
 	PlayerCustomData CustomData;
 	char field_1C8;
 	__int64 field_1D0;

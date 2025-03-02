@@ -1247,6 +1247,14 @@
       <Target Type="Indirect" Offset="@ref" Symbol="AppInstance" /> <!-- App::Instance -->
     </Mapping>
 
+	<Mapping Name="AppMaybe">
+		@ref 48 8b 0d ?? ?? ?? ?? //      MOV        RCX,qword ptr [SomeMainGlobal]                   = ??
+		48 8b d7 //       MOV        RDX,RDI
+		48 8b 01 //       MOV        RAX,qword ptr [RCX]
+		ff 90 ?? ?? ?? ?? //      CALL       qword ptr [RAX + 0xc8]
+		<Target Type="Indirect" Offset="@ref" Symbol="AppMaybe" /> <!-- App::Instance -->
+	</Mapping>
+
     <Mapping Name="ls::ResourceManager::Instance">
       48 3B 9F C0 00 00 00  // cmp     rbx, [rdi+0C0h]
       7C ??  // jl      short xxx

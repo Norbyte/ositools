@@ -17,6 +17,7 @@
 #include <GameDefinitions/GameObjects/Camera.h>
 #include <GameDefinitions/GameObjects/Material.h>
 #include <GameDefinitions/GameObjects/Vision.h>
+#include <GameDefinitions/GameObjects/Render.h>
 
 namespace dse
 {
@@ -125,6 +126,7 @@ namespace dse
 		STDString** ls__PathRoots{ nullptr };
 
 		App** AppInstance{ nullptr };
+		rf::AppMaybe** AppMaybe{ nullptr };
 		App::VMT::OnInputEventProc* App__OnInputEvent{ nullptr };
 
 		ecl::EoCClient** ecl__EoCClient{ nullptr };

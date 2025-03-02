@@ -85,6 +85,7 @@ namespace dse
 		SYM_OFF(ls__PathRoots);
 
 		SYM_OFF(AppInstance);
+		SYM_OFF(AppMaybe);
 		SYM_OFF(App__OnInputEvent);
 
 		SYM_OFF(ecl__EoCClient);

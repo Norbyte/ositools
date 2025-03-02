@@ -18,6 +18,7 @@ END_CLS()
 
 
 BEGIN_CLS(eoc::PlayerCustomData)
+P_RO(Initialized)
 P_RO(CustomLookEnabled)
 P(Name)
 P_REF(NameTranslated)
