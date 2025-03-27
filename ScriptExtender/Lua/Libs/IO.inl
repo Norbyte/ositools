@@ -33,9 +33,9 @@ std::optional<STDString> LoadFile(char const* path, std::optional<FixedString> c
 	}
 }
 
-bool SaveFile(char const* path, char const* contents)
+bool SaveFile(char const* path, char const* contents, std::optional<int> contentLen)
 {
-	return script::SaveExternalFile(path, PathRootType::GameStorage, contents);
+	return script::SaveExternalFile(path, PathRootType::GameStorage, contentLen ? std::string_view(contents, contentLen.value()) : contents);
 }
 
 void AddPathOverride(char const* path, char const* overridePath)
