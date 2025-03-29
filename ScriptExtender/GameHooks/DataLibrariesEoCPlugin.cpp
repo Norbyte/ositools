@@ -224,7 +224,7 @@ void LibraryManager::FindServerGlobalsEoCPlugin()
 		if (i < std::size(GetStaticSymbols().ServerGlobals)) {
 			int32_t rel = *(int32_t const *)(match + 16);
 			uint8_t const * refTo = match + rel + 7 + 13;
-			GetStaticSymbols().ServerGlobals[i++] = (uint8_t const **)refTo;
+			GetStaticSymbols().ServerGlobals[i++] = (uint8_t* const *)refTo;
 		}
 
 		return Pattern::ScanAction::Continue;

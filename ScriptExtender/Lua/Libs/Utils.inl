@@ -288,6 +288,28 @@ GraphicSettings* GetGraphicSettings()
 	return *GetStaticSymbols().ls__GraphicSettings;
 }
 
+Array<STDString> GetCommandLineParams()
+{
+	Array<STDString> params;
+	auto cmdLine = ToUTF8(GetCommandLineW());
+
+	STDString::size_type pos{ 0 };
+	while (pos < cmdLine.size()) {
+		auto next = cmdLine.find(' ', pos);
+		if (next == STDString::npos) {
+			next = cmdLine.size();
+		}
+
+		auto arg = cmdLine.substr(pos, next - pos);
+		if (!arg.empty()) {
+			params.push_back(arg);
+		}
+		pos = next + 1;
+	}
+
+	return params;
+}
+
 void RegisterUtilsLib()
 {
 	DECLARE_MODULE(Utils, Both)
@@ -313,6 +335,7 @@ void RegisterUtilsLib()
 	MODULE_FUNCTION(ShowErrorAndExitGame)
 	MODULE_FUNCTION(GetGlobalSwitches)
 	MODULE_FUNCTION(GetGraphicSettings)
+	MODULE_FUNCTION(GetCommandLineParams)
 	END_MODULE()
 }
 

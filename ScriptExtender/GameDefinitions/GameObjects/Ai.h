@@ -50,46 +50,44 @@ namespace dse::eoc
 
     struct AiPath : public ProtectedGameObject<AiPath>
     {
-        bool field_0;
+        bool AddedToAiGrid;
         bool PathfindingComplete;
-        bool field_2;
-        bool field_3;
+        bool HasValidPath;
+        bool HasValidPathWithoutFit;
         bool field_4;
-        int field_8;
-        int field_C;
-        int field_10;
-        uint64_t Flags;
-        uint64_t Flags2;
+        float HeightDifference;
+        int AiTileIndex;
+        int AiTileIndex2;
+        uint64_t AiGridFlags;
+        uint64_t AiFlags;
         ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
-        int field_48;
-        int field_4C;
-        int field_50;
+        glm::ivec3 RadiusInAiGridCells;
         ComponentHandle AiHandle;
-        ComponentHandle TargetAiHandle_M;
+        ComponentHandle TargetAiHandle;
         PathParams* PathParams;
-        float RadiusX;
-        float field_74;
-        float RadiusZ;
+        glm::vec3 Radius;
         float CloseEnoughDistMax;
         float CloseEnoughDistMin;
         int TargetCheckType;
         float TelekinesisRange;
-        float StartingPosition[2];
-        float TargetPosition[2];
-        glm::vec3 AiBounds_M;
-        float Height_M;
+        glm::vec2 StartingPosition;
+        glm::vec2 TargetPosition;
+        glm::vec3 AiBounds;
+        float Height;
         int Horizon;
-        int field_B0;
-        int field_B4;
-        bool field_B8;
-        bool field_B9;
+        int Horizon2;
+        bool CanClimbLadders;
+        bool CanOpenDoors;
+        bool field_B7;
+        bool FindStraightPath;
+        bool UseCharacterRadius;
         eoc::VisionGrid* VisionGrid;
         int NetID;
-        ObjectSet<void*> Checkpoints; // AiPathCheckpoint*
-        ObjectSet<void*> Checkpoints2; // AiPathCheckpoint*
+        ObjectSet<AiPathCheckpoint> Checkpoints;
+        ObjectSet<AiPathCheckpoint> Checkpoints2;
         ObjectSet<bool> UnknownSet;
         ObjectSet<ComponentHandle> IgnoreCollision;
-        float FindPathStartPosition[2];
+        glm::vec2 FindPathStartPosition;
     };
 
     struct Ai : public ProtectedGameObject<Ai>

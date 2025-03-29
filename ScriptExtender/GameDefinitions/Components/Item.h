@@ -17,8 +17,8 @@ namespace dse
 		struct ItemDefinition
 		{
 			uint32_t Version{ 0x36060000 };
-			NetId NetID{ -1 };
-			NetId ItemNetId{ -1 };
+			NetId NetID{ NetId::Unassigned };
+			NetId ItemNetId{ NetId::Unassigned };
 			FixedString UUID;
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
 			FixedString RootTemplate;
@@ -29,8 +29,8 @@ namespace dse
 			uint32_t Unkn22[3]{ 0 };
 			glm::mat3 WorldRot;
 			float Scale_M{ 1.0 };
-			NetId InventoryNetID{ -1 };
-			NetId InventorySubContainerNetID{ -1 };
+			NetId InventoryNetID{ NetId::Unassigned };
+			NetId InventorySubContainerNetID{ NetId::Unassigned };
 			int16_t Slot{ 0 }; // -1 = Not in inventory
 			uint32_t Amount{ 1 };
 			int32_t GoldValueOverwrite{ -1 }; // -1 = Not overridden

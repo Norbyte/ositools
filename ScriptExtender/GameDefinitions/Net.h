@@ -88,8 +88,8 @@ namespace dse
 		{
 			Unhandled = 0,
 			Handled = 1,
-			Unknown2 = 2,
-			Unknown3 = 3
+			Abort = 2,
+			AbortAndDisconnect = 3
 		};
 
 		struct Protocol
