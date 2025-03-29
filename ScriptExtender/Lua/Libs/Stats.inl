@@ -930,6 +930,11 @@ UserReturn Get(lua_State * L, char const* statName, std::optional<int> level, st
 	}
 }
 
+stats::Object* GetRaw(lua_State* L, char const* statName, std::optional<bool> warnOnError)
+{
+	return StatFindObject(statName, warnOnError.value_or(true));
+}
+
 bool CopyStats(Object* obj, FixedString const& copyFrom)
 {
 	auto stats = GetStaticSymbols().GetStats();
@@ -1467,6 +1472,8 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(GetStatsLoadedBefore)
 	MODULE_FUNCTION(GetItemBaseStats)
 	MODULE_FUNCTION(Get)
+	MODULE_FUNCTION(GetRaw)
+	MODULE_NAMED_FUNCTION("GetForPip", GetRaw)
 	MODULE_FUNCTION(Create)
 	// TODO - move to stats object method
 	MODULE_FUNCTION(Sync)
