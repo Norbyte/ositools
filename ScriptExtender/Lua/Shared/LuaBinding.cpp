@@ -671,7 +671,7 @@ namespace dse::lua
 			.Position = position, 
 			.Radius = radius
 		};
-		ThrowEvent("GetSkillAPCost", params, false, RestrictAll);
+		ThrowEvent("GetSkillAPCost", params, false, 0);
 		if (params.AP && params.ElementalAffinity) {
 			return std::make_pair(*params.AP, *params.ElementalAffinity);
 		} else {
