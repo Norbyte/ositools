@@ -201,12 +201,12 @@ end
 
 -- Update version label with Script Extender version number when the main menu is rendered
 Ext.RegisterUITypeInvokeListener(28, "openMenu", function (menu, ...)
-    local ver = Ext.GameVersion() .. " (Script Extender v" .. Ext.Version() .. ", Pip Fork v" .. Ext.PipForkVersion .. ")"
+    local ver = Ext.GameVersion() .. " (Script Extender v" .. Ext.Version() .. ")"
     menu:Invoke("setDebugText", ver)
 end)
 
 Ext.RegisterUITypeInvokeListener(72, "openMenu", function (menu, ...)
-    local ver = Ext.GameVersion() .. " (Script Extender v" .. Ext.Version() .. ", Pip Fork v" .. Ext.PipForkVersion .. ")"
+    local ver = Ext.GameVersion() .. " (Script Extender v" .. Ext.Version() .. ")"
     menu:Invoke("setDebugText", ver)
 end)
 
