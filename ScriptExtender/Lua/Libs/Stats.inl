@@ -1478,7 +1478,11 @@ std::tuple<int32_t, bool> GetSkillAPCost(lua_State* L, ProxyParam<Character> sel
 		return {};
 	}
 
+#if defined(OSI_EOCAPP)
 	int32_t apCost = gExtender->GetEngineHooks().SkillPrototype__GetAttackAPCost.CallWithHooks(skillProto, self, level->AiGrid, &pos, &radius, &elementalAffinity);
+#else
+	int32_t apCost = gExtender->GetEngineHooks().SkillPrototype__GetAttackAPCost.CallWithHooks(skillProto, self, level->AiGrid, &pos, &radius, false, &elementalAffinity);
+#endif
 
 	return { apCost, elementalAffinity > 0 };
 }
