@@ -435,7 +435,9 @@ namespace dse
 
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
+			projectile->OnHitAction = this->WrappedHit;
 			lua->OnProjectileHit(projectile, hitObject, position);
+			projectile->OnHitAction = this;
 		}
 	}
 
@@ -447,17 +449,16 @@ namespace dse
 		}
 	}
 
-	int esv::ProxyProjectileHit::GetTypeId()
+	ProjectileOnHitActionType esv::ProxyProjectileHit::GetTypeId()
 	{
 		if (WrappedHit) {
 			return WrappedHit->GetTypeId();
 		} else {
 			// Use nonexistent ID to prevent instantiation after reload if our hook
 			// somehow got into a savegame.
-			return 255;
+			return ProjectileOnHitActionType::None;
 		}
 	}
-
 
 	void PendingStatuses::Add(esv::Status * status)
 	{

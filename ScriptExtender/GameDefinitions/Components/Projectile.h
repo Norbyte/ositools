@@ -18,7 +18,7 @@ namespace dse
             virtual void Destroy(bool b) = 0;
             virtual void OnHit(glm::vec3 const& position, ComponentHandle const& objectHandle, Projectile* projectile) = 0;
             virtual void Visit(ObjectVisitor* visitor) = 0;
-            virtual int GetTypeId() = 0;
+            virtual ProjectileOnHitActionType GetTypeId() = 0;
 
             ComponentHandle CasterHandle;
             int Level{ -1 };
@@ -26,12 +26,33 @@ namespace dse
             FixedString SkillId;
         };
 
+        struct ForkOnHit : DefaultProjectileHit
+        {
+            int ForkCount{ -1 };
+            int ForkLevels{ -1 };
+            ObjectSet<ComponentHandle> HitTargets;
+        };
+
+        struct PierceOnHit : DefaultProjectileHit
+        {
+            int PierceCount{ -1 };
+            glm::vec3 Direction{ .0f };
+            ObjectSet<ComponentHandle> HitTargets;
+        };
+
+        struct SummonOnHit : DefaultProjectileHit
+        {
+            FixedString SpawnEffect;
+            FixedString SpawnObject;
+            float SpawnLifetime{ 0.0f };
+        };
+
         struct ProxyProjectileHit : DefaultProjectileHit
         {
             void Destroy(bool b) override;
             void OnHit(glm::vec3 const& position, ComponentHandle const& objectHandle, Projectile* projectile) override;
             void Visit(ObjectVisitor* visitor) override;
-            int GetTypeId() override;
+            ProjectileOnHitActionType GetTypeId() override;
 
             DefaultProjectileHit* WrappedHit{ nullptr };
         };

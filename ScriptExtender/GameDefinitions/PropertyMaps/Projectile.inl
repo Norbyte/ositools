@@ -31,6 +31,31 @@ P(CasterHandle)
 P(Level)
 P(IsFromItem)
 P(SkillId)
+P_GETTER(Type, GetTypeId)
+END_CLS()
+
+
+BEGIN_CLS(esv::ForkOnHit)
+INHERIT(esv::DefaultProjectileHit)
+P(ForkCount)
+P(ForkLevels)
+P_RO(HitTargets)
+END_CLS()
+
+
+BEGIN_CLS(esv::PierceOnHit)
+INHERIT(esv::DefaultProjectileHit)
+P(PierceCount)
+P(Direction)
+P_RO(HitTargets)
+END_CLS()
+
+
+BEGIN_CLS(esv::SummonOnHit)
+INHERIT(esv::DefaultProjectileHit)
+P(SpawnEffect)
+P(SpawnObject)
+P(SpawnLifetime)
 END_CLS()
 
 

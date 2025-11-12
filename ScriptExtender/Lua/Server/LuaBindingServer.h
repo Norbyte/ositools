@@ -44,6 +44,7 @@ LUA_POLYMORPHIC(aspk::Property)
 LUA_POLYMORPHIC(aspk::FloatKeyFrameData)
 LUA_POLYMORPHIC(MoveableObject)
 LUA_POLYMORPHIC(RenderableObject)
+LUA_POLYMORPHIC(esv::DefaultProjectileHit)
 
 void RegisterLibraries();
 void RegisterSharedMetatables(lua_State* L);
