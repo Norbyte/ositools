@@ -189,7 +189,9 @@ void LuaPolymorphic<GameObjectTemplate>::MakeRef(lua_State* L, GameObjectTemplat
 	MAKE_REF(strlight, LightTemplate)
 	MAKE_REF(strwallconstruction, WallConstructionTemplate)
 
+#if !defined(NDEBUG)
 	OsiError("Creating Lua proxy for unknown template type " << *type);
+#endif
 	MakeDirectObjectRef(L, lifetime, obj);
 }
 
