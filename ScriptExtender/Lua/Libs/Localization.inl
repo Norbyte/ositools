@@ -8,6 +8,9 @@ BEGIN_NS(lua::loca)
 STDString GetTranslatedString(lua_State* L, char const* translatedStringKey, std::optional<char const*> fallbackText)
 {
 	STDWString translated;
+	if (fallbackText) {
+		translated = FromUTF8(fallbackText.value()); // Must be populated in case the TSK is not in the repo, as GetTranslatedString will still return true in that case
+	}
 	if (script::GetTranslatedString(translatedStringKey, translated)) {
 		return ToUTF8(translated);
 	} else {

@@ -193,19 +193,39 @@ bool GetTranslatedString(char const* handle, STDWString& translated)
 	RuntimeStringHandle runtimeString;
 	runtimeString.Handle = key;
 	uint64_t length{ 0 };
-	auto translatedString = getter(repo, &runtimeString, &length, 0, 0, true);
 
-	if (translatedString && !translatedString->empty()) {
-		translated = *translatedString;
-		return true;
+	// Check if the handle is registered in the repo
+	// String keys that have handles associated in LSBs but not present in localization xmls will not be present in the repo,
+	// and would bug out the handle if fetched from it
+	bool foundInRepo = false;
+	for (int i = 0; i < 4; i++) {
+		if (repo->TranslatedStrings[i]->find(key) || repo->TranslatedStringOverrides[i]->find(key)) {
+			foundInRepo = true;
+			break;
+		}
+	}
+
+	if (foundInRepo) {
+		// Fetch the actual localized string from the repo
+		// Should not be done if the string was not in the repo,
+		// as this would register a new empty string with that handle
+		auto translatedString = getter(repo, &runtimeString, &length, 0, 0, true);
+
+		if (translatedString && !translatedString->empty()) {
+			translated = *translatedString;
+			return true;
+		} else {
+			return false;
+		}
 	} else {
-		return false;
+		// The string was not in the repo; use the reference string
+		return true;
 	}
 }
 
 bool GetTranslatedString(char const* handle, char const* fallback, TranslatedString& translated)
 {
-	STDWString ts;
+	STDWString ts(FromUTF8(fallback));
 	if (GetTranslatedString(handle, ts)) {
 		translated.Handle.Handle = FixedString(handle);
 		translated.Handle.ReferenceString = ts;
